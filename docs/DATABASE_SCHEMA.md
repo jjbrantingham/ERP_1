@@ -143,8 +143,18 @@ CREATE TABLE pm.WorkBreakdownStructure (
     Description NVARCHAR(MAX) NULL,
     BudgetAmount DECIMAL(18,2) NOT NULL DEFAULT 0,
     BudgetCurrency NCHAR(3) NOT NULL DEFAULT 'USD',
-    Level INT NOT NULL,
+    Level INT NOT NULL, -- 1=Project, 2=Phase, 3=Task
     SortOrder INT NOT NULL,
+
+    -- Resource Planning Fields
+    ScheduledStartDate DATE NULL,
+    ScheduledEndDate DATE NULL,
+    ActualStartDate DATE NULL,
+    ActualEndDate DATE NULL,
+    EstimatedHours DECIMAL(10,2) NOT NULL DEFAULT 0,
+    ActualHours DECIMAL(10,2) NOT NULL DEFAULT 0,
+    Status TINYINT NOT NULL DEFAULT 1, -- 1=NotStarted, 2=InProgress, 3=Completed, 4=OnHold, 5=Cancelled
+
     CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
     CreatedBy NVARCHAR(100) NOT NULL,
     ModifiedDate DATETIME2 NULL,
@@ -152,12 +162,145 @@ CREATE TABLE pm.WorkBreakdownStructure (
     CONSTRAINT FK_WBS_Projects FOREIGN KEY (ProjectId) REFERENCES pm.Projects(ProjectId) ON DELETE CASCADE,
     CONSTRAINT FK_WBS_ParentWBS FOREIGN KEY (ParentWBSItemId) REFERENCES pm.WorkBreakdownStructure(WBSItemId),
     CONSTRAINT FK_WBS_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants(TenantId),
-    CONSTRAINT UQ_WBS_ProjectId_Code UNIQUE (ProjectId, Code)
+    CONSTRAINT UQ_WBS_ProjectId_Code UNIQUE (ProjectId, Code),
+    CONSTRAINT CK_WBS_ScheduledDates CHECK (ScheduledEndDate IS NULL OR ScheduledStartDate IS NULL OR ScheduledEndDate >= ScheduledStartDate),
+    CONSTRAINT CK_WBS_Level CHECK (Level BETWEEN 1 AND 3)
 );
 
 CREATE INDEX IX_WBS_TenantId ON pm.WorkBreakdownStructure(TenantId);
 CREATE INDEX IX_WBS_ProjectId ON pm.WorkBreakdownStructure(ProjectId);
 CREATE INDEX IX_WBS_ParentWBSItemId ON pm.WorkBreakdownStructure(ParentWBSItemId);
+CREATE INDEX IX_WBS_ScheduledDates ON pm.WorkBreakdownStructure(ScheduledStartDate, ScheduledEndDate);
+CREATE INDEX IX_WBS_Status ON pm.WorkBreakdownStructure(Status);
+```
+
+### pm.WBSDependencies
+```sql
+CREATE TABLE pm.WBSDependencies (
+    DependencyId BIGINT PRIMARY KEY IDENTITY(1,1),
+    TenantId UNIQUEIDENTIFIER NOT NULL,
+    SuccessorWBSItemId BIGINT NOT NULL,
+    PredecessorWBSItemId BIGINT NOT NULL,
+    DependencyType TINYINT NOT NULL, -- 1=FinishToStart, 2=StartToStart, 3=FinishToFinish, 4=StartToFinish
+    LagDays INT NOT NULL DEFAULT 0, -- Positive for delay, negative for overlap
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    CreatedBy NVARCHAR(100) NOT NULL,
+    CONSTRAINT FK_WBSDependencies_Successor FOREIGN KEY (SuccessorWBSItemId) REFERENCES pm.WorkBreakdownStructure(WBSItemId),
+    CONSTRAINT FK_WBSDependencies_Predecessor FOREIGN KEY (PredecessorWBSItemId) REFERENCES pm.WorkBreakdownStructure(WBSItemId),
+    CONSTRAINT FK_WBSDependencies_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants(TenantId),
+    CONSTRAINT UQ_WBSDependencies UNIQUE (SuccessorWBSItemId, PredecessorWBSItemId),
+    CONSTRAINT CK_WBSDependencies_NoSelfReference CHECK (SuccessorWBSItemId <> PredecessorWBSItemId)
+);
+
+CREATE INDEX IX_WBSDependencies_TenantId ON pm.WBSDependencies(TenantId);
+CREATE INDEX IX_WBSDependencies_Successor ON pm.WBSDependencies(SuccessorWBSItemId);
+CREATE INDEX IX_WBSDependencies_Predecessor ON pm.WBSDependencies(PredecessorWBSItemId);
+```
+
+### pm.WBSResourceAssignments
+```sql
+CREATE TABLE pm.WBSResourceAssignments (
+    AssignmentId BIGINT PRIMARY KEY IDENTITY(1,1),
+    TenantId UNIQUEIDENTIFIER NOT NULL,
+    WBSItemId BIGINT NOT NULL,
+    EmployeeId BIGINT NULL, -- NULL if generic resource
+    GenericResourceTypeId INT NULL, -- For placeholder resources
+    GenericResourceName NVARCHAR(100) NULL, -- e.g., "Senior Developer"
+
+    -- Assignment Type and Values
+    AssignmentType TINYINT NOT NULL, -- 1=TotalHours, 2=HoursPerWeek, 3=Budget
+    AssignmentValue DECIMAL(18,2) NOT NULL,
+    CalculatedTotalHours DECIMAL(10,2) NOT NULL,
+    CalculatedBudgetAmount DECIMAL(18,2) NOT NULL,
+    CalculatedBudgetCurrency NCHAR(3) NOT NULL DEFAULT 'USD',
+
+    -- Scheduling
+    StartDate DATE NOT NULL,
+    EndDate DATE NOT NULL,
+    AllocationPercentage DECIMAL(5,2) NOT NULL DEFAULT 100, -- % of resource's time
+
+    -- Rates at time of assignment (frozen rates)
+    CostRate DECIMAL(18,2) NOT NULL,
+    BillingRate DECIMAL(18,2) NOT NULL,
+    RateCurrency NCHAR(3) NOT NULL DEFAULT 'USD',
+
+    -- Status
+    Status TINYINT NOT NULL DEFAULT 1, -- 1=Planned, 2=Confirmed, 3=InProgress, 4=Completed, 5=Cancelled
+    IsGeneric BIT NOT NULL DEFAULT 0, -- True if not assigned to specific employee
+
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    CreatedBy NVARCHAR(100) NOT NULL,
+    ModifiedDate DATETIME2 NULL,
+    ModifiedBy NVARCHAR(100) NULL,
+    RowVersion ROWVERSION,
+
+    CONSTRAINT FK_WBSResourceAssignments_WBS FOREIGN KEY (WBSItemId) REFERENCES pm.WorkBreakdownStructure(WBSItemId) ON DELETE CASCADE,
+    CONSTRAINT FK_WBSResourceAssignments_Employees FOREIGN KEY (EmployeeId) REFERENCES hr.Employees(EmployeeId),
+    CONSTRAINT FK_WBSResourceAssignments_GenericResourceTypes FOREIGN KEY (GenericResourceTypeId) REFERENCES hr.ResourceTypes(ResourceTypeId),
+    CONSTRAINT FK_WBSResourceAssignments_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants(TenantId),
+    CONSTRAINT CK_WBSResourceAssignments_Resource CHECK (
+        (IsGeneric = 0 AND EmployeeId IS NOT NULL AND GenericResourceTypeId IS NULL AND GenericResourceName IS NULL) OR
+        (IsGeneric = 1 AND EmployeeId IS NULL AND (GenericResourceTypeId IS NOT NULL OR GenericResourceName IS NOT NULL))
+    ),
+    CONSTRAINT CK_WBSResourceAssignments_Dates CHECK (EndDate >= StartDate),
+    CONSTRAINT CK_WBSResourceAssignments_Allocation CHECK (AllocationPercentage > 0 AND AllocationPercentage <= 100)
+);
+
+CREATE INDEX IX_WBSResourceAssignments_TenantId ON pm.WBSResourceAssignments(TenantId);
+CREATE INDEX IX_WBSResourceAssignments_WBSItemId ON pm.WBSResourceAssignments(WBSItemId);
+CREATE INDEX IX_WBSResourceAssignments_EmployeeId ON pm.WBSResourceAssignments(EmployeeId);
+CREATE INDEX IX_WBSResourceAssignments_Status ON pm.WBSResourceAssignments(Status);
+CREATE INDEX IX_WBSResourceAssignments_Dates ON pm.WBSResourceAssignments(StartDate, EndDate);
+CREATE INDEX IX_WBSResourceAssignments_IsGeneric ON pm.WBSResourceAssignments(IsGeneric) WHERE IsGeneric = 1;
+```
+
+### pm.ResourceCapacity
+```sql
+CREATE TABLE pm.ResourceCapacity (
+    CapacityId BIGINT PRIMARY KEY IDENTITY(1,1),
+    TenantId UNIQUEIDENTIFIER NOT NULL,
+    EmployeeId BIGINT NOT NULL,
+    WeekStartDate DATE NOT NULL, -- Start of week (Monday)
+    TotalAvailableHours DECIMAL(10,2) NOT NULL, -- Total hours available in week (typically 40)
+    AllocatedHours DECIMAL(10,2) NOT NULL DEFAULT 0, -- Hours allocated across all assignments
+    UtilizationPercentage DECIMAL(5,2) NOT NULL DEFAULT 0, -- Allocated / Available * 100
+
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    ModifiedDate DATETIME2 NULL,
+
+    CONSTRAINT FK_ResourceCapacity_Employees FOREIGN KEY (EmployeeId) REFERENCES hr.Employees(EmployeeId) ON DELETE CASCADE,
+    CONSTRAINT FK_ResourceCapacity_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants(TenantId),
+    CONSTRAINT UQ_ResourceCapacity UNIQUE (TenantId, EmployeeId, WeekStartDate),
+    CONSTRAINT CK_ResourceCapacity_Hours CHECK (AllocatedHours >= 0 AND TotalAvailableHours > 0)
+);
+
+CREATE INDEX IX_ResourceCapacity_TenantId ON pm.ResourceCapacity(TenantId);
+CREATE INDEX IX_ResourceCapacity_EmployeeId ON pm.ResourceCapacity(EmployeeId);
+CREATE INDEX IX_ResourceCapacity_WeekStartDate ON pm.ResourceCapacity(WeekStartDate);
+CREATE INDEX IX_ResourceCapacity_Overallocated ON pm.ResourceCapacity(UtilizationPercentage) WHERE UtilizationPercentage > 100;
+```
+
+### pm.CapacityAllocations
+```sql
+CREATE TABLE pm.CapacityAllocations (
+    AllocationId BIGINT PRIMARY KEY IDENTITY(1,1),
+    CapacityId BIGINT NOT NULL,
+    WBSAssignmentId BIGINT NOT NULL,
+    ProjectId BIGINT NOT NULL,
+    WBSItemId BIGINT NOT NULL,
+    ProjectName NVARCHAR(200) NOT NULL,
+    WBSItemName NVARCHAR(200) NOT NULL,
+    AllocatedHours DECIMAL(10,2) NOT NULL,
+
+    CONSTRAINT FK_CapacityAllocations_Capacity FOREIGN KEY (CapacityId) REFERENCES pm.ResourceCapacity(CapacityId) ON DELETE CASCADE,
+    CONSTRAINT FK_CapacityAllocations_Assignment FOREIGN KEY (WBSAssignmentId) REFERENCES pm.WBSResourceAssignments(AssignmentId),
+    CONSTRAINT FK_CapacityAllocations_Projects FOREIGN KEY (ProjectId) REFERENCES pm.Projects(ProjectId),
+    CONSTRAINT FK_CapacityAllocations_WBS FOREIGN KEY (WBSItemId) REFERENCES pm.WorkBreakdownStructure(WBSItemId)
+);
+
+CREATE INDEX IX_CapacityAllocations_CapacityId ON pm.CapacityAllocations(CapacityId);
+CREATE INDEX IX_CapacityAllocations_WBSAssignmentId ON pm.CapacityAllocations(WBSAssignmentId);
+CREATE INDEX IX_CapacityAllocations_ProjectId ON pm.CapacityAllocations(ProjectId);
 ```
 
 ### pm.Contracts

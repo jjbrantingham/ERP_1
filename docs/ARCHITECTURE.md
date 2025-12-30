@@ -36,9 +36,12 @@ The application will follow DDD principles with clear bounded contexts:
 
 1. **Project Management Context**
    - Projects (Billable, Overhead, Proposal)
-   - Work Breakdown Structure (WBS)
+   - Work Breakdown Structure (WBS) with 3 configurable levels
    - Contracts
-   - Resource Allocation
+   - Resource Planning & Scheduling (Gantt Chart)
+   - Resource Allocation (Drag-and-drop, Grid-based)
+   - Capacity Planning & Utilization Tracking
+   - WBS Dependencies & Critical Path
 
 2. **Human Resources Context**
    - Employees

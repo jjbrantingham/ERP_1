@@ -81,8 +81,81 @@ public class WorkBreakdownStructureItem : Entity
     public string Description { get; private set; }
     public WBSItemId? ParentId { get; private set; }
     public Money Budget { get; private set; }
-    public int Level { get; private set; }
+    public int Level { get; private set; } // 1=Project, 2=Phase, 3=Task
     public int SortOrder { get; private set; }
+
+    // Resource Planning Fields
+    public DateTime? ScheduledStartDate { get; private set; }
+    public DateTime? ScheduledEndDate { get; private; }
+    public DateTime? ActualStartDate { get; private set; }
+    public DateTime? ActualEndDate { get; private set; }
+    public decimal EstimatedHours { get; private set; }
+    public decimal ActualHours { get; private set; }
+    public WBSStatus Status { get; private set; } // NotStarted, InProgress, Completed
+
+    // Dependencies for Gantt chart
+    private readonly List<WBSDependency> _dependencies;
+    public IReadOnlyCollection<WBSDependency> Dependencies => _dependencies.AsReadOnly();
+
+    // Resource assignments
+    private readonly List<WBSResourceAssignment> _resourceAssignments;
+    public IReadOnlyCollection<WBSResourceAssignment> ResourceAssignments => _resourceAssignments.AsReadOnly();
+
+    // Methods
+    public void ScheduleWork(DateTime startDate, DateTime endDate, decimal estimatedHours);
+    public void AssignResource(EmployeeId employeeId, ResourceAssignmentType assignmentType, decimal value);
+    public void AddDependency(WBSItemId predecessorId, DependencyType dependencyType);
+    public void UpdateProgress(decimal actualHours, WBSStatus status);
+}
+```
+
+#### WBSDependency
+```csharp
+public class WBSDependency : Entity
+{
+    public DependencyId Id { get; private set; }
+    public WBSItemId SuccessorId { get; private set; }
+    public WBSItemId PredecessorId { get; private set; }
+    public DependencyType Type { get; private set; } // FinishToStart, StartToStart, FinishToFinish, StartToFinish
+    public int LagDays { get; private set; } // Positive for delay, negative for overlap
+}
+```
+
+#### WBSResourceAssignment (Aggregate Root for Resource Planning)
+```csharp
+public class WBSResourceAssignment : AggregateRoot
+{
+    public AssignmentId Id { get; private set; }
+    public WBSItemId WBSItemId { get; private set; }
+    public EmployeeId? EmployeeId { get; private set; } // Null if generic resource
+    public ResourceTypeId? GenericResourceTypeId { get; private set; } // For placeholder resources
+    public string GenericResourceName { get; private set; } // e.g., "Senior Developer"
+
+    // Assignment Type and Values
+    public ResourceAssignmentType AssignmentType { get; private set; } // TotalHours, HoursPerWeek, Budget
+    public decimal AssignmentValue { get; private set; }
+    public decimal CalculatedTotalHours { get; private set; }
+    public Money CalculatedBudget { get; private set; }
+
+    // Scheduling
+    public DateTime StartDate { get; private set; }
+    public DateTime EndDate { get; private set; }
+    public decimal AllocationPercentage { get; private set; } // % of resource's time
+
+    // Rates at time of assignment
+    public Money CostRate { get; private set; }
+    public Money BillingRate { get; private set; }
+
+    // Status
+    public AssignmentStatus Status { get; private set; } // Planned, Confirmed, InProgress, Completed
+    public bool IsGeneric { get; private set; } // True if not assigned to specific employee
+
+    // Methods
+    public void AssignToEmployee(EmployeeId employeeId, Money costRate, Money billingRate);
+    public void ConvertFromGeneric(EmployeeId employeeId, Money costRate, Money billingRate);
+    public void UpdateSchedule(DateTime startDate, DateTime endDate);
+    public void UpdateAssignment(ResourceAssignmentType type, decimal value);
+    public void CalculateHoursAndBudget();
 }
 ```
 
@@ -96,6 +169,45 @@ public class ProjectResourceAllocation : Entity
     public decimal AllocationPercentage { get; private set; }
     public DateRange AllocationPeriod { get; private set; }
     public Money BillingRate { get; private set; }
+}
+```
+
+#### ResourceCapacity (Aggregate Root for capacity planning)
+```csharp
+public class ResourceCapacity : AggregateRoot
+{
+    public CapacityId Id { get; private set; }
+    public EmployeeId EmployeeId { get; private set; }
+    public DateTime WeekStartDate { get; private set; } // Start of week for capacity calculation
+    public decimal TotalAvailableHours { get; private set; } // Total hours available in week
+    public decimal AllocatedHours { get; private set; } // Hours allocated across all assignments
+    public decimal UtilizationPercentage { get; private set; } // Allocated / Available * 100
+
+    private readonly List<CapacityAllocation> _allocations;
+    public IReadOnlyCollection<CapacityAllocation> Allocations => _allocations.AsReadOnly();
+
+    public bool IsOverallocated => UtilizationPercentage > 100;
+    public bool IsNearCapacity => UtilizationPercentage > 85 && UtilizationPercentage <= 100;
+    public decimal RemainingHours => TotalAvailableHours - AllocatedHours;
+
+    // Methods
+    public void AddAllocation(ProjectId projectId, WBSItemId wbsItemId, decimal hours);
+    public void RemoveAllocation(AssignmentId assignmentId);
+    public void RecalculateCapacity();
+}
+```
+
+#### CapacityAllocation
+```csharp
+public class CapacityAllocation : Entity
+{
+    public AllocationId Id { get; private set; }
+    public AssignmentId WBSAssignmentId { get; private set; }
+    public ProjectId ProjectId { get; private set; }
+    public WBSItemId WBSItemId { get; private set; }
+    public string ProjectName { get; private set; }
+    public string WBSItemName { get; private set; }
+    public decimal AllocatedHours { get; private set; }
 }
 ```
 
@@ -150,6 +262,39 @@ public enum ContractType
     Retainer,
     MilestoneBased
 }
+
+public enum WBSStatus
+{
+    NotStarted,
+    InProgress,
+    Completed,
+    OnHold,
+    Cancelled
+}
+
+public enum DependencyType
+{
+    FinishToStart,   // Predecessor must finish before successor starts (most common)
+    StartToStart,    // Predecessor must start before successor starts
+    FinishToFinish,  // Predecessor must finish before successor finishes
+    StartToFinish    // Predecessor must start before successor finishes (rare)
+}
+
+public enum ResourceAssignmentType
+{
+    TotalHours,      // Assign X total hours to complete the work
+    HoursPerWeek,    // Assign X hours per week over the duration
+    Budget           // Assign $X budget (converted to hours using rate)
+}
+
+public enum AssignmentStatus
+{
+    Planned,         // Assignment created but not confirmed
+    Confirmed,       // Resource confirmed for assignment
+    InProgress,      // Work has started
+    Completed,       // Work completed
+    Cancelled        // Assignment cancelled
+}
 ```
 
 ### Domain Events
@@ -172,6 +317,50 @@ public class ProjectCompletedEvent : DomainEvent
 {
     public ProjectId ProjectId { get; }
     public DateTime CompletionDate { get; }
+}
+
+public class WBSResourceAssignedEvent : DomainEvent
+{
+    public AssignmentId AssignmentId { get; }
+    public WBSItemId WBSItemId { get; }
+    public EmployeeId? EmployeeId { get; }
+    public bool IsGeneric { get; }
+    public decimal TotalHours { get; }
+    public DateTime StartDate { get; }
+    public DateTime EndDate { get; }
+}
+
+public class ResourceConvertedFromGenericEvent : DomainEvent
+{
+    public AssignmentId AssignmentId { get; }
+    public WBSItemId WBSItemId { get; }
+    public EmployeeId EmployeeId { get; }
+    public string EmployeeName { get; }
+}
+
+public class WBSScheduleChangedEvent : DomainEvent
+{
+    public WBSItemId WBSItemId { get; }
+    public DateTime OldStartDate { get; }
+    public DateTime OldEndDate { get; }
+    public DateTime NewStartDate { get; }
+    public DateTime NewEndDate { get; }
+}
+
+public class ResourceOverallocatedEvent : DomainEvent
+{
+    public EmployeeId EmployeeId { get; }
+    public DateTime WeekStartDate { get; }
+    public decimal AllocatedHours { get; }
+    public decimal AvailableHours { get; }
+    public decimal UtilizationPercentage { get; }
+}
+
+public class WBSDependencyAddedEvent : DomainEvent
+{
+    public WBSItemId SuccessorId { get; }
+    public WBSItemId PredecessorId { get; }
+    public DependencyType DependencyType { get; }
 }
 ```
 

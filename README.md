@@ -7,6 +7,7 @@ A comprehensive Enterprise Resource Planning (ERP) SaaS solution designed specif
 This ERP system provides complete business management capabilities including:
 
 - **Project Management** - Manage billable, overhead, and proposal projects with WBS and contracts
+- **Resource Planning** - Gantt chart scheduling, drag-and-drop resource assignment, capacity planning with visual heatmaps
 - **Human Resources** - Employee management with resource types and rate tracking
 - **Client & Contact Management** - Full CRM capabilities
 - **Vendor Management** - Contractor and vendor relationship management
@@ -67,6 +68,7 @@ ERP_1/
 - **[Architecture Plan](docs/ARCHITECTURE.md)** - Comprehensive architectural design including technology stack, patterns, and infrastructure
 - **[Domain Model](docs/DOMAIN_MODEL.md)** - Detailed domain model design with all aggregates, entities, and value objects
 - **[Database Schema](docs/DATABASE_SCHEMA.md)** - Complete database schema with all tables, relationships, and indexes
+- **[Resource Planning UI](docs/RESOURCE_PLANNING_UI.md)** - Gantt chart, resource assignment, and capacity planning UI specifications
 - **[Implementation Roadmap](docs/IMPLEMENTATION_ROADMAP.md)** - 11-phase implementation plan spanning 48 weeks
 - **[Skills Suggestions](docs/SKILLS_SUGGESTIONS.md)** - Recommended Claude Code skills for streamlined development
 - **[Claude Configuration](CLAUDE.md)** - Development guidelines and coding standards for Claude Code
@@ -149,6 +151,21 @@ The application is organized into 8 bounded contexts:
 - **Percent Complete** - Bill based on project completion percentage
 - **Milestone-Based** - Bill when specific milestones are achieved
 - **Retainer** - Monthly recurring billing
+
+### Resource Planning & Scheduling
+- **Gantt Chart View** - Visual project timeline with WBS dependencies
+- **Configurable WBS Levels** - 3-level hierarchy (Project, Phase, Task)
+- **Resource Assignment Methods**:
+  - Total Hours - Assign total hours to complete work
+  - Hours Per Week - Assign hours per week over duration
+  - Budget-Based - Convert budget to hours using rates
+- **Drag-and-Drop Interface** - Assign resources via drag-and-drop or grid
+- **Generic Resources** - Placeholder resources (e.g., "Senior Developer TBH")
+- **Capacity Planning** - Visual heatmaps showing resource utilization
+- **Overallocation Alerts** - Automatic detection and notifications
+- **Real-Time Collaboration** - Live updates via SignalR
+- **Dependency Management** - Finish-to-Start, Start-to-Start, Finish-to-Finish, Start-to-Finish
+- **Critical Path Analysis** - Identify tasks that impact project completion
 
 ### Financial Management
 - Double-entry bookkeeping
