@@ -2,6 +2,7 @@ using System.Reflection;
 using ERP.Application.Common.Interfaces;
 using ERP.Domain.Common;
 using ERP.Domain.Common.Entities;
+using ERP.Domain.CRM.Entities;
 using ERP.Domain.HR.Entities;
 using ERP.Domain.Identity.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +43,9 @@ public class ERPDbContext : DbContext
     public DbSet<Rate> Rates => Set<Rate>();
 
     // Customer Relationship (crm schema)
-    // public DbSet<Client> Clients => Set<Client>();
+    public DbSet<Client> Clients => Set<Client>();
+    public DbSet<Contact> Contacts => Set<Contact>();
+    public DbSet<Note> Notes => Set<Note>();
 
     // Vendor Management (vm schema)
     // public DbSet<Vendor> Vendors => Set<Vendor>();

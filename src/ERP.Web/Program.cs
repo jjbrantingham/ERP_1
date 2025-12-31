@@ -1,7 +1,10 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.CRM.Commands;
+using ERP.Application.CRM.Queries;
 using ERP.Application.HR.Commands;
 using ERP.Application.HR.Queries;
 using ERP.Application.Identity.Commands;
+using ERP.Domain.CRM.Repositories;
 using ERP.Domain.HR.Repositories;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Persistence.Repositories;
@@ -98,6 +101,11 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IResourceTypeRepository, ResourceTypeRepository>();
 builder.Services.AddScoped<IRateRepository, RateRepository>();
 
+// CRM repositories
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<IContactRepository, ContactRepository>();
+builder.Services.AddScoped<INoteRepository, NoteRepository>();
+
 // Will add more repositories as we build modules
 // builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 
@@ -122,6 +130,17 @@ builder.Services.AddScoped<GetEmployeeByIdQueryHandler>();
 builder.Services.AddScoped<GetAllEmployeesQueryHandler>();
 builder.Services.AddScoped<GetAllResourceTypesQueryHandler>();
 builder.Services.AddScoped<GetEmployeeRatesQueryHandler>();
+
+// CRM command handlers
+builder.Services.AddScoped<CreateClientCommandHandler>();
+builder.Services.AddScoped<CreateContactCommandHandler>();
+builder.Services.AddScoped<CreateNoteCommandHandler>();
+
+// CRM query handlers
+builder.Services.AddScoped<GetClientByIdQueryHandler>();
+builder.Services.AddScoped<GetAllClientsQueryHandler>();
+builder.Services.AddScoped<GetClientContactsQueryHandler>();
+builder.Services.AddScoped<GetClientNotesQueryHandler>();
 
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();
