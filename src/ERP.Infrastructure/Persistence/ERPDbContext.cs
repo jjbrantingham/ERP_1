@@ -6,6 +6,7 @@ using ERP.Domain.CRM.Entities;
 using ERP.Domain.HR.Entities;
 using ERP.Domain.Identity.Entities;
 using ERP.Domain.PM.Entities;
+using ERP.Domain.TE.Entities;
 using ERP.Domain.VM.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -57,7 +58,10 @@ public class ERPDbContext : DbContext
     public DbSet<VendorNote> VendorNotes => Set<VendorNote>();
 
     // Time & Expense (te schema)
-    // public DbSet<Timesheet> Timesheets => Set<Timesheet>();
+    public DbSet<Timesheet> Timesheets => Set<Timesheet>();
+    public DbSet<TimesheetEntry> TimesheetEntries => Set<TimesheetEntry>();
+    public DbSet<ExpenseReport> ExpenseReports => Set<ExpenseReport>();
+    public DbSet<ExpenseItem> ExpenseItems => Set<ExpenseItem>();
 
     // Financial Management (fin schema)
     // public DbSet<Account> Accounts => Set<Account>();

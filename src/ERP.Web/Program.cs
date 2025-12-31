@@ -6,11 +6,14 @@ using ERP.Application.HR.Queries;
 using ERP.Application.Identity.Commands;
 using ERP.Application.PM.Commands;
 using ERP.Application.PM.Queries;
+using ERP.Application.TE.Commands;
+using ERP.Application.TE.Queries;
 using ERP.Application.VM.Commands;
 using ERP.Application.VM.Queries;
 using ERP.Domain.CRM.Repositories;
 using ERP.Domain.HR.Repositories;
 using ERP.Domain.PM.Repositories;
+using ERP.Domain.TE.Repositories;
 using ERP.Domain.VM.Repositories;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Persistence.Repositories;
@@ -122,6 +125,10 @@ builder.Services.AddScoped<IVendorRepository, VendorRepository>();
 builder.Services.AddScoped<IVendorContactRepository, VendorContactRepository>();
 builder.Services.AddScoped<IVendorNoteRepository, VendorNoteRepository>();
 
+// TE repositories
+builder.Services.AddScoped<ITimesheetRepository, TimesheetRepository>();
+builder.Services.AddScoped<IExpenseReportRepository, ExpenseReportRepository>();
+
 // Register authentication services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -176,6 +183,14 @@ builder.Services.AddScoped<GetVendorByIdQueryHandler>();
 builder.Services.AddScoped<GetAllVendorsQueryHandler>();
 builder.Services.AddScoped<GetVendorContactsQueryHandler>();
 builder.Services.AddScoped<GetVendorNotesQueryHandler>();
+
+// TE command handlers
+builder.Services.AddScoped<CreateTimesheetCommandHandler>();
+builder.Services.AddScoped<CreateExpenseReportCommandHandler>();
+
+// TE query handlers
+builder.Services.AddScoped<GetTimesheetByIdQueryHandler>();
+builder.Services.AddScoped<GetExpenseReportByIdQueryHandler>();
 
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();
