@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Identity.Commands;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Persistence.Repositories;
 using ERP.Infrastructure.Services;
@@ -95,6 +96,12 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
+// Register command handlers
+builder.Services.AddScoped<LoginCommandHandler>();
+builder.Services.AddScoped<RegisterCommandHandler>();
+builder.Services.AddScoped<RefreshTokenCommandHandler>();
+builder.Services.AddScoped<ChangePasswordCommandHandler>();
+
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -108,18 +115,17 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline
 
-// Use exception handling middleware
+// Use global exception handling middleware
+app.UseExceptionHandling();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
-
     // Enable Swagger in development (when package is available)
     // app.UseSwagger();
     // app.UseSwaggerUI();
 }
 else
 {
-    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
