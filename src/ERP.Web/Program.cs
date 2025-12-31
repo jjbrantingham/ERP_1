@@ -1,5 +1,8 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.HR.Commands;
+using ERP.Application.HR.Queries;
 using ERP.Application.Identity.Commands;
+using ERP.Domain.HR.Repositories;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Persistence.Repositories;
 using ERP.Infrastructure.Services;
@@ -89,6 +92,12 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // Register repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+
+// HR repositories
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IResourceTypeRepository, ResourceTypeRepository>();
+builder.Services.AddScoped<IRateRepository, RateRepository>();
+
 // Will add more repositories as we build modules
 // builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 
@@ -101,6 +110,18 @@ builder.Services.AddScoped<LoginCommandHandler>();
 builder.Services.AddScoped<RegisterCommandHandler>();
 builder.Services.AddScoped<RefreshTokenCommandHandler>();
 builder.Services.AddScoped<ChangePasswordCommandHandler>();
+
+// HR command handlers
+builder.Services.AddScoped<CreateEmployeeCommandHandler>();
+builder.Services.AddScoped<UpdateEmployeeCommandHandler>();
+builder.Services.AddScoped<CreateResourceTypeCommandHandler>();
+builder.Services.AddScoped<CreateRateCommandHandler>();
+
+// HR query handlers
+builder.Services.AddScoped<GetEmployeeByIdQueryHandler>();
+builder.Services.AddScoped<GetAllEmployeesQueryHandler>();
+builder.Services.AddScoped<GetAllResourceTypesQueryHandler>();
+builder.Services.AddScoped<GetEmployeeRatesQueryHandler>();
 
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();

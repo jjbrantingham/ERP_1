@@ -2,6 +2,7 @@ using System.Reflection;
 using ERP.Application.Common.Interfaces;
 using ERP.Domain.Common;
 using ERP.Domain.Common.Entities;
+using ERP.Domain.HR.Entities;
 using ERP.Domain.Identity.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,7 +37,9 @@ public class ERPDbContext : DbContext
     // public DbSet<Project> Projects => Set<Project>();
 
     // Human Resources (hr schema)
-    // public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<ResourceType> ResourceTypes => Set<ResourceType>();
+    public DbSet<Rate> Rates => Set<Rate>();
 
     // Customer Relationship (crm schema)
     // public DbSet<Client> Clients => Set<Client>();

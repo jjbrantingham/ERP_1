@@ -1,5 +1,6 @@
 using ERP.Domain.Common.Entities;
 using ERP.Domain.Common.ValueObjects;
+using ERP.Domain.HR.Entities;
 using ERP.Domain.Identity.Entities;
 using ERP.Shared.Constants;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,7 @@ public class DatabaseSeeder
             var defaultTenant = await SeedDefaultTenantAsync();
             await SeedRolesAsync(defaultTenant.TenantId);
             await SeedSystemAdministratorAsync(defaultTenant.TenantId);
+            await SeedResourceTypesAsync(defaultTenant.TenantId);
 
             _logger.LogInformation("Database seeding completed successfully");
         }
@@ -245,5 +247,47 @@ public class DatabaseSeeder
 
         _logger.LogInformation("System administrator created: admin@erp.local");
         _logger.LogWarning("DEFAULT PASSWORD IS SET! Please change it immediately after first login!");
+    }
+
+    private async Task SeedResourceTypesAsync(Guid tenantId)
+    {
+        if (await _context.ResourceTypes.AnyAsync())
+        {
+            _logger.LogInformation("Resource types already exist, skipping resource type seed");
+            return;
+        }
+
+        _logger.LogInformation("Seeding resource types...");
+
+        var resourceTypes = new List<(string Name, string Description, string Code, int DisplayOrder)>
+        {
+            ("Software Developer", "Software development and programming", "DEV", 1),
+            ("Senior Software Developer", "Senior software development and architecture", "SDEV", 2),
+            ("QA Engineer", "Quality assurance and testing", "QA", 3),
+            ("DevOps Engineer", "DevOps and infrastructure", "DEVOPS", 4),
+            ("Project Manager", "Project management and coordination", "PM", 5),
+            ("Business Analyst", "Business analysis and requirements", "BA", 6),
+            ("UI/UX Designer", "User interface and experience design", "DESIGN", 7),
+            ("Technical Writer", "Documentation and technical writing", "WRITER", 8),
+            ("Database Administrator", "Database management and administration", "DBA", 9),
+            ("System Administrator", "System administration and support", "SYSADMIN", 10)
+        };
+
+        foreach (var (name, description, code, displayOrder) in resourceTypes)
+        {
+            var resourceType = ResourceType.Create(
+                tenantId,
+                name,
+                description,
+                code,
+                displayOrder
+            );
+
+            _context.ResourceTypes.Add(resourceType);
+        }
+
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Seeded {Count} resource types", resourceTypes.Count);
     }
 }
