@@ -4,8 +4,11 @@ using ERP.Application.CRM.Queries;
 using ERP.Application.HR.Commands;
 using ERP.Application.HR.Queries;
 using ERP.Application.Identity.Commands;
+using ERP.Application.PM.Commands;
+using ERP.Application.PM.Queries;
 using ERP.Domain.CRM.Repositories;
 using ERP.Domain.HR.Repositories;
+using ERP.Domain.PM.Repositories;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Persistence.Repositories;
 using ERP.Infrastructure.Services;
@@ -106,8 +109,10 @@ builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IContactRepository, ContactRepository>();
 builder.Services.AddScoped<INoteRepository, NoteRepository>();
 
-// Will add more repositories as we build modules
-// builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+// PM repositories
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IWBSItemRepository, WBSItemRepository>();
+builder.Services.AddScoped<IContractRepository, ContractRepository>();
 
 // Register authentication services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -141,6 +146,17 @@ builder.Services.AddScoped<GetClientByIdQueryHandler>();
 builder.Services.AddScoped<GetAllClientsQueryHandler>();
 builder.Services.AddScoped<GetClientContactsQueryHandler>();
 builder.Services.AddScoped<GetClientNotesQueryHandler>();
+
+// PM command handlers
+builder.Services.AddScoped<CreateProjectCommandHandler>();
+builder.Services.AddScoped<CreateWBSItemCommandHandler>();
+builder.Services.AddScoped<CreateContractCommandHandler>();
+
+// PM query handlers
+builder.Services.AddScoped<GetProjectByIdQueryHandler>();
+builder.Services.AddScoped<GetAllProjectsQueryHandler>();
+builder.Services.AddScoped<GetProjectWBSItemsQueryHandler>();
+builder.Services.AddScoped<GetProjectContractsQueryHandler>();
 
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();

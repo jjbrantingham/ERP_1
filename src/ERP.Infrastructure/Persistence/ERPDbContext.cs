@@ -5,6 +5,7 @@ using ERP.Domain.Common.Entities;
 using ERP.Domain.CRM.Entities;
 using ERP.Domain.HR.Entities;
 using ERP.Domain.Identity.Entities;
+using ERP.Domain.PM.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Infrastructure.Persistence;
@@ -34,8 +35,10 @@ public class ERPDbContext : DbContext
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
-    // Project Management (pm schema) - will add as we build modules
-    // public DbSet<Project> Projects => Set<Project>();
+    // Project Management (pm schema)
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<WBSItem> WBSItems => Set<WBSItem>();
+    public DbSet<Contract> Contracts => Set<Contract>();
 
     // Human Resources (hr schema)
     public DbSet<Employee> Employees => Set<Employee>();
