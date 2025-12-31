@@ -20,6 +20,32 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Configure JWT Authentication (when package is available)
+/* Uncomment when Microsoft.AspNetCore.Authentication.JwtBearer package is installed
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+*/
+
+builder.Services.AddAuthorization(options =>
+{
+    // Add custom authorization policies here
+    // Example: options.AddPolicy("AdminOnly", policy => policy.RequireRole("System Administrator"));
+});
+
 // Add controllers and API explorer
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -59,8 +85,15 @@ builder.Services.AddDbContext<ERPDbContext>((serviceProvider, options) =>
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// Register repositories (will add more as we build modules)
+// Register repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+// Will add more repositories as we build modules
 // builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+
+// Register authentication services
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();

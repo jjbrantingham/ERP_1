@@ -2,6 +2,7 @@ using System.Reflection;
 using ERP.Application.Common.Interfaces;
 using ERP.Domain.Common;
 using ERP.Domain.Common.Entities;
+using ERP.Domain.Identity.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Infrastructure.Persistence;
@@ -24,6 +25,12 @@ public class ERPDbContext : DbContext
 
     // Common
     public DbSet<Tenant> Tenants => Set<Tenant>();
+
+    // Identity (identity schema)
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
     // Project Management (pm schema) - will add as we build modules
     // public DbSet<Project> Projects => Set<Project>();
