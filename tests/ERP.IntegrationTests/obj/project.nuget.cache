@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "dgSpecHash": "WDtUjPcEyd4=",
+  "success": false,
+  "projectFilePath": "/home/user/ERP_1/tests/ERP.IntegrationTests/ERP.IntegrationTests.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Unable to load the service index for source https://api.nuget.org/v3/index.json.\n  The proxy tunnel request to proxy 'http://21.0.0.205:15004/' failed with status code '401'.\"",
+      "projectPath": "/home/user/ERP_1/tests/ERP.IntegrationTests/ERP.IntegrationTests.csproj",
+      "filePath": "/home/user/ERP_1/tests/ERP.IntegrationTests/ERP.IntegrationTests.csproj",
+      "libraryId": "coverlet.collector",
+      "targetGraphs": []
+    }
+  ]
+}
