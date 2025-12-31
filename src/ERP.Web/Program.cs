@@ -6,9 +6,12 @@ using ERP.Application.HR.Queries;
 using ERP.Application.Identity.Commands;
 using ERP.Application.PM.Commands;
 using ERP.Application.PM.Queries;
+using ERP.Application.VM.Commands;
+using ERP.Application.VM.Queries;
 using ERP.Domain.CRM.Repositories;
 using ERP.Domain.HR.Repositories;
 using ERP.Domain.PM.Repositories;
+using ERP.Domain.VM.Repositories;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Persistence.Repositories;
 using ERP.Infrastructure.Services;
@@ -114,6 +117,11 @@ builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IWBSItemRepository, WBSItemRepository>();
 builder.Services.AddScoped<IContractRepository, ContractRepository>();
 
+// VM repositories
+builder.Services.AddScoped<IVendorRepository, VendorRepository>();
+builder.Services.AddScoped<IVendorContactRepository, VendorContactRepository>();
+builder.Services.AddScoped<IVendorNoteRepository, VendorNoteRepository>();
+
 // Register authentication services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -157,6 +165,17 @@ builder.Services.AddScoped<GetProjectByIdQueryHandler>();
 builder.Services.AddScoped<GetAllProjectsQueryHandler>();
 builder.Services.AddScoped<GetProjectWBSItemsQueryHandler>();
 builder.Services.AddScoped<GetProjectContractsQueryHandler>();
+
+// VM command handlers
+builder.Services.AddScoped<CreateVendorCommandHandler>();
+builder.Services.AddScoped<CreateVendorContactCommandHandler>();
+builder.Services.AddScoped<CreateVendorNoteCommandHandler>();
+
+// VM query handlers
+builder.Services.AddScoped<GetVendorByIdQueryHandler>();
+builder.Services.AddScoped<GetAllVendorsQueryHandler>();
+builder.Services.AddScoped<GetVendorContactsQueryHandler>();
+builder.Services.AddScoped<GetVendorNotesQueryHandler>();
 
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();

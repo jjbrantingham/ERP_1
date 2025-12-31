@@ -6,6 +6,7 @@ using ERP.Domain.CRM.Entities;
 using ERP.Domain.HR.Entities;
 using ERP.Domain.Identity.Entities;
 using ERP.Domain.PM.Entities;
+using ERP.Domain.VM.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Infrastructure.Persistence;
@@ -51,7 +52,9 @@ public class ERPDbContext : DbContext
     public DbSet<Note> Notes => Set<Note>();
 
     // Vendor Management (vm schema)
-    // public DbSet<Vendor> Vendors => Set<Vendor>();
+    public DbSet<Vendor> Vendors => Set<Vendor>();
+    public DbSet<VendorContact> VendorContacts => Set<VendorContact>();
+    public DbSet<VendorNote> VendorNotes => Set<VendorNote>();
 
     // Time & Expense (te schema)
     // public DbSet<Timesheet> Timesheets => Set<Timesheet>();
