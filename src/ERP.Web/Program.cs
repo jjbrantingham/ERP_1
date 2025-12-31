@@ -156,6 +156,15 @@ app.MapGet("/", () => Results.Ok(new
     Environment = app.Environment.EnvironmentName
 }));
 
+// Initialize database (run migrations and seed data)
+// Set AUTO_MIGRATE=true in environment variables to enable
+if (app.Configuration.GetValue<bool>("AutoMigrate", false) ||
+    Environment.GetEnvironmentVariable("AUTO_MIGRATE") == "true")
+{
+    app.Logger.LogInformation("Auto-migration enabled, initializing database...");
+    await app.InitializeDatabaseAsync();
+}
+
 app.Run();
 
 // Make the implicit Program class public for integration tests
