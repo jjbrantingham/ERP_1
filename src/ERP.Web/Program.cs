@@ -15,6 +15,7 @@ using ERP.Application.FIN.Queries;
 using ERP.Application.BILL.Commands;
 using ERP.Application.BILL.Queries;
 using ERP.Application.RPT.Queries;
+using ERP.Application.DASH.Queries;
 using ERP.Domain.CRM.Repositories;
 using ERP.Domain.HR.Repositories;
 using ERP.Domain.PM.Repositories;
@@ -230,6 +231,12 @@ builder.Services.AddScoped<GetIncomeStatementQueryHandler>();
 builder.Services.AddScoped<GetProjectProfitabilityQueryHandler>();
 builder.Services.AddScoped<GetTimesheetSummaryQueryHandler>();
 builder.Services.AddScoped<GetInvoiceSummaryQueryHandler>();
+
+// DASH query handlers
+builder.Services.AddScoped<GetExecutiveDashboardQueryHandler>();
+builder.Services.AddScoped<GetFinancialDashboardQueryHandler>();
+builder.Services.AddScoped<GetProjectDashboardQueryHandler>();
+builder.Services.AddScoped<GetEmployeeDashboardQueryHandler>();
 
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();
