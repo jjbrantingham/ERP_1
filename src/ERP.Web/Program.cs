@@ -14,6 +14,7 @@ using ERP.Application.FIN.Commands;
 using ERP.Application.FIN.Queries;
 using ERP.Application.BILL.Commands;
 using ERP.Application.BILL.Queries;
+using ERP.Application.RPT.Queries;
 using ERP.Domain.CRM.Repositories;
 using ERP.Domain.HR.Repositories;
 using ERP.Domain.PM.Repositories;
@@ -222,6 +223,13 @@ builder.Services.AddScoped<ApplyPaymentCommandHandler>();
 
 // BILL query handlers
 builder.Services.AddScoped<GetInvoiceByIdQueryHandler>();
+
+// RPT query handlers
+builder.Services.AddScoped<GetBalanceSheetQueryHandler>();
+builder.Services.AddScoped<GetIncomeStatementQueryHandler>();
+builder.Services.AddScoped<GetProjectProfitabilityQueryHandler>();
+builder.Services.AddScoped<GetTimesheetSummaryQueryHandler>();
+builder.Services.AddScoped<GetInvoiceSummaryQueryHandler>();
 
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();
