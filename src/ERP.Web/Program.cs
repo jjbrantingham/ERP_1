@@ -12,12 +12,15 @@ using ERP.Application.VM.Commands;
 using ERP.Application.VM.Queries;
 using ERP.Application.FIN.Commands;
 using ERP.Application.FIN.Queries;
+using ERP.Application.BILL.Commands;
+using ERP.Application.BILL.Queries;
 using ERP.Domain.CRM.Repositories;
 using ERP.Domain.HR.Repositories;
 using ERP.Domain.PM.Repositories;
 using ERP.Domain.TE.Repositories;
 using ERP.Domain.VM.Repositories;
 using ERP.Domain.FIN.Repositories;
+using ERP.Domain.BILL.Repositories;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Persistence.Repositories;
 using ERP.Infrastructure.Services;
@@ -136,6 +139,10 @@ builder.Services.AddScoped<IExpenseReportRepository, ExpenseReportRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IJournalEntryRepository, JournalEntryRepository>();
 
+// BILL repositories
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+
 // Register authentication services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -207,6 +214,14 @@ builder.Services.AddScoped<PostJournalEntryCommandHandler>();
 // FIN query handlers
 builder.Services.AddScoped<GetAccountByIdQueryHandler>();
 builder.Services.AddScoped<GetJournalEntryByIdQueryHandler>();
+
+// BILL command handlers
+builder.Services.AddScoped<CreateInvoiceCommandHandler>();
+builder.Services.AddScoped<PostInvoiceCommandHandler>();
+builder.Services.AddScoped<ApplyPaymentCommandHandler>();
+
+// BILL query handlers
+builder.Services.AddScoped<GetInvoiceByIdQueryHandler>();
 
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();

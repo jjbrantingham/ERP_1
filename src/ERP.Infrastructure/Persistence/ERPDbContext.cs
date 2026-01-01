@@ -9,6 +9,7 @@ using ERP.Domain.PM.Entities;
 using ERP.Domain.TE.Entities;
 using ERP.Domain.VM.Entities;
 using ERP.Domain.FIN.Entities;
+using ERP.Domain.BILL.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Infrastructure.Persistence;
@@ -70,7 +71,9 @@ public class ERPDbContext : DbContext
     public DbSet<JournalEntryLine> JournalEntryLines => Set<JournalEntryLine>();
 
     // Billing (bill schema)
-    // public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<InvoiceLineItem> InvoiceLineItems => Set<InvoiceLineItem>();
+    public DbSet<Payment> Payments => Set<Payment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
