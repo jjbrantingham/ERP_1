@@ -8,6 +8,7 @@ using ERP.Domain.Identity.Entities;
 using ERP.Domain.PM.Entities;
 using ERP.Domain.TE.Entities;
 using ERP.Domain.VM.Entities;
+using ERP.Domain.FIN.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Infrastructure.Persistence;
@@ -64,7 +65,9 @@ public class ERPDbContext : DbContext
     public DbSet<ExpenseItem> ExpenseItems => Set<ExpenseItem>();
 
     // Financial Management (fin schema)
-    // public DbSet<Account> Accounts => Set<Account>();
+    public DbSet<Account> Accounts => Set<Account>();
+    public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
+    public DbSet<JournalEntryLine> JournalEntryLines => Set<JournalEntryLine>();
 
     // Billing (bill schema)
     // public DbSet<Invoice> Invoices => Set<Invoice>();

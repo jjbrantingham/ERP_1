@@ -10,11 +10,14 @@ using ERP.Application.TE.Commands;
 using ERP.Application.TE.Queries;
 using ERP.Application.VM.Commands;
 using ERP.Application.VM.Queries;
+using ERP.Application.FIN.Commands;
+using ERP.Application.FIN.Queries;
 using ERP.Domain.CRM.Repositories;
 using ERP.Domain.HR.Repositories;
 using ERP.Domain.PM.Repositories;
 using ERP.Domain.TE.Repositories;
 using ERP.Domain.VM.Repositories;
+using ERP.Domain.FIN.Repositories;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Persistence.Repositories;
 using ERP.Infrastructure.Services;
@@ -129,6 +132,10 @@ builder.Services.AddScoped<IVendorNoteRepository, VendorNoteRepository>();
 builder.Services.AddScoped<ITimesheetRepository, TimesheetRepository>();
 builder.Services.AddScoped<IExpenseReportRepository, ExpenseReportRepository>();
 
+// FIN repositories
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IJournalEntryRepository, JournalEntryRepository>();
+
 // Register authentication services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -191,6 +198,15 @@ builder.Services.AddScoped<CreateExpenseReportCommandHandler>();
 // TE query handlers
 builder.Services.AddScoped<GetTimesheetByIdQueryHandler>();
 builder.Services.AddScoped<GetExpenseReportByIdQueryHandler>();
+
+// FIN command handlers
+builder.Services.AddScoped<CreateAccountCommandHandler>();
+builder.Services.AddScoped<CreateJournalEntryCommandHandler>();
+builder.Services.AddScoped<PostJournalEntryCommandHandler>();
+
+// FIN query handlers
+builder.Services.AddScoped<GetAccountByIdQueryHandler>();
+builder.Services.AddScoped<GetJournalEntryByIdQueryHandler>();
 
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();
