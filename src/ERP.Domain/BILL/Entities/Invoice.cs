@@ -1,4 +1,4 @@
-using ERP.Domain.Common.Entities;
+using ERP.Domain.Common;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.BILL.Enums;
 using ERP.Domain.BILL.Events;
@@ -11,8 +11,6 @@ namespace ERP.Domain.BILL.Entities;
 /// </summary>
 public class Invoice : AggregateRoot
 {
-    public long Id { get; private set; }
-    public Guid TenantId { get; private set; }
     public InvoiceNumber InvoiceNumber { get; private set; }
     public long ClientId { get; private set; }
     public long? ProjectId { get; private set; }
@@ -46,11 +44,6 @@ public class Invoice : AggregateRoot
     public DateTime? PaidDate { get; private set; }
     public DateTime? VoidedDate { get; private set; }
     public string? VoidReason { get; private set; }
-
-    // Audit fields
-    public DateTime CreatedDate { get; private set; }
-    public DateTime? ModifiedDate { get; private set; }
-    public byte[] RowVersion { get; private set; } = null!;
 
     private Invoice()
     {

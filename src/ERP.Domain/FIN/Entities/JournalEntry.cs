@@ -1,4 +1,4 @@
-using ERP.Domain.Common.Entities;
+using ERP.Domain.Common;
 using ERP.Domain.FIN.Enums;
 using ERP.Domain.FIN.Events;
 using ERP.Domain.FIN.ValueObjects;
@@ -11,8 +11,6 @@ namespace ERP.Domain.FIN.Entities;
 /// </summary>
 public class JournalEntry : AggregateRoot
 {
-    public long Id { get; private set; }
-    public Guid TenantId { get; private set; }
     public JournalEntryNumber EntryNumber { get; private set; }
     public DateTime EntryDate { get; private set; }
     public JournalEntryType Type { get; private set; }
@@ -33,11 +31,6 @@ public class JournalEntry : AggregateRoot
     public DateTime? VoidedDate { get; private set; }
     public string? VoidedBy { get; private set; }
     public string? VoidReason { get; private set; }
-
-    // Audit fields
-    public DateTime CreatedDate { get; private set; }
-    public DateTime? ModifiedDate { get; private set; }
-    public byte[] RowVersion { get; private set; } = null!;
 
     private JournalEntry()
     {

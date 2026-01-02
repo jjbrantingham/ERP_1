@@ -10,6 +10,7 @@ using ERP.Domain.TE.Entities;
 using ERP.Domain.VM.Entities;
 using ERP.Domain.FIN.Entities;
 using ERP.Domain.BILL.Entities;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Infrastructure.Persistence;
@@ -21,13 +22,16 @@ namespace ERP.Infrastructure.Persistence;
 public class ERPDbContext : DbContext
 {
     private readonly ICurrentTenantService _currentTenantService;
+    private readonly IMediator _mediator;
 
     public ERPDbContext(
         DbContextOptions<ERPDbContext> options,
-        ICurrentTenantService currentTenantService)
+        ICurrentTenantService currentTenantService,
+        IMediator mediator)
         : base(options)
     {
         _currentTenantService = currentTenantService;
+        _mediator = mediator;
     }
 
     // Common
@@ -133,7 +137,7 @@ public class ERPDbContext : DbContext
         EnsureTenantIdSet();
 
         // Dispatch domain events
-        // await DispatchDomainEventsAsync(cancellationToken);
+        await DispatchDomainEventsAsync(cancellationToken);
 
         return await base.SaveChangesAsync(cancellationToken);
     }
@@ -207,8 +211,7 @@ public class ERPDbContext : DbContext
 
         foreach (var domainEvent in domainEvents)
         {
-            // TODO: Publish domain events using MediatR
-            // await _mediator.Publish(domainEvent, cancellationToken);
+            await _mediator.Publish(domainEvent, cancellationToken);
         }
     }
 }

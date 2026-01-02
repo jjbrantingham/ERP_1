@@ -1,22 +1,7 @@
 using ERP.Application.Common.Interfaces;
-using ERP.Application.CRM.Commands;
-using ERP.Application.CRM.Queries;
-using ERP.Application.HR.Commands;
-using ERP.Application.HR.Queries;
-using ERP.Application.Identity.Commands;
-using ERP.Application.PM.Commands;
-using ERP.Application.PM.Queries;
-using ERP.Application.TE.Commands;
-using ERP.Application.TE.Queries;
-using ERP.Application.VM.Commands;
-using ERP.Application.VM.Queries;
-using ERP.Application.FIN.Commands;
-using ERP.Application.FIN.Queries;
 using ERP.Application.BILL.Commands;
-using ERP.Application.BILL.Queries;
-using ERP.Application.RPT.Queries;
-using ERP.Application.DASH.Queries;
 using ERP.Domain.CRM.Repositories;
+using FluentValidation;
 using ERP.Domain.HR.Repositories;
 using ERP.Domain.PM.Repositories;
 using ERP.Domain.TE.Repositories;
@@ -149,94 +134,13 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
-// Register command handlers
-builder.Services.AddScoped<LoginCommandHandler>();
-builder.Services.AddScoped<RegisterCommandHandler>();
-builder.Services.AddScoped<RefreshTokenCommandHandler>();
-builder.Services.AddScoped<ChangePasswordCommandHandler>();
+// Register MediatR with auto-discovery from Application assembly
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(ERP.Application.BILL.Commands.CreateInvoiceCommand).Assembly);
+});
 
-// HR command handlers
-builder.Services.AddScoped<CreateEmployeeCommandHandler>();
-builder.Services.AddScoped<UpdateEmployeeCommandHandler>();
-builder.Services.AddScoped<CreateResourceTypeCommandHandler>();
-builder.Services.AddScoped<CreateRateCommandHandler>();
-
-// HR query handlers
-builder.Services.AddScoped<GetEmployeeByIdQueryHandler>();
-builder.Services.AddScoped<GetAllEmployeesQueryHandler>();
-builder.Services.AddScoped<GetAllResourceTypesQueryHandler>();
-builder.Services.AddScoped<GetEmployeeRatesQueryHandler>();
-
-// CRM command handlers
-builder.Services.AddScoped<CreateClientCommandHandler>();
-builder.Services.AddScoped<CreateContactCommandHandler>();
-builder.Services.AddScoped<CreateNoteCommandHandler>();
-
-// CRM query handlers
-builder.Services.AddScoped<GetClientByIdQueryHandler>();
-builder.Services.AddScoped<GetAllClientsQueryHandler>();
-builder.Services.AddScoped<GetClientContactsQueryHandler>();
-builder.Services.AddScoped<GetClientNotesQueryHandler>();
-
-// PM command handlers
-builder.Services.AddScoped<CreateProjectCommandHandler>();
-builder.Services.AddScoped<CreateWBSItemCommandHandler>();
-builder.Services.AddScoped<CreateContractCommandHandler>();
-
-// PM query handlers
-builder.Services.AddScoped<GetProjectByIdQueryHandler>();
-builder.Services.AddScoped<GetAllProjectsQueryHandler>();
-builder.Services.AddScoped<GetProjectWBSItemsQueryHandler>();
-builder.Services.AddScoped<GetProjectContractsQueryHandler>();
-
-// VM command handlers
-builder.Services.AddScoped<CreateVendorCommandHandler>();
-builder.Services.AddScoped<CreateVendorContactCommandHandler>();
-builder.Services.AddScoped<CreateVendorNoteCommandHandler>();
-
-// VM query handlers
-builder.Services.AddScoped<GetVendorByIdQueryHandler>();
-builder.Services.AddScoped<GetAllVendorsQueryHandler>();
-builder.Services.AddScoped<GetVendorContactsQueryHandler>();
-builder.Services.AddScoped<GetVendorNotesQueryHandler>();
-
-// TE command handlers
-builder.Services.AddScoped<CreateTimesheetCommandHandler>();
-builder.Services.AddScoped<CreateExpenseReportCommandHandler>();
-
-// TE query handlers
-builder.Services.AddScoped<GetTimesheetByIdQueryHandler>();
-builder.Services.AddScoped<GetExpenseReportByIdQueryHandler>();
-
-// FIN command handlers
-builder.Services.AddScoped<CreateAccountCommandHandler>();
-builder.Services.AddScoped<CreateJournalEntryCommandHandler>();
-builder.Services.AddScoped<PostJournalEntryCommandHandler>();
-
-// FIN query handlers
-builder.Services.AddScoped<GetAccountByIdQueryHandler>();
-builder.Services.AddScoped<GetJournalEntryByIdQueryHandler>();
-
-// BILL command handlers
-builder.Services.AddScoped<CreateInvoiceCommandHandler>();
-builder.Services.AddScoped<PostInvoiceCommandHandler>();
-builder.Services.AddScoped<ApplyPaymentCommandHandler>();
-
-// BILL query handlers
-builder.Services.AddScoped<GetInvoiceByIdQueryHandler>();
-
-// RPT query handlers
-builder.Services.AddScoped<GetBalanceSheetQueryHandler>();
-builder.Services.AddScoped<GetIncomeStatementQueryHandler>();
-builder.Services.AddScoped<GetProjectProfitabilityQueryHandler>();
-builder.Services.AddScoped<GetTimesheetSummaryQueryHandler>();
-builder.Services.AddScoped<GetInvoiceSummaryQueryHandler>();
-
-// DASH query handlers
-builder.Services.AddScoped<GetExecutiveDashboardQueryHandler>();
-builder.Services.AddScoped<GetFinancialDashboardQueryHandler>();
-builder.Services.AddScoped<GetProjectDashboardQueryHandler>();
-builder.Services.AddScoped<GetEmployeeDashboardQueryHandler>();
+// Register FluentValidation validators
+builder.Services.AddValidatorsFromAssembly(typeof(ERP.Application.BILL.Commands.CreateInvoiceCommand).Assembly);
 
 // Add logging (Serilog when package is available)
 builder.Logging.ClearProviders();

@@ -1,4 +1,4 @@
-using ERP.Domain.Common.Entities;
+using ERP.Domain.Common;
 using ERP.Domain.Common.ValueObjects;
 
 namespace ERP.Domain.BILL.Entities;
@@ -8,7 +8,6 @@ namespace ERP.Domain.BILL.Entities;
 /// </summary>
 public class InvoiceLineItem : Entity
 {
-    public long Id { get; private set; }
     public long InvoiceId { get; private set; }
     public string Description { get; private set; }
     public decimal Quantity { get; private set; }

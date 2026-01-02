@@ -1,4 +1,4 @@
-using ERP.Domain.Common.Entities;
+using ERP.Domain.Common;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.FIN.Enums;
 using ERP.Domain.FIN.Events;
@@ -11,8 +11,6 @@ namespace ERP.Domain.FIN.Entities;
 /// </summary>
 public class Account : AggregateRoot
 {
-    public long Id { get; private set; }
-    public Guid TenantId { get; private set; }
     public AccountNumber AccountNumber { get; private set; }
     public string Name { get; private set; }
     public string? Description { get; private set; }
@@ -44,11 +42,6 @@ public class Account : AggregateRoot
     /// Whether this account is reconciled with bank/external statements
     /// </summary>
     public bool RequiresReconciliation { get; private set; }
-
-    // Audit fields
-    public DateTime CreatedDate { get; private set; }
-    public DateTime? ModifiedDate { get; private set; }
-    public byte[] RowVersion { get; private set; } = null!;
 
     private Account()
     {

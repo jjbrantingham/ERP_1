@@ -1,4 +1,4 @@
-using ERP.Domain.Common.Entities;
+using ERP.Domain.Common;
 
 namespace ERP.Domain.FIN.Entities;
 
@@ -7,7 +7,6 @@ namespace ERP.Domain.FIN.Entities;
 /// </summary>
 public class JournalEntryLine : Entity
 {
-    public long Id { get; private set; }
     public long JournalEntryId { get; private set; }
     public long AccountId { get; private set; }
     public decimal DebitAmount { get; private set; }
