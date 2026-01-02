@@ -212,6 +212,9 @@ builder.Services.AddScoped<IWorkflowInstanceRepository, WorkflowInstanceReposito
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
+// Register email service
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 // Register MediatR with auto-discovery from Application assembly
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(ERP.Application.BILL.Commands.CreateInvoiceCommand).Assembly);
