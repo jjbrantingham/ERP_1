@@ -5,8 +5,8 @@ namespace ERP.Application.VM.Commands;
 /// </summary>
 public class CreateVendorNoteCommand
 {
-    public long VendorId { get; set; }
-    public string Subject { get; set; } = string.Empty;
-    public string Content { get; set; } = string.Empty;
-    public DateTime? NoteDate { get; set; }
+    public long VendorId { get; init; }
+    public string Subject { get; init; } = string.Empty;
+    public string Content { get; init; } = string.Empty;
+    public DateTime? NoteDate { get; init; }
 }

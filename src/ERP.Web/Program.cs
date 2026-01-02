@@ -18,14 +18,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 
-// Configure CORS
+// Configure CORS - Secure configuration
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowedOrigins", policy =>
     {
-        policy.AllowAnyOrigin()
+        // Get allowed origins from configuration
+        var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+            ?? new[] { "http://localhost:3000", "http://localhost:5173" }; // Default for dev
+
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials(); // Required for authentication cookies/tokens
     });
 });
 
@@ -62,11 +67,12 @@ builder.Services.AddEndpointsApiExplorer();
 // Add Swagger/OpenAPI (when package is available)
 // builder.Services.AddSwaggerGen();
 
-// Add HttpContextAccessor for tenant resolution
+// Add HttpContextAccessor for tenant and user resolution
 builder.Services.AddHttpContextAccessor();
 
-// Register multi-tenancy service
+// Register multi-tenancy and user services
 builder.Services.AddScoped<ICurrentTenantService, CurrentTenantService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Register DbContext
 builder.Services.AddDbContext<ERPDbContext>((serviceProvider, options) =>
@@ -171,8 +177,8 @@ else
 
 app.UseHttpsRedirection();
 
-// Use CORS
-app.UseCors("AllowAll");
+// Use CORS with secure policy
+app.UseCors("AllowedOrigins");
 
 // Use tenant resolution middleware
 app.UseTenantResolution();

@@ -8,22 +8,22 @@ namespace ERP.Application.HR.Commands;
 /// </summary>
 public class CreateEmployeeCommand : ICommand<long>
 {
-    public long ResourceTypeId { get; set; }
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public string? MiddleName { get; set; }
-    public string Email { get; set; } = string.Empty;
-    public string? PhoneNumber { get; set; }
-    public string? MobileNumber { get; set; }
-    public DateTime? DateOfBirth { get; set; }
-    public EmploymentType EmploymentType { get; set; }
-    public DateTime HireDate { get; set; }
-    public string? JobTitle { get; set; }
-    public string? Department { get; set; }
-    public long? ManagerId { get; set; }
-    public decimal? BaseSalaryAmount { get; set; }
-    public string? BaseSalaryCurrency { get; set; }
-    public decimal StandardHoursPerWeek { get; set; } = 40;
-    public long? UserId { get; set; }
-    public string? Notes { get; set; }
+    public long ResourceTypeId { get; init; }
+    public string FirstName { get; init; } = string.Empty;
+    public string LastName { get; init; } = string.Empty;
+    public string? MiddleName { get; init; }
+    public string Email { get; init; } = string.Empty;
+    public string? PhoneNumber { get; init; }
+    public string? MobileNumber { get; init; }
+    public DateTime? DateOfBirth { get; init; }
+    public EmploymentType EmploymentType { get; init; }
+    public DateTime HireDate { get; init; }
+    public string? JobTitle { get; init; }
+    public string? Department { get; init; }
+    public long? ManagerId { get; init; }
+    public decimal? BaseSalaryAmount { get; init; }
+    public string? BaseSalaryCurrency { get; init; }
+    public decimal StandardHoursPerWeek { get; init; } = 40;
+    public long? UserId { get; init; }
+    public string? Notes { get; init; }
 }

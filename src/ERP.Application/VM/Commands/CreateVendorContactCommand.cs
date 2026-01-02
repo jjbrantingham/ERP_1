@@ -7,14 +7,14 @@ namespace ERP.Application.VM.Commands;
 /// </summary>
 public class CreateVendorContactCommand
 {
-    public long VendorId { get; set; }
-    public ContactType ContactType { get; set; }
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string? Title { get; set; }
-    public string? Phone { get; set; }
-    public string? Mobile { get; set; }
-    public bool IsPrimary { get; set; }
-    public string? Notes { get; set; }
+    public long VendorId { get; init; }
+    public ContactType ContactType { get; init; }
+    public string FirstName { get; init; } = string.Empty;
+    public string LastName { get; init; } = string.Empty;
+    public string Email { get; init; } = string.Empty;
+    public string? Title { get; init; }
+    public string? Phone { get; init; }
+    public string? Mobile { get; init; }
+    public bool IsPrimary { get; init; }
+    public string? Notes { get; init; }
 }

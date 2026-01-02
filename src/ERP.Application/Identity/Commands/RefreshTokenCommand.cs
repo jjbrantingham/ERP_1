@@ -11,10 +11,10 @@ public class RefreshTokenCommand : ICommand<AuthenticationResponse>
     /// <summary>
     /// Gets or sets the expired access token.
     /// </summary>
-    public string AccessToken { get; set; } = string.Empty;
+    public string AccessToken { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the refresh token.
     /// </summary>
-    public string RefreshToken { get; set; } = string.Empty;
+    public string RefreshToken { get; init; } = string.Empty;
 }

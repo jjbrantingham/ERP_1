@@ -4,22 +4,22 @@ namespace ERP.Application.BILL.Commands;
 
 public class CreateInvoiceCommand : IRequest<long>
 {
-    public long ClientId { get; set; }
-    public long? ProjectId { get; set; }
-    public string BillingMode { get; set; } = "TimeAndMaterials";
-    public DateTime InvoiceDate { get; set; }
-    public DateTime DueDate { get; set; }
-    public string? PoNumber { get; set; }
-    public string? Description { get; set; }
-    public decimal TaxRate { get; set; } = 0m;
-    public string Currency { get; set; } = "USD";
-    public List<InvoiceLineItemCommand> LineItems { get; set; } = new();
+    public long ClientId { get; init; }
+    public long? ProjectId { get; init; }
+    public string BillingMode { get; init; } = "TimeAndMaterials";
+    public DateTime InvoiceDate { get; init; }
+    public DateTime DueDate { get; init; }
+    public string? PoNumber { get; init; }
+    public string? Description { get; init; }
+    public decimal TaxRate { get; init; } = 0m;
+    public string Currency { get; init; } = "USD";
+    public List<InvoiceLineItemCommand> LineItems { get; init; } = new();
 }
 
 public class InvoiceLineItemCommand
 {
-    public string Description { get; set; } = null!;
-    public decimal Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-    public decimal DiscountPercent { get; set; } = 0m;
+    public string Description { get; init; } = null!;
+    public decimal Quantity { get; init; }
+    public decimal UnitPrice { get; init; }
+    public decimal DiscountPercent { get; init; } = 0m;
 }

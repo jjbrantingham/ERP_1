@@ -11,15 +11,15 @@ public class LoginCommand : ICommand<AuthenticationResponse>
     /// <summary>
     /// Gets or sets the username or email.
     /// </summary>
-    public string UserNameOrEmail { get; set; } = string.Empty;
+    public string UserNameOrEmail { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the password.
     /// </summary>
-    public string Password { get; set; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets a value indicating whether to remember the user (longer refresh token).
     /// </summary>
-    public bool RememberMe { get; set; }
+    public bool RememberMe { get; init; }
 }

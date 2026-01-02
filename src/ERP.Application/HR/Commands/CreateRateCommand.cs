@@ -8,14 +8,14 @@ namespace ERP.Application.HR.Commands;
 /// </summary>
 public class CreateRateCommand : ICommand<long>
 {
-    public long? EmployeeId { get; set; }
-    public long? ResourceTypeId { get; set; }
-    public RateType RateType { get; set; }
-    public decimal CostRateAmount { get; set; }
-    public string CostRateCurrency { get; set; } = "USD";
-    public decimal BillingRateAmount { get; set; }
-    public string BillingRateCurrency { get; set; } = "USD";
-    public DateTime EffectiveDate { get; set; }
-    public DateTime? EndDate { get; set; }
-    public string? Notes { get; set; }
+    public long? EmployeeId { get; init; }
+    public long? ResourceTypeId { get; init; }
+    public RateType RateType { get; init; }
+    public decimal CostRateAmount { get; init; }
+    public string CostRateCurrency { get; init; } = "USD";
+    public decimal BillingRateAmount { get; init; }
+    public string BillingRateCurrency { get; init; } = "USD";
+    public DateTime EffectiveDate { get; init; }
+    public DateTime? EndDate { get; init; }
+    public string? Notes { get; init; }
 }

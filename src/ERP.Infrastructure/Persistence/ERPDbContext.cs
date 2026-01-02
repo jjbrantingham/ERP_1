@@ -22,15 +22,18 @@ namespace ERP.Infrastructure.Persistence;
 public class ERPDbContext : DbContext
 {
     private readonly ICurrentTenantService _currentTenantService;
+    private readonly ICurrentUserService _currentUserService;
     private readonly IMediator _mediator;
 
     public ERPDbContext(
         DbContextOptions<ERPDbContext> options,
         ICurrentTenantService currentTenantService,
+        ICurrentUserService currentUserService,
         IMediator mediator)
         : base(options)
     {
         _currentTenantService = currentTenantService;
+        _currentUserService = currentUserService;
         _mediator = mediator;
     }
 
@@ -143,11 +146,12 @@ public class ERPDbContext : DbContext
     }
 
     /// <summary>
-    /// Sets audit fields (CreatedDate, ModifiedDate, etc.) for tracked entities.
+    /// Sets audit fields (CreatedDate, ModifiedDate, CreatedBy, ModifiedBy) for tracked entities.
     /// </summary>
     private void SetAuditFields()
     {
         var entries = ChangeTracker.Entries<Entity>();
+        var currentUsername = _currentUserService.Username ?? "System";
 
         foreach (var entry in entries)
         {
@@ -155,12 +159,12 @@ public class ERPDbContext : DbContext
             {
                 case EntityState.Added:
                     entry.Entity.GetType().GetProperty("CreatedDate")?.SetValue(entry.Entity, DateTime.UtcNow);
-                    // TODO: Set CreatedBy from current user service
+                    entry.Entity.GetType().GetProperty("CreatedBy")?.SetValue(entry.Entity, currentUsername);
                     break;
 
                 case EntityState.Modified:
                     entry.Entity.GetType().GetProperty("ModifiedDate")?.SetValue(entry.Entity, DateTime.UtcNow);
-                    // TODO: Set ModifiedBy from current user service
+                    entry.Entity.GetType().GetProperty("ModifiedBy")?.SetValue(entry.Entity, currentUsername);
                     break;
             }
         }

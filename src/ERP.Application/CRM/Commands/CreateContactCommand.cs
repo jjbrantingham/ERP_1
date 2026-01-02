@@ -8,16 +8,16 @@ namespace ERP.Application.CRM.Commands;
 /// </summary>
 public class CreateContactCommand : ICommand<long>
 {
-    public long ClientId { get; set; }
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public string? MiddleName { get; set; }
-    public string Email { get; set; } = string.Empty;
-    public ContactType ContactType { get; set; }
-    public string? JobTitle { get; set; }
-    public string? Department { get; set; }
-    public string? PhoneNumber { get; set; }
-    public string? MobileNumber { get; set; }
-    public bool IsPrimary { get; set; }
-    public string? Notes { get; set; }
+    public long ClientId { get; init; }
+    public string FirstName { get; init; } = string.Empty;
+    public string LastName { get; init; } = string.Empty;
+    public string? MiddleName { get; init; }
+    public string Email { get; init; } = string.Empty;
+    public ContactType ContactType { get; init; }
+    public string? JobTitle { get; init; }
+    public string? Department { get; init; }
+    public string? PhoneNumber { get; init; }
+    public string? MobileNumber { get; init; }
+    public bool IsPrimary { get; init; }
+    public string? Notes { get; init; }
 }

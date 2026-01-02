@@ -11,41 +11,41 @@ public class RegisterCommand : ICommand<AuthenticationResponse>
     /// <summary>
     /// Gets or sets the username.
     /// </summary>
-    public string UserName { get; set; } = string.Empty;
+    public string UserName { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the email address.
     /// </summary>
-    public string Email { get; set; } = string.Empty;
+    public string Email { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the password.
     /// </summary>
-    public string Password { get; set; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the password confirmation.
     /// </summary>
-    public string ConfirmPassword { get; set; } = string.Empty;
+    public string ConfirmPassword { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the first name.
     /// </summary>
-    public string FirstName { get; set; } = string.Empty;
+    public string FirstName { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the last name.
     /// </summary>
-    public string LastName { get; set; } = string.Empty;
+    public string LastName { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the phone number (optional).
     /// </summary>
-    public string? PhoneNumber { get; set; }
+    public string? PhoneNumber { get; init; }
 
     /// <summary>
     /// Gets or sets the tenant ID (for multi-tenant registration).
     /// If not provided, will be resolved from context.
     /// </summary>
-    public Guid? TenantId { get; set; }
+    public Guid? TenantId { get; init; }
 }
