@@ -10,6 +10,7 @@ using ERP.Domain.TE.Entities;
 using ERP.Domain.VM.Entities;
 using ERP.Domain.FIN.Entities;
 using ERP.Domain.BILL.Entities;
+using ERP.Domain.WF.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -81,6 +82,12 @@ public class ERPDbContext : DbContext
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<InvoiceLineItem> InvoiceLineItems => Set<InvoiceLineItem>();
     public DbSet<Payment> Payments => Set<Payment>();
+
+    // Workflow (wf schema)
+    public DbSet<WorkflowDefinition> WorkflowDefinitions => Set<WorkflowDefinition>();
+    public DbSet<WorkflowStep> WorkflowSteps => Set<WorkflowStep>();
+    public DbSet<WorkflowInstance> WorkflowInstances => Set<WorkflowInstance>();
+    public DbSet<StepInstance> StepInstances => Set<StepInstance>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
