@@ -8,11 +8,14 @@ using ERP.Domain.TE.Repositories;
 using ERP.Domain.VM.Repositories;
 using ERP.Domain.FIN.Repositories;
 using ERP.Domain.BILL.Repositories;
+using ERP.Domain.WF.Repositories;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Persistence.Repositories;
 using ERP.Infrastructure.Services;
 using ERP.Web.Middleware;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,8 +63,73 @@ builder.Services.AddAuthorization(options =>
     // Example: options.AddPolicy("AdminOnly", policy => policy.RequireRole("System Administrator"));
 });
 
+// Add rate limiting
+builder.Services.AddRateLimiter(options =>
+{
+    // Fixed window rate limiter for API endpoints
+    options.AddFixedWindowLimiter("api", opt =>
+    {
+        opt.PermitLimit = 100;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 5;
+    });
+
+    // Stricter rate limit for authentication endpoints
+    options.AddFixedWindowLimiter("auth", opt =>
+    {
+        opt.PermitLimit = 10;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 2;
+    });
+
+    // Global fallback
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    {
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.User.Identity?.Name ?? context.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 200,
+                Window = TimeSpan.FromMinutes(1)
+            });
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+// Add response compression
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
+    options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
+});
+
+// Add response caching
+builder.Services.AddResponseCaching();
+
+// Configure output caching for better performance
+builder.Services.AddOutputCache(options =>
+{
+    options.AddBasePolicy(builder => builder.Expire(TimeSpan.FromSeconds(10)));
+
+    // Cache GET requests by default
+    options.AddPolicy("default", builder =>
+        builder.Expire(TimeSpan.FromSeconds(30)));
+
+    // Longer cache for static data
+    options.AddPolicy("static", builder =>
+        builder.Expire(TimeSpan.FromMinutes(10)));
+});
+
 // Add controllers and API explorer
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    // Set maximum request body size to 10MB
+    options.MaxModelBindingCollectionSize = 1000;
+});
 builder.Services.AddEndpointsApiExplorer();
 
 // Add Swagger/OpenAPI (when package is available)
@@ -136,6 +204,10 @@ builder.Services.AddScoped<IJournalEntryRepository, JournalEntryRepository>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
+// WF repositories
+builder.Services.AddScoped<IWorkflowDefinitionRepository, WorkflowDefinitionRepository>();
+builder.Services.AddScoped<IWorkflowInstanceRepository, WorkflowInstanceRepository>();
+
 // Register authentication services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -164,6 +236,9 @@ var app = builder.Build();
 // Use global exception handling middleware
 app.UseExceptionHandling();
 
+// Add security headers
+app.UseSecurityHeaders();
+
 if (app.Environment.IsDevelopment())
 {
     // Enable Swagger in development (when package is available)
@@ -176,6 +251,18 @@ else
 }
 
 app.UseHttpsRedirection();
+
+// Use response compression
+app.UseResponseCompression();
+
+// Use response caching
+app.UseResponseCaching();
+
+// Use output caching
+app.UseOutputCache();
+
+// Use rate limiting
+app.UseRateLimiter();
 
 // Use CORS with secure policy
 app.UseCors("AllowedOrigins");
