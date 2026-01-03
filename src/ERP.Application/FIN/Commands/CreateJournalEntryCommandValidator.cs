@@ -1,3 +1,4 @@
+using ERP.Shared.Constants;
 using FluentValidation;
 
 namespace ERP.Application.FIN.Commands;
@@ -9,14 +10,14 @@ public class CreateJournalEntryCommandValidator : AbstractValidator<CreateJourna
         RuleFor(x => x.EntryDate)
             .NotEmpty()
             .WithMessage("Entry date is required")
-            .LessThanOrEqualTo(DateTime.UtcNow.AddDays(1))
-            .WithMessage("Entry date cannot be more than 1 day in the future");
+            .LessThanOrEqualTo(DateTime.UtcNow.AddDays(BusinessConstants.DateTime.MaxFutureDays))
+            .WithMessage($"Entry date cannot be more than {BusinessConstants.DateTime.MaxFutureDays} day in the future");
 
         RuleFor(x => x.Description)
             .NotEmpty()
             .WithMessage("Description is required")
-            .MaximumLength(500)
-            .WithMessage("Description cannot exceed 500 characters");
+            .MaximumLength(BusinessConstants.Lengths.Description)
+            .WithMessage($"Description cannot exceed {BusinessConstants.Lengths.Description} characters");
 
         RuleFor(x => x.Type)
             .NotEmpty()
@@ -25,8 +26,8 @@ public class CreateJournalEntryCommandValidator : AbstractValidator<CreateJourna
             .WithMessage("Type must be one of: General, Adjusting, Closing, Reversing");
 
         RuleFor(x => x.Reference)
-            .MaximumLength(100)
-            .WithMessage("Reference cannot exceed 100 characters");
+            .MaximumLength(BusinessConstants.Lengths.ReferenceNumber)
+            .WithMessage($"Reference cannot exceed {BusinessConstants.Lengths.ReferenceNumber} characters");
 
         RuleFor(x => x.Lines)
             .NotEmpty()
@@ -80,7 +81,7 @@ public class JournalEntryLineCommandValidator : AbstractValidator<JournalEntryLi
         RuleFor(x => x.Description)
             .NotEmpty()
             .WithMessage("Line description is required")
-            .MaximumLength(500)
-            .WithMessage("Line description cannot exceed 500 characters");
+            .MaximumLength(BusinessConstants.Lengths.Description)
+            .WithMessage($"Line description cannot exceed {BusinessConstants.Lengths.Description} characters");
     }
 }

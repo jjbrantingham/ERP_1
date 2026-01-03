@@ -1,3 +1,5 @@
+using ERP.Shared.Constants;
+
 namespace ERP.Domain.Common.ValueObjects;
 
 /// <summary>
@@ -26,8 +28,8 @@ public class Money : ValueObject
         if (string.IsNullOrWhiteSpace(currency))
             throw new ArgumentException("Currency cannot be empty.", nameof(currency));
 
-        if (currency.Length != 3)
-            throw new ArgumentException("Currency must be a 3-letter ISO 4217 code.", nameof(currency));
+        if (currency.Length != BusinessConstants.Currency.CurrencyCodeLength)
+            throw new ArgumentException($"Currency must be a {BusinessConstants.Currency.CurrencyCodeLength}-letter ISO 4217 code.", nameof(currency));
 
         Amount = amount;
         Currency = currency.ToUpperInvariant();
