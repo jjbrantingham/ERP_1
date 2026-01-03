@@ -71,6 +71,10 @@ public class ExpenseItemConfiguration : IEntityTypeConfiguration<ExpenseItem>
 
         builder.Property(i => i.ModifiedDate);
 
+        // Row version for optimistic concurrency
+        builder.Property(i => i.RowVersion)
+            .IsRowVersion();
+
         // Relationships are configured in ExpenseReportConfiguration
 
         // Indexes

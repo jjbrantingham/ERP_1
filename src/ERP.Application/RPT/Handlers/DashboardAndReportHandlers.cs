@@ -273,17 +273,29 @@ public class GetProjectProfitabilityQueryHandler : IRequestHandler<GetProjectPro
 
             var billableHours = projectEntries.Where(e => e.IsBillable).Sum(e => e.Hours);
 
-            // Get employee rates and calculate labor cost
+            // Get all employee rates for the date range in a single query to avoid N+1
+            var employeeIds = projectEntries.Select(e => e.EmployeeId).Distinct().ToList();
+            var minDate = projectEntries.Min(e => e.WorkDate);
+            var maxDate = projectEntries.Max(e => e.WorkDate);
+
+            var allRates = await _context.Rates
+                .Where(r => employeeIds.Contains(r.EmployeeId))
+                .Where(r => r.EffectiveDate <= maxDate)
+                .ToListAsync(cancellationToken);
+
+            var ratesByEmployee = allRates
+                .GroupBy(r => r.EmployeeId)
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.EffectiveDate).ToList());
+
+            // Calculate labor cost using cached rates
             var laborCost = 0m;
             foreach (var entry in projectEntries)
             {
-                var rate = await _context.Rates
-                    .Where(r => r.EmployeeId == entry.EmployeeId)
-                    .Where(r => r.EffectiveDate <= entry.WorkDate)
-                    .OrderByDescending(r => r.EffectiveDate)
-                    .FirstOrDefaultAsync(cancellationToken);
-
-                laborCost += (rate?.CostRate ?? 0) * entry.Hours;
+                if (ratesByEmployee.TryGetValue(entry.EmployeeId, out var employeeRates))
+                {
+                    var rate = employeeRates.FirstOrDefault(r => r.EffectiveDate <= entry.WorkDate);
+                    laborCost += (rate?.CostRate ?? 0) * entry.Hours;
+                }
             }
 
             // Calculate expense cost
@@ -362,41 +374,59 @@ public class GetBudgetVarianceQueryHandler : IRequestHandler<GetBudgetVarianceQu
 
         var lines = new List<BudgetVarianceLineDto>();
 
-        // Calculate variance by WBS item
-        foreach (var wbs in project.WBSItems)
+        // Get all timesheet entries for this project to avoid N+1
+        var allProjectEntries = timesheets.SelectMany(t => t.Entries).ToList();
+
+        // Get all employee rates for the date range in a single query to avoid N+1
+        var employeeIds = allProjectEntries.Select(e => e.EmployeeId).Distinct().ToList();
+        if (employeeIds.Any())
         {
-            var budgetedAmount = wbs.BudgetedAmount;
+            var minDate = allProjectEntries.Min(e => e.WorkDate);
+            var maxDate = allProjectEntries.Max(e => e.WorkDate);
 
-            // Get actual for this WBS
-            var wbsEntries = timesheets.SelectMany(t => t.Entries)
-                .Where(e => e.WBSItemId == wbs.Id)
-                .ToList();
+            var allRates = await _context.Rates
+                .Where(r => employeeIds.Contains(r.EmployeeId))
+                .Where(r => r.EffectiveDate <= maxDate)
+                .ToListAsync(cancellationToken);
 
-            var actualAmount = 0m;
-            foreach (var entry in wbsEntries)
+            var ratesByEmployee = allRates
+                .GroupBy(r => r.EmployeeId)
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.EffectiveDate).ToList());
+
+            // Calculate variance by WBS item
+            foreach (var wbs in project.WBSItems)
             {
-                var rate = await _context.Rates
-                    .Where(r => r.EmployeeId == entry.EmployeeId)
-                    .Where(r => r.EffectiveDate <= entry.WorkDate)
-                    .OrderByDescending(r => r.EffectiveDate)
-                    .FirstOrDefaultAsync(cancellationToken);
+                var budgetedAmount = wbs.BudgetedAmount;
 
-                actualAmount += (rate?.CostRate ?? 0) * entry.Hours;
+                // Get actual for this WBS
+                var wbsEntries = allProjectEntries
+                    .Where(e => e.WBSItemId == wbs.Id)
+                    .ToList();
+
+                var actualAmount = 0m;
+                foreach (var entry in wbsEntries)
+                {
+                    if (ratesByEmployee.TryGetValue(entry.EmployeeId, out var employeeRates))
+                    {
+                        var rate = employeeRates.FirstOrDefault(r => r.EffectiveDate <= entry.WorkDate);
+                        actualAmount += (rate?.CostRate ?? 0) * entry.Hours;
+                    }
+                }
+
+                var variance = budgetedAmount - actualAmount;
+                var variancePercentage = budgetedAmount > 0 ? (variance / budgetedAmount) * 100 : 0;
+
+                lines.Add(new BudgetVarianceLineDto
+                {
+                    Category = "Labor",
+                    WBSItem = wbs.Name,
+                    BudgetedAmount = budgetedAmount,
+                    ActualAmount = actualAmount,
+                    Variance = variance,
+                    VariancePercentage = variancePercentage,
+                    Status = variance >= 0 ? (variance > budgetedAmount * 0.1m ? "Under" : "OnTrack") : "Over"
+                });
             }
-
-            var variance = budgetedAmount - actualAmount;
-            var variancePercentage = budgetedAmount > 0 ? (variance / budgetedAmount) * 100 : 0;
-
-            lines.Add(new BudgetVarianceLineDto
-            {
-                Category = "Labor",
-                WBSItem = wbs.Name,
-                BudgetedAmount = budgetedAmount,
-                ActualAmount = actualAmount,
-                Variance = variance,
-                VariancePercentage = variancePercentage,
-                Status = variance >= 0 ? (variance > budgetedAmount * 0.1m ? "Under" : "OnTrack") : "Over"
-            });
         }
 
         return new BudgetVarianceDto

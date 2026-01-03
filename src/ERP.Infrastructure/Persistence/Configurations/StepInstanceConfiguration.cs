@@ -61,6 +61,20 @@ public class StepInstanceConfiguration : IEntityTypeConfiguration<StepInstance>
         builder.Property(s => s.Comments)
             .HasMaxLength(2000);
 
+        // Audit fields
+        builder.Property(s => s.TenantId)
+            .IsRequired();
+
+        builder.Property(s => s.CreatedDate)
+            .IsRequired()
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.Property(s => s.ModifiedDate);
+
+        // Row version for optimistic concurrency
+        builder.Property(s => s.RowVersion)
+            .IsRowVersion();
+
         // Indexes
         builder.HasIndex(s => new { s.WorkflowInstanceId, s.SequenceNumber });
         builder.HasIndex(s => s.Status);

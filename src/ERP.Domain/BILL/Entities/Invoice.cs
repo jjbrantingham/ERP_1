@@ -110,6 +110,15 @@ public class Invoice : AggregateRoot
         if (Status != InvoiceStatus.Draft)
             throw new InvalidOperationException("Cannot modify non-draft invoices");
 
+        if (string.IsNullOrWhiteSpace(description))
+            throw new ArgumentException("Line item description cannot be empty", nameof(description));
+
+        if (quantity <= 0)
+            throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));
+
+        if (discountPercent < 0 || discountPercent > 100)
+            throw new ArgumentException("Discount percent must be between 0 and 100", nameof(discountPercent));
+
         if (unitPrice.Currency != Currency)
             throw new InvalidOperationException($"Line item currency ({unitPrice.Currency}) must match invoice currency ({Currency})");
 

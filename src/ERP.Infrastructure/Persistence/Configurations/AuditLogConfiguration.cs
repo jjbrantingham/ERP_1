@@ -67,6 +67,20 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
         builder.Property(a => a.PrimaryKey)
             .HasMaxLength(50);
 
+        // Audit fields
+        builder.Property(a => a.TenantId)
+            .IsRequired();
+
+        builder.Property(a => a.CreatedDate)
+            .IsRequired()
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.Property(a => a.ModifiedDate);
+
+        // Row version for optimistic concurrency
+        builder.Property(a => a.RowVersion)
+            .IsRowVersion();
+
         // Indexes for common queries
         builder.HasIndex(a => new { a.TenantId, a.Timestamp })
             .HasDatabaseName("IX_AuditLogs_TenantId_Timestamp");

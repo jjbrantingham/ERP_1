@@ -43,6 +43,20 @@ public class WorkflowStepConfiguration : IEntityTypeConfiguration<WorkflowStep>
         builder.Property(s => s.Conditions)
             .HasColumnType("nvarchar(max)");
 
+        // Audit fields
+        builder.Property(s => s.TenantId)
+            .IsRequired();
+
+        builder.Property(s => s.CreatedDate)
+            .IsRequired()
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.Property(s => s.ModifiedDate);
+
+        // Row version for optimistic concurrency
+        builder.Property(s => s.RowVersion)
+            .IsRowVersion();
+
         // Indexes
         builder.HasIndex(s => new { s.WorkflowDefinitionId, s.SequenceNumber });
     }

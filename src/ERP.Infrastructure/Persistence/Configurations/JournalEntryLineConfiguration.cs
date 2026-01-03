@@ -34,6 +34,20 @@ public class JournalEntryLineConfiguration : IEntityTypeConfiguration<JournalEnt
             .HasMaxLength(500)
             .IsRequired();
 
+        // Audit fields
+        builder.Property(jel => jel.TenantId)
+            .IsRequired();
+
+        builder.Property(jel => jel.CreatedDate)
+            .IsRequired()
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.Property(jel => jel.ModifiedDate);
+
+        // Row version for optimistic concurrency
+        builder.Property(jel => jel.RowVersion)
+            .IsRowVersion();
+
         // Foreign key to Account
         builder.HasOne<Account>()
             .WithMany()

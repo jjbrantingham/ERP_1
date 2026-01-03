@@ -44,6 +44,20 @@ public class InvoiceLineItemConfiguration : IEntityTypeConfiguration<InvoiceLine
             .HasPrecision(5, 2)
             .IsRequired();
 
+        // Audit fields
+        builder.Property(il => il.TenantId)
+            .IsRequired();
+
+        builder.Property(il => il.CreatedDate)
+            .IsRequired()
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.Property(il => il.ModifiedDate);
+
+        // Row version for optimistic concurrency
+        builder.Property(il => il.RowVersion)
+            .IsRowVersion();
+
         // Indexes
         builder.HasIndex(il => il.InvoiceId)
             .HasDatabaseName("IX_InvoiceLineItems_InvoiceId");

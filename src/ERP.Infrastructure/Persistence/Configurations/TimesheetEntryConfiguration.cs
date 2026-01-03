@@ -50,6 +50,10 @@ public class TimesheetEntryConfiguration : IEntityTypeConfiguration<TimesheetEnt
 
         builder.Property(e => e.ModifiedDate);
 
+        // Row version for optimistic concurrency
+        builder.Property(e => e.RowVersion)
+            .IsRowVersion();
+
         // Relationships are configured in TimesheetConfiguration
 
         // Indexes

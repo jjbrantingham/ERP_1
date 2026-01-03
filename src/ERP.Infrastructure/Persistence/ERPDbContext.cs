@@ -152,21 +152,27 @@ public class ERPDbContext : DbContext
         // Ensure TenantId is set for new entities
         EnsureTenantIdSet();
 
-        // Capture audit logs before saving
+        // Capture audit logs before saving (snapshot the change tracking state)
         var auditLogs = CaptureAuditLogs();
 
         // Dispatch domain events
         await DispatchDomainEventsAsync(cancellationToken);
 
-        // Save changes
-        var result = await base.SaveChangesAsync(cancellationToken);
-
-        // Add audit logs after main save to avoid tracking issues
+        // Add audit logs to the same transaction before saving
+        // This ensures both main changes and audit logs are committed together
         if (auditLogs.Any())
         {
+            // Detach audit logs temporarily to avoid circular tracking
+            foreach (var auditLog in auditLogs)
+            {
+                Entry(auditLog).State = EntityState.Detached;
+            }
+
             AuditLogs.AddRange(auditLogs);
-            await base.SaveChangesAsync(cancellationToken);
         }
+
+        // Save all changes in a single transaction
+        var result = await base.SaveChangesAsync(cancellationToken);
 
         return result;
     }

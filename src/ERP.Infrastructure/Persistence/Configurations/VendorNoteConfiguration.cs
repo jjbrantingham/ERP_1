@@ -45,6 +45,10 @@ public class VendorNoteConfiguration : IEntityTypeConfiguration<VendorNote>
 
         builder.Property(n => n.ModifiedDate);
 
+        // Row version for optimistic concurrency
+        builder.Property(n => n.RowVersion)
+            .IsRowVersion();
+
         // Relationships
         builder.HasOne(n => n.Vendor)
             .WithMany()
