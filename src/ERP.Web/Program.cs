@@ -208,12 +208,21 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IWorkflowDefinitionRepository, WorkflowDefinitionRepository>();
 builder.Services.AddScoped<IWorkflowInstanceRepository, WorkflowInstanceRepository>();
 
+// AUDIT repositories
+builder.Services.AddScoped<ERP.Domain.AUDIT.Repositories.IAuditLogRepository, AuditLogRepository>();
+
 // Register authentication services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 // Register email service
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Register audit and GDPR compliance services
+builder.Services.AddScoped<ERP.Application.AUDIT.Services.IDataRetentionPolicyService, ERP.Infrastructure.Services.DataRetentionPolicyService>();
+
+// Register data retention background service
+builder.Services.AddHostedService<ERP.Infrastructure.BackgroundServices.DataRetentionBackgroundService>();
 
 // Register MediatR with auto-discovery from Application assembly
 builder.Services.AddMediatR(cfg => {

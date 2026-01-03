@@ -11,8 +11,11 @@ using ERP.Domain.VM.Entities;
 using ERP.Domain.FIN.Entities;
 using ERP.Domain.BILL.Entities;
 using ERP.Domain.WF.Entities;
+using ERP.Domain.AUDIT.Entities;
+using ERP.Domain.AUDIT.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace ERP.Infrastructure.Persistence;
 
@@ -89,6 +92,9 @@ public class ERPDbContext : DbContext
     public DbSet<WorkflowInstance> WorkflowInstances => Set<WorkflowInstance>();
     public DbSet<StepInstance> StepInstances => Set<StepInstance>();
 
+    // Audit (audit schema)
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -146,10 +152,23 @@ public class ERPDbContext : DbContext
         // Ensure TenantId is set for new entities
         EnsureTenantIdSet();
 
+        // Capture audit logs before saving
+        var auditLogs = CaptureAuditLogs();
+
         // Dispatch domain events
         await DispatchDomainEventsAsync(cancellationToken);
 
-        return await base.SaveChangesAsync(cancellationToken);
+        // Save changes
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        // Add audit logs after main save to avoid tracking issues
+        if (auditLogs.Any())
+        {
+            AuditLogs.AddRange(auditLogs);
+            await base.SaveChangesAsync(cancellationToken);
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -224,5 +243,149 @@ public class ERPDbContext : DbContext
         {
             await _mediator.Publish(domainEvent, cancellationToken);
         }
+    }
+
+    /// <summary>
+    /// Captures audit logs for entity changes.
+    /// </summary>
+    private List<AuditLog> CaptureAuditLogs()
+    {
+        var auditLogs = new List<AuditLog>();
+
+        if (!_currentTenantService.IsSet)
+            return auditLogs;
+
+        var entries = ChangeTracker.Entries<Entity>()
+            .Where(e => e.State == EntityState.Added ||
+                       e.State == EntityState.Modified ||
+                       e.State == EntityState.Deleted)
+            .Where(e => !(e.Entity is AuditLog)) // Don't audit the audit logs themselves
+            .ToList();
+
+        foreach (var entry in entries)
+        {
+            var entityType = entry.Entity.GetType().Name;
+            var entityId = GetEntityId(entry.Entity);
+            var currentUserId = _currentUserService.UserId;
+            var currentUsername = _currentUserService.Username ?? "System";
+
+            AuditEventType eventType;
+            string? oldValuesJson = null;
+            string? newValuesJson = null;
+            string description;
+
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    eventType = AuditEventType.Create;
+                    newValuesJson = SerializeEntity(entry.CurrentValues);
+                    description = $"{entityType} created";
+                    break;
+
+                case EntityState.Modified:
+                    eventType = AuditEventType.Update;
+                    oldValuesJson = SerializeEntity(entry.OriginalValues);
+                    newValuesJson = SerializeEntity(entry.CurrentValues);
+                    var modifiedProperties = entry.Properties
+                        .Where(p => p.IsModified)
+                        .Select(p => p.Metadata.Name)
+                        .ToList();
+                    description = $"{entityType} updated. Modified fields: {string.Join(", ", modifiedProperties)}";
+                    break;
+
+                case EntityState.Deleted:
+                    eventType = AuditEventType.Delete;
+                    oldValuesJson = SerializeEntity(entry.OriginalValues);
+                    description = $"{entityType} deleted";
+                    break;
+
+                default:
+                    continue;
+            }
+
+            var auditLog = AuditLog.CreateEntityChange(
+                tenantId: _currentTenantService.TenantId,
+                eventType: eventType,
+                entityType: entityType,
+                entityId: entityId,
+                userId: currentUserId,
+                username: currentUsername,
+                description: description,
+                oldValues: oldValuesJson,
+                newValues: newValuesJson,
+                ipAddress: null, // Will be set by middleware/controller
+                userAgent: null  // Will be set by middleware/controller
+            );
+
+            auditLogs.Add(auditLog);
+        }
+
+        return auditLogs;
+    }
+
+    /// <summary>
+    /// Gets the entity ID as a long value.
+    /// </summary>
+    private long GetEntityId(Entity entity)
+    {
+        var idProperty = entity.GetType().GetProperty("Id");
+        if (idProperty == null)
+            return 0;
+
+        var idValue = idProperty.GetValue(entity);
+        if (idValue is long longId)
+            return longId;
+        if (idValue is int intId)
+            return intId;
+
+        return 0;
+    }
+
+    /// <summary>
+    /// Serializes entity property values to JSON.
+    /// </summary>
+    private string SerializeEntity(Microsoft.EntityFrameworkCore.ChangeTracking.PropertyValues values)
+    {
+        var dictionary = new Dictionary<string, object?>();
+
+        foreach (var property in values.Properties)
+        {
+            // Skip sensitive properties
+            if (IsSensitiveProperty(property.Name))
+                continue;
+
+            var value = values[property];
+
+            // Handle special types
+            if (value is DateTime dateTime)
+                dictionary[property.Name] = dateTime.ToString("O");
+            else if (value is Guid guid)
+                dictionary[property.Name] = guid.ToString();
+            else if (value is byte[] bytes)
+                dictionary[property.Name] = $"<binary data: {bytes.Length} bytes>";
+            else
+                dictionary[property.Name] = value;
+        }
+
+        return JsonSerializer.Serialize(dictionary, new JsonSerializerOptions
+        {
+            WriteIndented = false,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        });
+    }
+
+    /// <summary>
+    /// Determines if a property contains sensitive data that should not be audited.
+    /// </summary>
+    private bool IsSensitiveProperty(string propertyName)
+    {
+        var sensitiveProperties = new[]
+        {
+            "Password", "PasswordHash", "PasswordSalt", "Secret", "Token",
+            "ApiKey", "PrivateKey", "CreditCard", "SSN", "TaxId"
+        };
+
+        return sensitiveProperties.Any(s =>
+            propertyName.Contains(s, StringComparison.OrdinalIgnoreCase));
     }
 }
