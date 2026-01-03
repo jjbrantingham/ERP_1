@@ -273,28 +273,32 @@ public class GetProjectProfitabilityQueryHandler : IRequestHandler<GetProjectPro
 
             var billableHours = projectEntries.Where(e => e.IsBillable).Sum(e => e.Hours);
 
-            // Get all employee rates for the date range in a single query to avoid N+1
-            var employeeIds = projectEntries.Select(e => e.EmployeeId).Distinct().ToList();
-            var minDate = projectEntries.Min(e => e.WorkDate);
-            var maxDate = projectEntries.Max(e => e.WorkDate);
-
-            var allRates = await _context.Rates
-                .Where(r => employeeIds.Contains(r.EmployeeId))
-                .Where(r => r.EffectiveDate <= maxDate)
-                .ToListAsync(cancellationToken);
-
-            var ratesByEmployee = allRates
-                .GroupBy(r => r.EmployeeId)
-                .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.EffectiveDate).ToList());
-
-            // Calculate labor cost using cached rates
+            // Calculate labor cost from timesheets
             var laborCost = 0m;
-            foreach (var entry in projectEntries)
+            if (projectEntries.Any())
             {
-                if (ratesByEmployee.TryGetValue(entry.EmployeeId, out var employeeRates))
+                // Get all employee rates for the date range in a single query to avoid N+1
+                var employeeIds = projectEntries.Select(e => e.EmployeeId).Distinct().ToList();
+                var minDate = projectEntries.Min(e => e.WorkDate);
+                var maxDate = projectEntries.Max(e => e.WorkDate);
+
+                var allRates = await _context.Rates
+                    .Where(r => employeeIds.Contains(r.EmployeeId))
+                    .Where(r => r.EffectiveDate <= maxDate)
+                    .ToListAsync(cancellationToken);
+
+                var ratesByEmployee = allRates
+                    .GroupBy(r => r.EmployeeId)
+                    .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.EffectiveDate).ToList());
+
+                // Calculate labor cost using cached rates
+                foreach (var entry in projectEntries)
                 {
-                    var rate = employeeRates.FirstOrDefault(r => r.EffectiveDate <= entry.WorkDate);
-                    laborCost += (rate?.CostRate ?? 0) * entry.Hours;
+                    if (ratesByEmployee.TryGetValue(entry.EmployeeId, out var employeeRates))
+                    {
+                        var rate = employeeRates.FirstOrDefault(r => r.EffectiveDate <= entry.WorkDate);
+                        laborCost += (rate?.CostRate ?? 0) * entry.Hours;
+                    }
                 }
             }
 

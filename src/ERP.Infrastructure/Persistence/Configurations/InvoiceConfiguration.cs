@@ -64,6 +64,10 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .HasMaxLength(3)
             .IsRequired();
 
+        builder.Property(i => i.TotalAmount)
+            .HasPrecision(18, 2)
+            .IsRequired();
+
         // Value object mapping for AmountPaid (Money)
         builder.OwnsOne(i => i.AmountPaid, money =>
         {
@@ -123,5 +127,15 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 
         builder.HasIndex(i => i.DueDate)
             .HasDatabaseName("IX_Invoices_DueDate");
+
+        // Composite indexes for common query patterns
+        builder.HasIndex(i => new { i.Status, i.InvoiceDate })
+            .HasDatabaseName("IX_Invoices_Status_InvoiceDate");
+
+        builder.HasIndex(i => new { i.Status, i.DueDate })
+            .HasDatabaseName("IX_Invoices_Status_DueDate");
+
+        builder.HasIndex(i => new { i.ProjectId, i.Status })
+            .HasDatabaseName("IX_Invoices_ProjectId_Status");
     }
 }

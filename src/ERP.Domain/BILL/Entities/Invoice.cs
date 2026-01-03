@@ -39,6 +39,12 @@ public class Invoice : AggregateRoot
     /// </summary>
     public Money AmountPaid { get; private set; }
 
+    /// <summary>
+    /// Total amount of the invoice (subtotal + tax)
+    /// Calculated and stored for query performance
+    /// </summary>
+    public decimal TotalAmount { get; private set; }
+
     public DateTime? SentDate { get; private set; }
     public DateTime? PostedDate { get; private set; }
     public DateTime? PaidDate { get; private set; }
@@ -90,6 +96,7 @@ public class Invoice : AggregateRoot
             TaxRate = taxRate,
             Currency = currency.ToUpperInvariant(),
             AmountPaid = new Money(0m, currency),
+            TotalAmount = 0m, // Initial total is 0 (no line items yet)
             CreatedDate = DateTime.UtcNow
         };
 
@@ -124,6 +131,9 @@ public class Invoice : AggregateRoot
 
         var lineItem = InvoiceLineItem.Create(description, quantity, unitPrice, discountPercent);
         _lineItems.Add(lineItem);
+
+        // Recalculate total amount
+        RecalculateTotalAmount();
 
         ModifiedDate = DateTime.UtcNow;
     }
@@ -336,8 +346,20 @@ public class Invoice : AggregateRoot
             if (taxRate.Value < 0 || taxRate.Value > 1)
                 throw new ArgumentException("Tax rate must be between 0 and 1");
             TaxRate = taxRate.Value;
+
+            // Recalculate total amount when tax rate changes
+            RecalculateTotalAmount();
         }
 
         ModifiedDate = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Recalculate and update the total amount
+    /// </summary>
+    private void RecalculateTotalAmount()
+    {
+        var total = CalculateTotal();
+        TotalAmount = total.Amount;
     }
 }

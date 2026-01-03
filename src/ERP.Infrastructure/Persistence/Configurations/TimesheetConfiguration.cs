@@ -86,6 +86,13 @@ public class TimesheetConfiguration : IEntityTypeConfiguration<Timesheet>
         builder.HasIndex(t => new { t.TenantId, t.Status })
             .HasDatabaseName("IX_Timesheets_TenantId_Status");
 
+        // Composite indexes for date range queries with status
+        builder.HasIndex(t => new { t.Status, t.WeekStartDate })
+            .HasDatabaseName("IX_Timesheets_Status_WeekStartDate");
+
+        builder.HasIndex(t => new { t.Status, t.WeekEndDate })
+            .HasDatabaseName("IX_Timesheets_Status_WeekEndDate");
+
         // Global query filter for multi-tenancy
         // Note: This will be set in DbContext OnModelCreating using dynamic expression
     }
