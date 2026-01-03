@@ -12,10 +12,14 @@ using ERP.Domain.WF.Repositories;
 using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Persistence.Repositories;
 using ERP.Infrastructure.Services;
+using ERP.Infrastructure.HealthChecks;
 using ERP.Web.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Threading.RateLimiting;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -241,9 +245,33 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-// Add health checks
+// Configure memory health check options
+builder.Services.Configure<MemoryHealthCheckOptions>(options =>
+{
+    options.DegradedThreshold = 1024L * 1024L * 1024L;  // 1GB
+    options.UnhealthyThreshold = 2L * 1024L * 1024L * 1024L;  // 2GB
+});
+
+// Register startup health check as singleton
+builder.Services.AddSingleton<StartupHealthCheck>();
+
+// Add health checks with tags for different probe types
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<ERPDbContext>();
+    // Database health check - critical for readiness
+    .AddCheck<DatabaseHealthCheck>(
+        "database",
+        failureStatus: HealthStatus.Unhealthy,
+        tags: new[] { "ready", "db" })
+    // Memory health check - for monitoring
+    .AddCheck<MemoryHealthCheck>(
+        "memory",
+        failureStatus: HealthStatus.Degraded,
+        tags: new[] { "ready", "memory" })
+    // Startup health check - for readiness probe
+    .AddCheck<StartupHealthCheck>(
+        "startup",
+        failureStatus: HealthStatus.Unhealthy,
+        tags: new[] { "ready" });
 
 var app = builder.Build();
 
@@ -251,6 +279,9 @@ var app = builder.Build();
 
 // Use global exception handling middleware
 app.UseExceptionHandling();
+
+// Use request/response logging (after exception handling to log errors)
+app.UseRequestResponseLogging();
 
 // Add security headers
 app.UseSecurityHeaders();
@@ -293,8 +324,61 @@ app.UseTenantResolution();
 // Map controllers
 app.MapControllers();
 
-// Map health checks
-app.MapHealthChecks("/health");
+// Map health checks with detailed responses
+// Liveness probe - simple check that process is alive
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false, // Don't run any checks, just return 200 OK
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var response = new
+        {
+            status = "Healthy",
+            checks = new[] { new { name = "liveness", status = "Healthy" } }
+        };
+        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+    }
+});
+
+// Readiness probe - comprehensive check for Kubernetes
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+    ResponseWriter = WriteHealthCheckResponse
+});
+
+// General health check - all checks with detailed output
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = WriteHealthCheckResponse
+});
+
+// Helper function for detailed health check responses
+static async Task WriteHealthCheckResponse(HttpContext context, HealthReport report)
+{
+    context.Response.ContentType = "application/json";
+
+    var response = new
+    {
+        status = report.Status.ToString(),
+        duration = report.TotalDuration.TotalMilliseconds,
+        checks = report.Entries.Select(entry => new
+        {
+            name = entry.Key,
+            status = entry.Value.Status.ToString(),
+            description = entry.Value.Description,
+            duration = entry.Value.Duration.TotalMilliseconds,
+            exception = entry.Value.Exception?.Message,
+            data = entry.Value.Data
+        })
+    };
+
+    await context.Response.WriteAsync(JsonSerializer.Serialize(response, new JsonSerializerOptions
+    {
+        WriteIndented = true
+    }));
+}
 
 // Default route for testing
 app.MapGet("/", () => Results.Ok(new
@@ -313,6 +397,11 @@ if (app.Configuration.GetValue<bool>("AutoMigrate", false) ||
     app.Logger.LogInformation("Auto-migration enabled, initializing database...");
     await app.InitializeDatabaseAsync();
 }
+
+// Mark application as ready for traffic
+var startupHealthCheck = app.Services.GetRequiredService<StartupHealthCheck>();
+startupHealthCheck.MarkAsReady();
+app.Logger.LogInformation("Application startup complete, marked as ready");
 
 app.Run();
 
