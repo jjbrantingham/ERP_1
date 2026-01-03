@@ -80,4 +80,72 @@ public class ReportsController : ControllerBase
         var result = await _mediator.Send(new GetExecutiveDashboardQuery { AsOfDate = asOfDate });
         return Ok(result);
     }
+
+    [HttpGet("projects/profitability")]
+    [Authorize(Roles = "Administrator,ProjectManager,Finance")]
+    public async Task<IActionResult> GetProjectProfitability(
+        [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate,
+        [FromQuery] ReportPeriod period = ReportPeriod.ThisMonth,
+        [FromQuery] long? projectId = null, [FromQuery] long? clientId = null)
+    {
+        var result = await _mediator.Send(new GetProjectProfitabilityQuery
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            Period = period,
+            ProjectId = projectId,
+            ClientId = clientId
+        });
+        return Ok(result);
+    }
+
+    [HttpGet("projects/budget-variance")]
+    [Authorize(Roles = "Administrator,ProjectManager,Finance")]
+    public async Task<IActionResult> GetBudgetVariance([FromQuery] long projectId)
+    {
+        var result = await _mediator.Send(new GetBudgetVarianceQuery { ProjectId = projectId });
+        return Ok(result);
+    }
+
+    [HttpGet("operational/expense-summary")]
+    [Authorize(Roles = "Administrator,Finance,HR")]
+    public async Task<IActionResult> GetExpenseSummary(
+        [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate,
+        [FromQuery] long? employeeId = null, [FromQuery] long? projectId = null,
+        [FromQuery] string? status = null)
+    {
+        var result = await _mediator.Send(new GetExpenseSummaryQuery
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            EmployeeId = employeeId,
+            ProjectId = projectId,
+            Status = status
+        });
+        return Ok(result);
+    }
+
+    [HttpGet("dashboards/project-manager")]
+    [Authorize(Roles = "Administrator,ProjectManager")]
+    public async Task<IActionResult> GetProjectManagerDashboard([FromQuery] DateTime? asOfDate)
+    {
+        var result = await _mediator.Send(new GetProjectManagerDashboardQuery { AsOfDate = asOfDate });
+        return Ok(result);
+    }
+
+    [HttpGet("dashboards/finance")]
+    [Authorize(Roles = "Administrator,Finance,AccountingManager")]
+    public async Task<IActionResult> GetFinanceDashboard([FromQuery] DateTime? asOfDate)
+    {
+        var result = await _mediator.Send(new GetFinanceDashboardQuery { AsOfDate = asOfDate });
+        return Ok(result);
+    }
+
+    [HttpGet("dashboards/employee")]
+    [Authorize]
+    public async Task<IActionResult> GetEmployeeDashboard([FromQuery] long? employeeId = null)
+    {
+        var result = await _mediator.Send(new GetEmployeeDashboardQuery { EmployeeId = employeeId });
+        return Ok(result);
+    }
 }

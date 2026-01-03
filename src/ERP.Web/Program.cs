@@ -220,6 +220,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Register reporting services
 builder.Services.AddScoped<ERP.Application.RPT.Services.IReportPeriodService, ERP.Infrastructure.Services.ReportPeriodService>();
+builder.Services.AddScoped<ERP.Application.RPT.Services.IReportExportService, ERP.Infrastructure.Services.ReportExportService>();
 
 // Register audit and GDPR compliance services
 builder.Services.AddScoped<ERP.Application.AUDIT.Services.IDataRetentionPolicyService, ERP.Infrastructure.Services.DataRetentionPolicyService>();
