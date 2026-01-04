@@ -1,7 +1,11 @@
+using ERP.Shared.Constants;
 using FluentValidation;
 
 namespace ERP.Application.BILL.Commands;
 
+/// <summary>
+/// Validator for ApplyPaymentCommand.
+/// </summary>
 public class ApplyPaymentCommandValidator : AbstractValidator<ApplyPaymentCommand>
 {
     public ApplyPaymentCommandValidator()
@@ -13,15 +17,15 @@ public class ApplyPaymentCommandValidator : AbstractValidator<ApplyPaymentComman
         RuleFor(x => x.PaymentAmount)
             .GreaterThan(0)
             .WithMessage("Payment amount must be greater than zero")
-            .ScalePrecision(2, 18)
-            .WithMessage("Payment amount cannot have more than 2 decimal places");
+            .ScalePrecision(BusinessConstants.Currency.DefaultDecimalPlaces, BusinessConstants.Currency.DefaultPrecision)
+            .WithMessage($"Payment amount must have at most {BusinessConstants.Currency.DefaultDecimalPlaces} decimal places");
 
         RuleFor(x => x.Currency)
             .NotEmpty()
             .WithMessage("Currency is required")
-            .Length(3)
-            .WithMessage("Currency must be a 3-letter ISO code (e.g., USD, EUR)")
-            .Matches("^[A-Z]{3}$")
-            .WithMessage("Currency must be uppercase letters only");
+            .Length(BusinessConstants.Currency.CurrencyCodeLength)
+            .WithMessage($"Currency code must be exactly {BusinessConstants.Currency.CurrencyCodeLength} characters")
+            .Must(currency => BusinessConstants.Currency.SupportedCurrencies.Contains(currency))
+            .WithMessage(x => $"Currency '{x.Currency}' is not supported. Supported currencies: {string.Join(", ", BusinessConstants.Currency.SupportedCurrencies)}");
     }
 }
