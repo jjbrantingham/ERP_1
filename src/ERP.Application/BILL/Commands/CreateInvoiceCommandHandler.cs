@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.Common.Interfaces;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.BILL.Entities;
@@ -15,22 +16,28 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
     private readonly ILogger<CreateInvoiceCommandHandler> _logger;
 
     public CreateInvoiceCommandHandler(
         IInvoiceRepository invoiceRepository,
         IUnitOfWork unitOfWork,
         ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser,
         ILogger<CreateInvoiceCommandHandler> logger)
     {
         _invoiceRepository = invoiceRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
         _logger = logger;
     }
 
     public async Task<long> Handle(CreateInvoiceCommand request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         _logger.LogInformation(
             "Creating invoice for TenantId: {TenantId}, ClientId: {ClientId}, ProjectId: {ProjectId}, BillingMode: {BillingMode}",
             _currentTenant.TenantId, request.ClientId, request.ProjectId, request.BillingMode);

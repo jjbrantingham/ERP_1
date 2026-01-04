@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.Common.Interfaces;
 using ERP.Domain.FIN.Entities;
 using ERP.Domain.FIN.Enums;
@@ -15,6 +16,7 @@ public class CreateJournalEntryCommandHandler : IRequestHandler<CreateJournalEnt
     private readonly IAccountRepository _accountRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
     private readonly ILogger<CreateJournalEntryCommandHandler> _logger;
 
     public CreateJournalEntryCommandHandler(
@@ -22,17 +24,21 @@ public class CreateJournalEntryCommandHandler : IRequestHandler<CreateJournalEnt
         IAccountRepository accountRepository,
         IUnitOfWork unitOfWork,
         ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser,
         ILogger<CreateJournalEntryCommandHandler> logger)
     {
         _journalEntryRepository = journalEntryRepository;
         _accountRepository = accountRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
         _logger = logger;
     }
 
     public async Task<long> Handle(CreateJournalEntryCommand request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
         var totalDebits = request.Lines.Sum(l => l.DebitAmount);
         var totalCredits = request.Lines.Sum(l => l.CreditAmount);
 

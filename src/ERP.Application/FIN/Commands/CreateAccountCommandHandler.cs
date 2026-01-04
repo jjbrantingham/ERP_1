@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.Common.Interfaces;
 using ERP.Domain.FIN.Entities;
 using ERP.Domain.FIN.Enums;
@@ -13,19 +14,24 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
     private readonly IAccountRepository _accountRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
 
     public CreateAccountCommandHandler(
         IAccountRepository accountRepository,
         IUnitOfWork unitOfWork,
-        ICurrentTenantService currentTenant)
+        ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser)
     {
         _accountRepository = accountRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
     }
 
     public async Task<long> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
         // Validate account number is unique
         var accountNumber = new AccountNumber(request.AccountNumber);
         if (await _accountRepository.ExistsAsync(accountNumber, cancellationToken))
