@@ -67,6 +67,21 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
                 .HasMaxLength(3);
         });
 
+        // Value object: Money (ActualCost)
+        builder.OwnsOne(p => p.ActualCost, actualCost =>
+        {
+            actualCost.Property(m => m.Amount)
+                .HasColumnName("ActualCostAmount")
+                .HasPrecision(18, 2);
+            actualCost.Property(m => m.Currency)
+                .HasColumnName("ActualCostCurrency")
+                .HasMaxLength(3);
+        });
+
+        // Actual dates for project tracking
+        builder.Property(p => p.ActualStartDate);
+        builder.Property(p => p.ActualEndDate);
+
         builder.Property(p => p.ProjectManagerId);
 
         builder.Property(p => p.Notes)
