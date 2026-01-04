@@ -23,13 +23,17 @@ public class Money : ValueObject
     /// </summary>
     /// <param name="amount">The monetary amount.</param>
     /// <param name="currency">The currency code (e.g., "USD", "EUR").</param>
-    public Money(decimal amount, string currency)
+    /// <param name="allowNegative">Whether to allow negative amounts. Default is true for flexibility in calculations.</param>
+    public Money(decimal amount, string currency, bool allowNegative = true)
     {
         if (string.IsNullOrWhiteSpace(currency))
             throw new ArgumentException("Currency cannot be empty.", nameof(currency));
 
         if (currency.Length != BusinessConstants.Currency.CurrencyCodeLength)
             throw new ArgumentException($"Currency must be a {BusinessConstants.Currency.CurrencyCodeLength}-letter ISO 4217 code.", nameof(currency));
+
+        if (!allowNegative && amount < 0)
+            throw new ArgumentException($"Amount cannot be negative. Received: {amount}", nameof(amount));
 
         Amount = amount;
         Currency = currency.ToUpperInvariant();
@@ -39,6 +43,30 @@ public class Money : ValueObject
     /// Creates a Money instance with zero amount.
     /// </summary>
     public static Money Zero(string currency) => new Money(0, currency);
+
+    /// <summary>
+    /// Creates a Money instance that must be positive (> 0).
+    /// Use for amounts that should never be zero or negative (e.g., unit prices, rates).
+    /// </summary>
+    public static Money CreatePositive(decimal amount, string currency)
+    {
+        if (amount <= 0)
+            throw new ArgumentException($"Amount must be positive (greater than zero). Received: {amount}", nameof(amount));
+
+        return new Money(amount, currency, allowNegative: false);
+    }
+
+    /// <summary>
+    /// Creates a Money instance that must be non-negative (>= 0).
+    /// Use for amounts that can be zero but not negative (e.g., invoice totals, payment amounts, budgets).
+    /// </summary>
+    public static Money CreateNonNegative(decimal amount, string currency)
+    {
+        if (amount < 0)
+            throw new ArgumentException($"Amount cannot be negative. Received: {amount}", nameof(amount));
+
+        return new Money(amount, currency, allowNegative: false);
+    }
 
     /// <summary>
     /// Adds two money amounts.
