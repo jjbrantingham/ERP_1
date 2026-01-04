@@ -1,7 +1,6 @@
 using ERP.Domain.Common;
-using ERP.Domain.Common.ValueObjects;
+using ERP.Domain.Common;
 using ERP.Domain.CRM.Enums;
-using ERP.Domain.CRM.Events;
 using ERP.Domain.CRM.ValueObjects;
 
 namespace ERP.Domain.CRM.Entities;

@@ -1,5 +1,5 @@
 using ERP.Domain.Common;
-using ERP.Domain.Common.ValueObjects;
+using ERP.Domain.Common;
 using ERP.Domain.VM.Enums;
 
 namespace ERP.Domain.VM.Entities;
