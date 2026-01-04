@@ -1,3 +1,4 @@
+using ERP.Application.Common.Interfaces;
 using ERP.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -32,6 +33,16 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>
                 options.UseInMemoryDatabase("InMemoryDbForTesting");
                 options.EnableSensitiveDataLogging();
             });
+
+            // Override authentication services with test mocks
+            services.RemoveAll<ICurrentUserService>();
+            services.RemoveAll<ICurrentTenantService>();
+
+            services.AddScoped<ICurrentUserService>(sp =>
+                TestAuthenticationHelper.CreateMockCurrentUser());
+
+            services.AddScoped<ICurrentTenantService>(sp =>
+                TestAuthenticationHelper.CreateMockCurrentTenant());
 
             // Build the service provider
             var sp = services.BuildServiceProvider();

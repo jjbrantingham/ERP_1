@@ -25,17 +25,23 @@ public class AuthorizationTests : IntegrationTestBase
     [Fact]
     public async Task CreateProject_UnauthenticatedUser_ShouldThrowUnauthorizedException()
     {
-        // Arrange
+        // Arrange - Create test client with default authenticated user
         var client = await CreateTestClientAsync();
 
-        // Create a new scope with unauthenticated user
-        using var scope = Factory.Services.CreateScope();
-        var services = scope.ServiceProvider;
+        // Create a custom factory with unauthenticated user
+        var customFactory = Factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                // Override ICurrentUserService with unauthenticated user
+                services.AddScoped<ICurrentUserService>(sp =>
+                    TestAuthenticationHelper.CreateUnauthenticatedUser());
+            });
+        });
 
-        // Override ICurrentUserService with unauthenticated user
-        var mockUserService = new Mock<ICurrentUserService>();
-        mockUserService.Setup(x => x.IsAuthenticated).Returns(false);
-        mockUserService.Setup(x => x.UserId).Returns((Guid?)null);
+        // Create new scope with unauthenticated context
+        using var scope = customFactory.Services.CreateScope();
+        var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
 
         var command = new CreateProjectCommand
         {
@@ -45,32 +51,51 @@ public class AuthorizationTests : IntegrationTestBase
             ClientId = client.Id
         };
 
-        // Note: This test demonstrates the authorization pattern.
-        // In a real scenario, you'd need to configure the DI container
-        // to inject the mock ICurrentUserService.
-
         // Act & Assert
         // The handler will call AuthorizationHelper.EnsureAuthenticated()
         // which should throw UnauthorizedException for unauthenticated users
+        await Assert.ThrowsAsync<UnauthorizedException>(async () =>
+            await mediator.Send(command));
     }
 
     [Fact]
     public async Task CreateProject_NullUserId_ShouldThrowUnauthorizedException()
     {
-        // Arrange
+        // Arrange - Create test client with default authenticated user
         var client = await CreateTestClientAsync();
 
-        // This test verifies that handlers properly check for authenticated users
-        // before executing business logic.
+        // Create a custom factory with null user ID
+        var customFactory = Factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                // Override ICurrentUserService with null UserId
+                services.AddScoped<ICurrentUserService>(sp =>
+                    TestAuthenticationHelper.CreateMockCurrentUser(
+                        userId: null,
+                        isAuthenticated: true)); // Authenticated but no UserId
+            });
+        });
 
-        // In production, the authentication middleware ensures all requests
-        // have valid authentication tokens. This test verifies the handler-level
-        // checks work correctly.
+        // Create new scope with null UserId context
+        using var scope = customFactory.Services.CreateScope();
+        var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
 
+        var command = new CreateProjectCommand
+        {
+            Name = "Test Project",
+            Description = "Test Description",
+            Type = ProjectType.Billable,
+            ClientId = client.Id
+        };
+
+        // Act & Assert
         // The AuthorizationHelper.EnsureAuthenticated() method should reject:
-        // - IsAuthenticated = false
-        // - UserId = null
+        // - IsAuthenticated = false (tested in previous test)
+        // - UserId = null (tested here)
         // - Missing claims
+        await Assert.ThrowsAsync<UnauthorizedException>(async () =>
+            await mediator.Send(command));
     }
 
     /// <summary>

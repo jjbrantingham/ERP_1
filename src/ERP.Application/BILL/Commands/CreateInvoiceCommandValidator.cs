@@ -1,3 +1,4 @@
+using ERP.Domain.BILL.Enums;
 using ERP.Shared.Constants;
 using FluentValidation;
 
@@ -19,8 +20,8 @@ public class CreateInvoiceCommandValidator : AbstractValidator<CreateInvoiceComm
         RuleFor(x => x.BillingMode)
             .NotEmpty()
             .WithMessage("Billing mode is required")
-            .Must(mode => new[] { "TimeAndMaterials", "FixedPrice", "Milestone", "PercentComplete" }.Contains(mode))
-            .WithMessage("Billing mode must be one of: TimeAndMaterials, FixedPrice, Milestone, PercentComplete");
+            .Must(mode => Enum.TryParse<BillingMode>(mode, true, out _))
+            .WithMessage($"Billing mode must be a valid value: {string.Join(", ", Enum.GetNames(typeof(BillingMode)))}");
 
         RuleFor(x => x.InvoiceDate)
             .NotEmpty()
