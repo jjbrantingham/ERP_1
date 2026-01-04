@@ -1,5 +1,5 @@
 using ERP.Domain.Common;
-using ERP.Domain.Common;
+using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.HR.Enums;
 using ERP.Domain.HR.ValueObjects;
 
