@@ -1,7 +1,5 @@
 using ERP.Domain.Common;
 using ERP.Domain.Common.ValueObjects;
-using ERP.Domain.Common;
-using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.CRM.Enums;
 using ERP.Domain.CRM.ValueObjects;
 
@@ -40,7 +38,7 @@ public class Client : AggregateRoot
     public string? CreditLimit { get; private set; }
 
     // Additional
-    public string? Notes { get; private set; }
+    public string? GeneralNotes { get; private set; }
     public bool IsActive { get; private set; }
 
     // Navigation properties
@@ -102,7 +100,7 @@ public class Client : AggregateRoot
             AccountManagerId = accountManagerId,
             PaymentTerms = paymentTerms?.Trim(),
             CreditLimit = creditLimit?.Trim(),
-            Notes = notes?.Trim(),
+            GeneralNotes = notes?.Trim(),
             IsActive = true,
             CreatedDate = DateTime.UtcNow
         };
@@ -147,7 +145,7 @@ public class Client : AggregateRoot
         AccountManagerId = accountManagerId;
         PaymentTerms = paymentTerms?.Trim();
         CreditLimit = creditLimit?.Trim();
-        Notes = notes?.Trim();
+        GeneralNotes = notes?.Trim();
         ModifiedDate = DateTime.UtcNow;
     }
 
