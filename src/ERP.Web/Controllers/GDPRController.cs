@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ERP.Application.AUDIT.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -21,6 +22,23 @@ public class GDPRController : ControllerBase
     }
 
     /// <summary>
+    /// Gets the current authenticated user's ID from claims.
+    /// </summary>
+    private long GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                          ?? User.FindFirst("sub")?.Value
+                          ?? User.FindFirst("userId")?.Value;
+
+        if (string.IsNullOrEmpty(userIdClaim) || !long.TryParse(userIdClaim, out var userId))
+        {
+            throw new UnauthorizedAccessException("User ID not found in claims");
+        }
+
+        return userId;
+    }
+
+    /// <summary>
     /// Export all user data (GDPR Right to Data Portability - Article 20).
     /// Users can export their own data. Administrators can export any user's data.
     /// </summary>
@@ -29,9 +47,14 @@ public class GDPRController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> ExportUserData(long userId)
     {
-        // TODO: Add authorization check - users can only export their own data unless they're admins
-        // if (!User.IsInRole("Administrator") && GetCurrentUserId() != userId)
-        //     return Forbid();
+        // Authorization check: users can only export their own data unless they're admins
+        var currentUserId = GetCurrentUserId();
+        var isAdmin = User.IsInRole("Administrator") || User.IsInRole("DataProtectionOfficer");
+
+        if (!isAdmin && currentUserId != userId)
+        {
+            return Forbid();
+        }
 
         var command = new ExportUserDataCommand { UserId = userId };
         var json = await _mediator.Send(command);
@@ -79,8 +102,18 @@ public class GDPRController : ControllerBase
     /// </summary>
     [HttpGet("consent/{userId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetConsentStatus(long userId)
     {
+        // Authorization check: users can only view their own consent status unless they're admins
+        var currentUserId = GetCurrentUserId();
+        var isAdmin = User.IsInRole("Administrator") || User.IsInRole("DataProtectionOfficer");
+
+        if (!isAdmin && currentUserId != userId)
+        {
+            return Forbid();
+        }
+
         // TODO: Implement consent tracking
         await Task.CompletedTask;
 
@@ -101,10 +134,20 @@ public class GDPRController : ControllerBase
     /// </summary>
     [HttpPost("consent/{userId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RecordConsent(
         long userId,
         [FromBody] ConsentRequest request)
     {
+        // Authorization check: users can only record their own consent unless they're admins
+        var currentUserId = GetCurrentUserId();
+        var isAdmin = User.IsInRole("Administrator") || User.IsInRole("DataProtectionOfficer");
+
+        if (!isAdmin && currentUserId != userId)
+        {
+            return Forbid();
+        }
+
         // TODO: Implement consent tracking
         await Task.CompletedTask;
 
