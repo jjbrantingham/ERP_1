@@ -1,4 +1,4 @@
-using ERP.Domain.Common.Events;
+using ERP.Domain.Common;
 using ERP.Domain.FIN.Enums;
 
 namespace ERP.Domain.FIN.Events;
