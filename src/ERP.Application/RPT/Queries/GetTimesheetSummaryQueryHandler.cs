@@ -8,14 +8,23 @@ namespace ERP.Application.RPT.Queries;
 public class GetTimesheetSummaryQueryHandler : IRequestHandler<GetTimesheetSummaryQuery, TimesheetSummaryDto>
 {
     private readonly ERPDbContext _context;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetTimesheetSummaryQueryHandler(ERPDbContext context)
+    public GetTimesheetSummaryQueryHandler(ERPDbContext context,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _context = context;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<TimesheetSummaryDto> Handle(GetTimesheetSummaryQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Get timesheets for the period
         var query = _context.Timesheets
             .Include(t => t.Entries)

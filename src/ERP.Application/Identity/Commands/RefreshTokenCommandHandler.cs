@@ -13,15 +13,18 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, A
     private readonly IUserRepository _userRepository;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUser;
 
     public RefreshTokenCommandHandler(
         IUserRepository userRepository,
         IJwtTokenService jwtTokenService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUser)
     {
         _userRepository = userRepository;
         _jwtTokenService = jwtTokenService;
         _unitOfWork = unitOfWork;
+        _currentUser = currentUser;
     }
 
     public async Task<AuthenticationResponse> Handle(RefreshTokenCommand command, CancellationToken cancellationToken = default)

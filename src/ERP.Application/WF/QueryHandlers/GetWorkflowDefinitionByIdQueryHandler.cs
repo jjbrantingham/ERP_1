@@ -8,14 +8,23 @@ namespace ERP.Application.WF.QueryHandlers;
 public class GetWorkflowDefinitionByIdQueryHandler : IRequestHandler<GetWorkflowDefinitionByIdQuery, WorkflowDefinitionDto?>
 {
     private readonly IWorkflowDefinitionRepository _workflowDefinitionRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetWorkflowDefinitionByIdQueryHandler(IWorkflowDefinitionRepository workflowDefinitionRepository)
+    public GetWorkflowDefinitionByIdQueryHandler(IWorkflowDefinitionRepository workflowDefinitionRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _workflowDefinitionRepository = workflowDefinitionRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<WorkflowDefinitionDto?> Handle(GetWorkflowDefinitionByIdQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var workflow = await _workflowDefinitionRepository.GetByIdWithStepsAsync(
             request.WorkflowDefinitionId,
             cancellationToken);

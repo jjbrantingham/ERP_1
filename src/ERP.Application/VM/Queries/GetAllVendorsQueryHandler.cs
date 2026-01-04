@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.VM.DTOs;
 using ERP.Domain.VM.Repositories;
 
@@ -10,14 +11,23 @@ namespace ERP.Application.VM.Queries;
 public class GetAllVendorsQueryHandler : IQueryHandler<GetAllVendorsQuery, IEnumerable<VendorDto>>
 {
     private readonly IVendorRepository _vendorRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetAllVendorsQueryHandler(IVendorRepository vendorRepository)
+    public GetAllVendorsQueryHandler(IVendorRepository vendorRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _vendorRepository = vendorRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<IEnumerable<VendorDto>> Handle(GetAllVendorsQuery query, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var vendors = query.ActiveOnly
             ? await _vendorRepository.GetActiveVendorsAsync(cancellationToken)
             : await _vendorRepository.GetAllAsync(cancellationToken);

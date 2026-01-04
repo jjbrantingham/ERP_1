@@ -1,4 +1,6 @@
 using ERP.Application.Common.Exceptions;
+using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.BILL.DTOs;
 using ERP.Domain.BILL.Repositories;
 using MediatR;
@@ -8,14 +10,23 @@ namespace ERP.Application.BILL.Queries;
 public class GetInvoiceByIdQueryHandler : IRequestHandler<GetInvoiceByIdQuery, InvoiceDto>
 {
     private readonly IInvoiceRepository _invoiceRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetInvoiceByIdQueryHandler(IInvoiceRepository invoiceRepository)
+    public GetInvoiceByIdQueryHandler(IInvoiceRepository invoiceRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _invoiceRepository = invoiceRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<InvoiceDto> Handle(GetInvoiceByIdQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var invoice = await _invoiceRepository.GetByIdAsync(request.InvoiceId, cancellationToken);
 
         if (invoice == null)

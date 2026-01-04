@@ -1,3 +1,5 @@
+using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.WF.DTOs;
 using ERP.Application.WF.Queries;
 using ERP.Domain.WF.Repositories;
@@ -9,16 +11,25 @@ public class GetWorkflowDefinitionsByEntityTypeQueryHandler
     : IRequestHandler<GetWorkflowDefinitionsByEntityTypeQuery, IEnumerable<WorkflowDefinitionDto>>
 {
     private readonly IWorkflowDefinitionRepository _workflowDefinitionRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetWorkflowDefinitionsByEntityTypeQueryHandler(IWorkflowDefinitionRepository workflowDefinitionRepository)
+    public GetWorkflowDefinitionsByEntityTypeQueryHandler(IWorkflowDefinitionRepository workflowDefinitionRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _workflowDefinitionRepository = workflowDefinitionRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<IEnumerable<WorkflowDefinitionDto>> Handle(
         GetWorkflowDefinitionsByEntityTypeQuery request,
         CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var workflows = request.ActiveOnly
             ? await _workflowDefinitionRepository.GetActiveByEntityTypeAsync(request.EntityType, cancellationToken)
             : await _workflowDefinitionRepository.GetAllByEntityTypeAsync(request.EntityType, cancellationToken);

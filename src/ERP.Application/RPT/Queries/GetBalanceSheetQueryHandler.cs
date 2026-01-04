@@ -8,14 +8,23 @@ namespace ERP.Application.RPT.Queries;
 public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery, BalanceSheetDto>
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetBalanceSheetQueryHandler(IAccountRepository accountRepository)
+    public GetBalanceSheetQueryHandler(IAccountRepository accountRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _accountRepository = accountRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<BalanceSheetDto> Handle(GetBalanceSheetQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Get all accounts
         var accounts = await _accountRepository.GetAllAsync(cancellationToken);
 

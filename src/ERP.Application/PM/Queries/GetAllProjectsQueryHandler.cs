@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.PM.DTOs;
 using ERP.Domain.PM.Repositories;
 
@@ -10,14 +11,23 @@ namespace ERP.Application.PM.Queries;
 public class GetAllProjectsQueryHandler : IQueryHandler<GetAllProjectsQuery, IEnumerable<ProjectDto>>
 {
     private readonly IProjectRepository _projectRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetAllProjectsQueryHandler(IProjectRepository projectRepository)
+    public GetAllProjectsQueryHandler(IProjectRepository projectRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _projectRepository = projectRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<IEnumerable<ProjectDto>> Handle(GetAllProjectsQuery query, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var projects = query.ActiveOnly
             ? await _projectRepository.GetActiveProjectsAsync(cancellationToken)
             : await _projectRepository.GetAllAsync(cancellationToken);

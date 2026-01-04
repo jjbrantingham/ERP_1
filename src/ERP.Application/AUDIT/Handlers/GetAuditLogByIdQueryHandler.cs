@@ -12,14 +12,23 @@ namespace ERP.Application.AUDIT.Handlers;
 public class GetAuditLogByIdQueryHandler : IRequestHandler<GetAuditLogByIdQuery, AuditLogDto>
 {
     private readonly IAuditLogRepository _auditLogRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetAuditLogByIdQueryHandler(IAuditLogRepository auditLogRepository)
+    public GetAuditLogByIdQueryHandler(IAuditLogRepository auditLogRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _auditLogRepository = auditLogRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<AuditLogDto> Handle(GetAuditLogByIdQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var auditLog = await _auditLogRepository.GetByIdAsync(request.AuditLogId, cancellationToken);
 
         if (auditLog == null)

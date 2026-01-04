@@ -11,14 +11,23 @@ namespace ERP.Application.AUDIT.Handlers;
 public class GetAuditTrailForEntityQueryHandler : IRequestHandler<GetAuditTrailForEntityQuery, IEnumerable<AuditLogDto>>
 {
     private readonly IAuditLogRepository _auditLogRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetAuditTrailForEntityQueryHandler(IAuditLogRepository auditLogRepository)
+    public GetAuditTrailForEntityQueryHandler(IAuditLogRepository auditLogRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _auditLogRepository = auditLogRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<IEnumerable<AuditLogDto>> Handle(GetAuditTrailForEntityQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var auditLogs = await _auditLogRepository.GetByEntityAsync(
             request.EntityType,
             request.EntityId.ToString(),

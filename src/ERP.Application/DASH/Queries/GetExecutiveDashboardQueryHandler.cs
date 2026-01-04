@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.DASH.DTOs;
 using ERP.Domain.CRM.Repositories;
 using ERP.Domain.DASH.Enums;
@@ -27,6 +28,8 @@ public class GetExecutiveDashboardQueryHandler : IRequestHandler<GetExecutiveDas
     private readonly ITimesheetRepository _timesheetRepository;
     private readonly IAccountRepository _accountRepository;
     private readonly IInvoiceRepository _invoiceRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
     public GetExecutiveDashboardQueryHandler(
         ICurrentTenantService currentTenant,
@@ -44,10 +47,15 @@ public class GetExecutiveDashboardQueryHandler : IRequestHandler<GetExecutiveDas
         _timesheetRepository = timesheetRepository;
         _accountRepository = accountRepository;
         _invoiceRepository = invoiceRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<ExecutiveDashboardDto> Handle(GetExecutiveDashboardQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var asOfDate = request.AsOfDate ?? DateTime.UtcNow;
         var currentMonth = new DateTime(asOfDate.Year, asOfDate.Month, 1);
         var previousMonth = currentMonth.AddMonths(-1);

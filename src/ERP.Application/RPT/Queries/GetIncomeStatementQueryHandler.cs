@@ -12,19 +12,28 @@ public class GetIncomeStatementQueryHandler : IRequestHandler<GetIncomeStatement
     private readonly IAccountRepository _accountRepository;
     private readonly IJournalEntryRepository _journalEntryRepository;
     private readonly ERPDbContext _context;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
     public GetIncomeStatementQueryHandler(
         IAccountRepository accountRepository,
         IJournalEntryRepository journalEntryRepository,
-        ERPDbContext context)
+        ERPDbContext context,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _accountRepository = accountRepository;
         _journalEntryRepository = journalEntryRepository;
         _context = context;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<IncomeStatementDto> Handle(GetIncomeStatementQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Get all accounts
         var accounts = await _accountRepository.GetAllAsync(cancellationToken);
 

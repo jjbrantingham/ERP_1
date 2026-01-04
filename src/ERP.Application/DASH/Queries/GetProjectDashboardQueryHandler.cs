@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.DASH.DTOs;
 using ERP.Domain.BILL.Enums;
 using ERP.Domain.BILL.Repositories;
@@ -20,6 +21,8 @@ public class GetProjectDashboardQueryHandler : IRequestHandler<GetProjectDashboa
     private readonly IProjectRepository _projectRepository;
     private readonly ITimesheetRepository _timesheetRepository;
     private readonly IInvoiceRepository _invoiceRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
     public GetProjectDashboardQueryHandler(
         ICurrentTenantService currentTenant,
@@ -31,10 +34,15 @@ public class GetProjectDashboardQueryHandler : IRequestHandler<GetProjectDashboa
         _projectRepository = projectRepository;
         _timesheetRepository = timesheetRepository;
         _invoiceRepository = invoiceRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<ProjectDashboardDto> Handle(GetProjectDashboardQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var asOfDate = request.AsOfDate ?? DateTime.UtcNow;
         var currency = request.Currency;
 

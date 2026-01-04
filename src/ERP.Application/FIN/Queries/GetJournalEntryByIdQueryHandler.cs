@@ -1,4 +1,6 @@
 using ERP.Application.Common.Exceptions;
+using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.FIN.DTOs;
 using ERP.Domain.FIN.Repositories;
 using MediatR;
@@ -9,17 +11,26 @@ public class GetJournalEntryByIdQueryHandler : IRequestHandler<GetJournalEntryBy
 {
     private readonly IJournalEntryRepository _journalEntryRepository;
     private readonly IAccountRepository _accountRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
     public GetJournalEntryByIdQueryHandler(
         IJournalEntryRepository journalEntryRepository,
-        IAccountRepository accountRepository)
+        IAccountRepository accountRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _journalEntryRepository = journalEntryRepository;
         _accountRepository = accountRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<JournalEntryDto> Handle(GetJournalEntryByIdQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var journalEntry = await _journalEntryRepository.GetByIdAsync(request.JournalEntryId, cancellationToken);
 
         if (journalEntry == null)

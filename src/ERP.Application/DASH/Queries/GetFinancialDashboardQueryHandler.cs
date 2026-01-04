@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.DASH.DTOs;
 using ERP.Domain.BILL.Enums;
 using ERP.Domain.BILL.Repositories;
@@ -18,6 +19,8 @@ public class GetFinancialDashboardQueryHandler : IRequestHandler<GetFinancialDas
     private readonly IAccountRepository _accountRepository;
     private readonly IJournalEntryRepository _journalEntryRepository;
     private readonly IInvoiceRepository _invoiceRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
     public GetFinancialDashboardQueryHandler(
         ICurrentTenantService currentTenant,
@@ -29,10 +32,15 @@ public class GetFinancialDashboardQueryHandler : IRequestHandler<GetFinancialDas
         _accountRepository = accountRepository;
         _journalEntryRepository = journalEntryRepository;
         _invoiceRepository = invoiceRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<FinancialDashboardDto> Handle(GetFinancialDashboardQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var asOfDate = request.AsOfDate ?? DateTime.UtcNow;
         var currentMonth = new DateTime(asOfDate.Year, asOfDate.Month, 1);
         var previousMonth = currentMonth.AddMonths(-1);

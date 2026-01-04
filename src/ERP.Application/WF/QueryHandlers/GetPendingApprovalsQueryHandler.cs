@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.WF.DTOs;
 using ERP.Application.WF.Queries;
 using ERP.Domain.WF.Repositories;
@@ -24,6 +25,9 @@ public class GetPendingApprovalsQueryHandler : IRequestHandler<GetPendingApprova
 
     public async Task<IEnumerable<WorkflowInstanceDto>> Handle(GetPendingApprovalsQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Use current user if not specified
         var userId = request.UserId ?? _currentUser.UserId;
         if (!userId.HasValue)

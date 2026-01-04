@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.PM.DTOs;
 using ERP.Domain.PM.Repositories;
 
@@ -10,14 +11,23 @@ namespace ERP.Application.PM.Queries;
 public class GetProjectContractsQueryHandler : IQueryHandler<GetProjectContractsQuery, IEnumerable<ContractDto>>
 {
     private readonly IContractRepository _contractRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetProjectContractsQueryHandler(IContractRepository contractRepository)
+    public GetProjectContractsQueryHandler(IContractRepository contractRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _contractRepository = contractRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<IEnumerable<ContractDto>> Handle(GetProjectContractsQuery query, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var contracts = await _contractRepository.GetByProjectIdAsync(query.ProjectId, cancellationToken);
 
         return contracts.Select(c => new ContractDto

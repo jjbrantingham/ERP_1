@@ -14,21 +14,30 @@ public class GetProjectProfitabilityQueryHandler : IRequestHandler<GetProjectPro
     private readonly ITimesheetRepository _timesheetRepository;
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly ERPDbContext _context;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
     public GetProjectProfitabilityQueryHandler(
         IProjectRepository projectRepository,
         ITimesheetRepository timesheetRepository,
         IInvoiceRepository invoiceRepository,
-        ERPDbContext context)
+        ERPDbContext context,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _projectRepository = projectRepository;
         _timesheetRepository = timesheetRepository;
         _invoiceRepository = invoiceRepository;
         _context = context;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<ProjectProfitabilityDto> Handle(GetProjectProfitabilityQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Get projects
         var projects = await _projectRepository.GetAllAsync(cancellationToken);
 

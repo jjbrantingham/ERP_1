@@ -9,17 +9,26 @@ public class GetWorkflowInstanceByEntityQueryHandler : IRequestHandler<GetWorkfl
 {
     private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
     private readonly IWorkflowDefinitionRepository _workflowDefinitionRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
     public GetWorkflowInstanceByEntityQueryHandler(
         IWorkflowInstanceRepository workflowInstanceRepository,
-        IWorkflowDefinitionRepository workflowDefinitionRepository)
+        IWorkflowDefinitionRepository workflowDefinitionRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _workflowInstanceRepository = workflowInstanceRepository;
         _workflowDefinitionRepository = workflowDefinitionRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<WorkflowInstanceDto?> Handle(GetWorkflowInstanceByEntityQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var instance = await _workflowInstanceRepository.GetByEntityAsync(
             request.EntityType,
             request.EntityId,

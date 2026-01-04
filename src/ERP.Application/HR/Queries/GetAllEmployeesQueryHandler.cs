@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.HR.DTOs;
 using ERP.Domain.HR.Repositories;
 
@@ -10,14 +11,23 @@ namespace ERP.Application.HR.Queries;
 public class GetAllEmployeesQueryHandler : IQueryHandler<GetAllEmployeesQuery, IEnumerable<EmployeeDto>>
 {
     private readonly IEmployeeRepository _employeeRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetAllEmployeesQueryHandler(IEmployeeRepository employeeRepository)
+    public GetAllEmployeesQueryHandler(IEmployeeRepository employeeRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _employeeRepository = employeeRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<IEnumerable<EmployeeDto>> Handle(GetAllEmployeesQuery query, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var employees = query.ActiveOnly
             ? await _employeeRepository.GetActiveEmployeesAsync(cancellationToken)
             : await _employeeRepository.GetAllAsync(cancellationToken);

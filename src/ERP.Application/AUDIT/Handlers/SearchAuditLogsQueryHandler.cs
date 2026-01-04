@@ -12,14 +12,23 @@ namespace ERP.Application.AUDIT.Handlers;
 public class SearchAuditLogsQueryHandler : IRequestHandler<SearchAuditLogsQuery, PagedResult<AuditLogDto>>
 {
     private readonly IAuditLogRepository _auditLogRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public SearchAuditLogsQueryHandler(IAuditLogRepository auditLogRepository)
+    public SearchAuditLogsQueryHandler(IAuditLogRepository auditLogRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _auditLogRepository = auditLogRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<PagedResult<AuditLogDto>> Handle(SearchAuditLogsQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var auditLogs = await _auditLogRepository.SearchAsync(
             entityType: request.EntityType,
             eventType: request.EventType,

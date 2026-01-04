@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.HR.DTOs;
 using ERP.Domain.HR.Repositories;
 
@@ -11,15 +12,24 @@ public class GetEmployeeRatesQueryHandler : IQueryHandler<GetEmployeeRatesQuery,
 {
     private readonly IRateRepository _rateRepository;
     private readonly IEmployeeRepository _employeeRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetEmployeeRatesQueryHandler(IRateRepository rateRepository, IEmployeeRepository employeeRepository)
+    public GetEmployeeRatesQueryHandler(IRateRepository rateRepository, IEmployeeRepository employeeRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _rateRepository = rateRepository;
         _employeeRepository = employeeRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<IEnumerable<RateDto>> Handle(GetEmployeeRatesQuery query, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var rates = await _rateRepository.GetByEmployeeIdAsync(query.EmployeeId, cancellationToken);
 
         return rates.Select(rate => new RateDto

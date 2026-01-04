@@ -7,14 +7,23 @@ namespace ERP.Application.RPT.Queries;
 public class GetInvoiceSummaryQueryHandler : IRequestHandler<GetInvoiceSummaryQuery, InvoiceSummaryDto>
 {
     private readonly IInvoiceRepository _invoiceRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetInvoiceSummaryQueryHandler(IInvoiceRepository invoiceRepository)
+    public GetInvoiceSummaryQueryHandler(IInvoiceRepository invoiceRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _invoiceRepository = invoiceRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<InvoiceSummaryDto> Handle(GetInvoiceSummaryQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Get all invoices
         var invoices = await _invoiceRepository.GetAllAsync(cancellationToken);
 

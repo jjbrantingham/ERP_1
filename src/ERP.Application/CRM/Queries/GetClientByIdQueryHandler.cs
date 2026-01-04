@@ -1,5 +1,6 @@
 using ERP.Application.Common.Exceptions;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.CRM.DTOs;
 using ERP.Domain.CRM.Repositories;
 
@@ -11,14 +12,23 @@ namespace ERP.Application.CRM.Queries;
 public class GetClientByIdQueryHandler : IQueryHandler<GetClientByIdQuery, ClientDto>
 {
     private readonly IClientRepository _clientRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetClientByIdQueryHandler(IClientRepository clientRepository)
+    public GetClientByIdQueryHandler(IClientRepository clientRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _clientRepository = clientRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<ClientDto> Handle(GetClientByIdQuery query, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var client = await _clientRepository.GetByIdAsync(query.ClientId, cancellationToken);
         if (client == null)
             throw new NotFoundException("Client not found");

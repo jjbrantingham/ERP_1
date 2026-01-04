@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.DASH.DTOs;
 using ERP.Domain.DASH.Enums;
 using ERP.Domain.HR.Repositories;
@@ -20,6 +21,8 @@ public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashb
     private readonly ITimesheetRepository _timesheetRepository;
     private readonly IExpenseReportRepository _expenseReportRepository;
     private readonly IProjectRepository _projectRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
     public GetEmployeeDashboardQueryHandler(
         ICurrentTenantService currentTenant,
@@ -33,10 +36,15 @@ public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashb
         _timesheetRepository = timesheetRepository;
         _expenseReportRepository = expenseReportRepository;
         _projectRepository = projectRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<EmployeeDashboardDto> Handle(GetEmployeeDashboardQuery request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Get employee (would typically get from current user context)
         var employeeId = request.EmployeeId ?? 1; // Placeholder
         var employee = await _employeeRepository.GetByIdAsync(employeeId, cancellationToken);

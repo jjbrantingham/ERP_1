@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.PM.DTOs;
 using ERP.Domain.PM.Repositories;
 
@@ -10,14 +11,23 @@ namespace ERP.Application.PM.Queries;
 public class GetProjectWBSItemsQueryHandler : IQueryHandler<GetProjectWBSItemsQuery, IEnumerable<WBSItemDto>>
 {
     private readonly IWBSItemRepository _wbsItemRepository;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ICurrentTenantService _currentTenant;
 
-    public GetProjectWBSItemsQueryHandler(IWBSItemRepository wbsItemRepository)
+    public GetProjectWBSItemsQueryHandler(IWBSItemRepository wbsItemRepository,
+        ICurrentUserService currentUser,
+        ICurrentTenantService currentTenant)
     {
         _wbsItemRepository = wbsItemRepository;
+        _currentUser = currentUser;
+        _currentTenant = currentTenant;
     }
 
     public async Task<IEnumerable<WBSItemDto>> Handle(GetProjectWBSItemsQuery query, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var wbsItems = await _wbsItemRepository.GetByProjectIdAsync(query.ProjectId, cancellationToken);
 
         return wbsItems.Select(w => new WBSItemDto

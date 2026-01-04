@@ -12,15 +12,18 @@ public class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordComman
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUser;
 
     public ChangePasswordCommandHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUser)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _unitOfWork = unitOfWork;
+        _currentUser = currentUser;
     }
 
     public async Task Handle(ChangePasswordCommand command, CancellationToken cancellationToken = default)
