@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.CRM.Entities;
 using ERP.Domain.CRM.Repositories;
@@ -14,19 +15,25 @@ public class CreateClientCommandHandler : ICommandHandler<CreateClientCommand, l
     private readonly IClientRepository _clientRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
 
     public CreateClientCommandHandler(
         IClientRepository clientRepository,
         IUnitOfWork unitOfWork,
-        ICurrentTenantService currentTenant)
+        ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser)
     {
         _clientRepository = clientRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
     }
 
     public async Task<long> Handle(CreateClientCommand command, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Generate client number
         var clientNumber = Client.GenerateClientNumber();
 

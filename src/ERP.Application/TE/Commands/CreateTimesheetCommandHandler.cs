@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.TE.Entities;
 using ERP.Domain.TE.Repositories;
 
@@ -9,19 +10,25 @@ public class CreateTimesheetCommandHandler : ICommandHandler<CreateTimesheetComm
     private readonly ITimesheetRepository _timesheetRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
 
     public CreateTimesheetCommandHandler(
         ITimesheetRepository timesheetRepository,
         IUnitOfWork unitOfWork,
-        ICurrentTenantService currentTenant)
+        ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser)
     {
         _timesheetRepository = timesheetRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
     }
 
     public async Task<long> Handle(CreateTimesheetCommand command, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var timesheet = Timesheet.Create(
             _currentTenant.TenantId,
             command.EmployeeId,

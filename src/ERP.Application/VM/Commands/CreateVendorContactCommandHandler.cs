@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.VM.Entities;
 using ERP.Domain.VM.Repositories;
@@ -13,19 +14,25 @@ public class CreateVendorContactCommandHandler : ICommandHandler<CreateVendorCon
     private readonly IVendorContactRepository _vendorContactRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
 
     public CreateVendorContactCommandHandler(
         IVendorContactRepository vendorContactRepository,
         IUnitOfWork unitOfWork,
-        ICurrentTenantService currentTenant)
+        ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser)
     {
         _vendorContactRepository = vendorContactRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
     }
 
     public async Task<long> Handle(CreateVendorContactCommand command, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var email = Email.Create(command.Email);
 
         var contact = VendorContact.Create(

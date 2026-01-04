@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.WF.Commands;
 using ERP.Domain.WF.Enums;
 using ERP.Domain.WF.Repositories;
@@ -24,6 +25,9 @@ public class ApproveStepCommandHandler : IRequestHandler<ApproveStepCommand>
 
     public async Task Handle(ApproveStepCommand request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         if (!_currentUser.IsAuthenticated || !_currentUser.UserId.HasValue)
             throw new UnauthorizedAccessException("User must be authenticated");
 

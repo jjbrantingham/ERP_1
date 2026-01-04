@@ -1,5 +1,6 @@
 using ERP.Application.Common.Exceptions;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.HR.Entities;
 using ERP.Domain.HR.Repositories;
@@ -16,23 +17,29 @@ public class CreateRateCommandHandler : ICommandHandler<CreateRateCommand, long>
     private readonly IResourceTypeRepository _resourceTypeRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
 
     public CreateRateCommandHandler(
         IRateRepository rateRepository,
         IEmployeeRepository employeeRepository,
         IResourceTypeRepository resourceTypeRepository,
         IUnitOfWork unitOfWork,
-        ICurrentTenantService currentTenant)
+        ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser)
     {
         _rateRepository = rateRepository;
         _employeeRepository = employeeRepository;
         _resourceTypeRepository = resourceTypeRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
     }
 
     public async Task<long> Handle(CreateRateCommand command, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Validate that either EmployeeId or ResourceTypeId is provided (but not both)
         if (!command.EmployeeId.HasValue && !command.ResourceTypeId.HasValue)
             throw new ValidationException("Either EmployeeId or ResourceTypeId must be provided");

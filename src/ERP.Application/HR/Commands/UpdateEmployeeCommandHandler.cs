@@ -1,5 +1,6 @@
 using ERP.Application.Common.Exceptions;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.HR.Repositories;
 
@@ -26,6 +27,9 @@ public class UpdateEmployeeCommandHandler : ICommandHandler<UpdateEmployeeComman
 
     public async Task Handle(UpdateEmployeeCommand command, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Get employee
         var employee = await _employeeRepository.GetByIdAsync(command.EmployeeId, cancellationToken);
         if (employee == null)

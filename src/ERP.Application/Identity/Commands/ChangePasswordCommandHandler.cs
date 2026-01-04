@@ -1,5 +1,6 @@
 using ERP.Application.Common.Exceptions;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 
 namespace ERP.Application.Identity.Commands;
 
@@ -24,6 +25,9 @@ public class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordComman
 
     public async Task Handle(ChangePasswordCommand command, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Validate new passwords match
         if (command.NewPassword != command.ConfirmNewPassword)
         {

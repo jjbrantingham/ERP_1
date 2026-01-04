@@ -1,5 +1,6 @@
 using ERP.Application.AUDIT.Commands;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.AUDIT.Entities;
 using ERP.Domain.AUDIT.Repositories;
 using ERP.Domain.Common;
@@ -31,6 +32,9 @@ public class CreateAuditLogCommandHandler : IRequestHandler<CreateAuditLogComman
 
     public async Task<long> Handle(CreateAuditLogCommand request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var auditLog = AuditLog.Create(
             tenantId: _currentTenantService.TenantId,
             eventType: request.EventType,

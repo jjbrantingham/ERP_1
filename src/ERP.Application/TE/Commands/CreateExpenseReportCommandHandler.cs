@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.TE.Entities;
 using ERP.Domain.TE.Repositories;
 
@@ -9,19 +10,25 @@ public class CreateExpenseReportCommandHandler : ICommandHandler<CreateExpenseRe
     private readonly IExpenseReportRepository _expenseReportRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
 
     public CreateExpenseReportCommandHandler(
         IExpenseReportRepository expenseReportRepository,
         IUnitOfWork unitOfWork,
-        ICurrentTenantService currentTenant)
+        ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser)
     {
         _expenseReportRepository = expenseReportRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
     }
 
     public async Task<long> Handle(CreateExpenseReportCommand command, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var reportNumber = $"EXP-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid():N}"[..26];
 
         var expenseReport = ExpenseReport.Create(

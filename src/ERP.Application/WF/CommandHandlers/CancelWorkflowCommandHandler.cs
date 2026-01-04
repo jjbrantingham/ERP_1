@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.WF.Commands;
 using ERP.Domain.WF.Repositories;
 using MediatR;
@@ -20,6 +21,9 @@ public class CancelWorkflowCommandHandler : IRequestHandler<CancelWorkflowComman
 
     public async Task Handle(CancelWorkflowCommand request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var workflowInstance = await _workflowInstanceRepository.GetByIdAsync(
             request.WorkflowInstanceId,
             cancellationToken);

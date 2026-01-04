@@ -1,5 +1,6 @@
 using ERP.Application.Common.Exceptions;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.CRM.Entities;
 using ERP.Domain.CRM.Repositories;
@@ -15,21 +16,27 @@ public class CreateContactCommandHandler : ICommandHandler<CreateContactCommand,
     private readonly IClientRepository _clientRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
 
     public CreateContactCommandHandler(
         IContactRepository contactRepository,
         IClientRepository clientRepository,
         IUnitOfWork unitOfWork,
-        ICurrentTenantService currentTenant)
+        ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser)
     {
         _contactRepository = contactRepository;
         _clientRepository = clientRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
     }
 
     public async Task<long> Handle(CreateContactCommand command, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Verify client exists
         var client = await _clientRepository.GetByIdAsync(command.ClientId, cancellationToken);
         if (client == null)

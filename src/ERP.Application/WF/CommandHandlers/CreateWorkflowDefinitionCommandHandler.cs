@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.WF.Commands;
 using ERP.Domain.WF.Entities;
 using ERP.Domain.WF.Enums;
@@ -12,19 +13,25 @@ public class CreateWorkflowDefinitionCommandHandler : IRequestHandler<CreateWork
     private readonly IWorkflowDefinitionRepository _workflowDefinitionRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
 
     public CreateWorkflowDefinitionCommandHandler(
         IWorkflowDefinitionRepository workflowDefinitionRepository,
         IUnitOfWork unitOfWork,
-        ICurrentTenantService currentTenant)
+        ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser)
     {
         _workflowDefinitionRepository = workflowDefinitionRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
     }
 
     public async Task<long> Handle(CreateWorkflowDefinitionCommand request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Create workflow definition
         var workflow = WorkflowDefinition.Create(
             _currentTenant.TenantId,

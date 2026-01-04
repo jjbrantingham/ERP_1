@@ -1,5 +1,6 @@
 using ERP.Application.Common.Exceptions;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.HR.Entities;
 using ERP.Domain.HR.Repositories;
 
@@ -13,19 +14,25 @@ public class CreateResourceTypeCommandHandler : ICommandHandler<CreateResourceTy
     private readonly IResourceTypeRepository _resourceTypeRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
 
     public CreateResourceTypeCommandHandler(
         IResourceTypeRepository resourceTypeRepository,
         IUnitOfWork unitOfWork,
-        ICurrentTenantService currentTenant)
+        ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser)
     {
         _resourceTypeRepository = resourceTypeRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
     }
 
     public async Task<long> Handle(CreateResourceTypeCommand command, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Check if name already exists
         var existingResourceType = await _resourceTypeRepository.GetByNameAsync(command.Name, cancellationToken);
         if (existingResourceType != null)

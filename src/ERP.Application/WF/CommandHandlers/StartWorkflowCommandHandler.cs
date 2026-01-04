@@ -1,4 +1,5 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.WF.Commands;
 using ERP.Domain.WF.Entities;
 using ERP.Domain.WF.Repositories;
@@ -12,21 +13,27 @@ public class StartWorkflowCommandHandler : IRequestHandler<StartWorkflowCommand,
     private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
 
     public StartWorkflowCommandHandler(
         IWorkflowDefinitionRepository workflowDefinitionRepository,
         IWorkflowInstanceRepository workflowInstanceRepository,
         IUnitOfWork unitOfWork,
-        ICurrentTenantService currentTenant)
+        ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser)
     {
         _workflowDefinitionRepository = workflowDefinitionRepository;
         _workflowInstanceRepository = workflowInstanceRepository;
         _unitOfWork = unitOfWork;
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
     }
 
     public async Task<long> Handle(StartWorkflowCommand request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Get workflow definition with steps
         var workflowDefinition = await _workflowDefinitionRepository.GetByIdWithStepsAsync(
             request.WorkflowDefinitionId,

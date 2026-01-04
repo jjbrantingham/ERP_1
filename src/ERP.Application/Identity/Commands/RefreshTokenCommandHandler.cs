@@ -1,5 +1,6 @@
 using ERP.Application.Common.Exceptions;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Application.Identity.DTOs;
 
 namespace ERP.Application.Identity.Commands;
@@ -25,6 +26,9 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, A
 
     public async Task<AuthenticationResponse> Handle(RefreshTokenCommand command, CancellationToken cancellationToken = default)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         // Validate the access token (even if expired) to get user ID
         var userId = _jwtTokenService.ValidateToken(command.AccessToken);
 

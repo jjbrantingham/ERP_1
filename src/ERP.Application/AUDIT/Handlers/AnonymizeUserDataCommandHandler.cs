@@ -1,5 +1,6 @@
 using ERP.Application.AUDIT.Commands;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.AUDIT.Entities;
 using ERP.Domain.AUDIT.Enums;
 using ERP.Domain.AUDIT.Repositories;
@@ -38,6 +39,9 @@ public class AnonymizeUserDataCommandHandler : IRequestHandler<AnonymizeUserData
 
     public async Task<bool> Handle(AnonymizeUserDataCommand request, CancellationToken cancellationToken)
     {
+        // Ensure user is authenticated
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+
         var anonymousId = Guid.NewGuid().ToString("N").Substring(0, 8);
         var anonymousEmail = $"anonymized-{anonymousId}@deleted.local";
         var anonymousName = $"Anonymized User {anonymousId}";
