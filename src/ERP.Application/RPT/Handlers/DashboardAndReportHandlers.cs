@@ -110,61 +110,6 @@ public class GetResourceUtilizationQueryHandler : IRequestHandler<GetResourceUti
 }
 
 /// <summary>
-/// Handler for Executive Dashboard
-/// NOTE: Simplified implementation
-/// </summary>
-public class GetExecutiveDashboardQueryHandler : IRequestHandler<GetExecutiveDashboardQuery, ExecutiveDashboardDto>
-{
-    private readonly ERPDbContext _context;
-
-    public GetExecutiveDashboardQueryHandler(ERPDbContext context)
-    {
-        _context = context;
-    }
-
-    public async Task<ExecutiveDashboardDto> Handle(GetExecutiveDashboardQuery request, CancellationToken cancellationToken)
-    {
-        var asOfDate = request.AsOfDate ?? DateTime.UtcNow;
-
-        var dashboard = new ExecutiveDashboardDto
-        {
-            AsOfDate = asOfDate,
-            FinancialKPIs = new FinancialKPIsDto
-            {
-                TotalRevenue = 0, // TODO: Calculate from GL
-                TotalExpenses = 0,
-                NetIncome = 0,
-                AccountsReceivable = await _context.Invoices
-                    .Where(i => i.Status == ERP.Domain.BILL.Enums.InvoiceStatus.Posted)
-                    .SumAsync(i => i.TotalAmount, cancellationToken),
-                OutstandingInvoices = await _context.Invoices
-                    .Where(i => i.Status == ERP.Domain.BILL.Enums.InvoiceStatus.Posted)
-                    .CountAsync(cancellationToken)
-            },
-            ProjectKPIs = new ProjectKPIsDto
-            {
-                TotalProjects = await _context.Projects.CountAsync(cancellationToken),
-                ActiveProjects = await _context.Projects
-                    .Where(p => p.Status == ERP.Domain.PM.Enums.ProjectStatus.Active)
-                    .CountAsync(cancellationToken)
-            },
-            OperationalKPIs = new OperationalKPIsDto
-            {
-                TotalEmployees = await _context.Employees.CountAsync(cancellationToken),
-                ActiveEmployees = await _context.Employees
-                    .Where(e => e.IsActive)
-                    .CountAsync(cancellationToken),
-                PendingTimesheets = await _context.Timesheets
-                    .Where(t => t.Status == ERP.Domain.TE.Enums.TimesheetStatus.Pending)
-                    .CountAsync(cancellationToken)
-            }
-        };
-
-        return dashboard;
-    }
-}
-
-/// <summary>
 /// Handler for Timesheet Summary report
 /// </summary>
 public class GetTimesheetSummaryQueryHandler : IRequestHandler<GetTimesheetSummaryQuery, TimesheetSummaryDto>
