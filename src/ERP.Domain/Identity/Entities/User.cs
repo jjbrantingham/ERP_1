@@ -1,7 +1,6 @@
 using ERP.Domain.Common;
 using ERP.Domain.Common.ValueObjects;
-using ERP.Domain.Common;
-using ERP.Domain.Common.ValueObjects;
+using ERP.Domain.Identity.Events;
 
 namespace ERP.Domain.Identity.Entities;
 
