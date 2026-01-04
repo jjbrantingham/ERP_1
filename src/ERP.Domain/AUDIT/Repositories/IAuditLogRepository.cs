@@ -1,4 +1,5 @@
 using ERP.Domain.Common;
+using ERP.Domain.Common.Interfaces;
 using ERP.Domain.AUDIT.Entities;
 using ERP.Domain.AUDIT.Enums;
 
