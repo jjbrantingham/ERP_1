@@ -4,6 +4,7 @@ using ERP.Domain.FIN.Repositories;
 using ERP.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ERP.Application.Common.Interfaces;
 
 namespace ERP.Application.RPT.Queries;
 

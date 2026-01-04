@@ -2,6 +2,7 @@ using ERP.Application.RPT.DTOs;
 using ERP.Domain.FIN.Enums;
 using ERP.Domain.FIN.Repositories;
 using MediatR;
+using ERP.Application.Common.Interfaces;
 
 namespace ERP.Application.RPT.Queries;
 

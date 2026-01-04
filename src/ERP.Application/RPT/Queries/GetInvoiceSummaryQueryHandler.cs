@@ -1,6 +1,7 @@
 using ERP.Application.RPT.DTOs;
 using ERP.Domain.BILL.Repositories;
 using MediatR;
+using ERP.Application.Common.Interfaces;
 
 namespace ERP.Application.RPT.Queries;
 

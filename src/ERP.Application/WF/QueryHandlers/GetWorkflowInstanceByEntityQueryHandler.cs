@@ -2,6 +2,7 @@ using ERP.Application.WF.DTOs;
 using ERP.Application.WF.Queries;
 using ERP.Domain.WF.Repositories;
 using MediatR;
+using ERP.Application.Common.Interfaces;
 
 namespace ERP.Application.WF.QueryHandlers;
 
