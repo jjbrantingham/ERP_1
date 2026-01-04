@@ -3,6 +3,7 @@ using ERP.Domain.HR.Enums;
 using ERP.Domain.HR.Repositories;
 using ERP.Domain.HR.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using ERP.Infrastructure.Persistence;
 
 namespace ERP.Infrastructure.Persistence.Repositories;
 

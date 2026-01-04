@@ -2,6 +2,7 @@ using ERP.Domain.CRM.Entities;
 using ERP.Domain.CRM.Enums;
 using ERP.Domain.CRM.Repositories;
 using Microsoft.EntityFrameworkCore;
+using ERP.Infrastructure.Persistence;
 
 namespace ERP.Infrastructure.Persistence.Repositories;
 

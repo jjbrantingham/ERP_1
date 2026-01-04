@@ -4,6 +4,7 @@ using ERP.Domain.FIN.Repositories;
 using ERP.Domain.FIN.ValueObjects;
 using ERP.Infrastructure.Persistence.Common;
 using Microsoft.EntityFrameworkCore;
+using ERP.Infrastructure.Persistence;
 
 namespace ERP.Infrastructure.Persistence.Repositories;
 

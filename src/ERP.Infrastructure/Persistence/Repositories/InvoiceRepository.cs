@@ -4,6 +4,7 @@ using ERP.Domain.BILL.Repositories;
 using ERP.Domain.BILL.ValueObjects;
 using ERP.Infrastructure.Persistence.Common;
 using Microsoft.EntityFrameworkCore;
+using ERP.Infrastructure.Persistence;
 
 namespace ERP.Infrastructure.Persistence.Repositories;
 
