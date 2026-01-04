@@ -1,10 +1,12 @@
+using ERP.Domain.Common.Interfaces;
+
 namespace ERP.Domain.Common;
 
 /// <summary>
 /// Base class for all entities in the system.
 /// Provides identity, audit tracking, and domain event support.
 /// </summary>
-public abstract class Entity
+public abstract class Entity : ITenantEntity
 {
     private readonly List<IDomainEvent> _domainEvents = new();
 
