@@ -7,7 +7,7 @@ namespace ERP.Domain.PM.Entities;
 /// Work Breakdown Structure item for a project.
 /// Represents hierarchical tasks/phases.
 /// </summary>
-public class WBSItem : Entity
+public class WBSItem : AggregateRoot
 {
     public long ProjectId { get; private set; }
     public long? ParentId { get; private set; }

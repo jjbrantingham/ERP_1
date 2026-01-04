@@ -6,7 +6,7 @@ namespace ERP.Domain.CRM.Entities;
 /// <summary>
 /// Represents a note or interaction record for a client.
 /// </summary>
-public class Note : Entity
+public class Note : AggregateRoot
 {
     public long ClientId { get; private set; }
     public long? ContactId { get; private set; }

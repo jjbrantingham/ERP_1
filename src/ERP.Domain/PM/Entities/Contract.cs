@@ -7,7 +7,7 @@ namespace ERP.Domain.PM.Entities;
 /// <summary>
 /// Contract for a project.
 /// </summary>
-public class Contract : Entity
+public class Contract : AggregateRoot
 {
     public long ProjectId { get; private set; }
     public string ContractNumber { get; private set; }

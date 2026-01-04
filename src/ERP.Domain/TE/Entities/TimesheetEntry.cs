@@ -5,7 +5,7 @@ namespace ERP.Domain.TE.Entities;
 /// <summary>
 /// Individual time entry within a timesheet.
 /// </summary>
-public class TimesheetEntry : Entity
+public class TimesheetEntry : AggregateRoot
 {
     public long Id { get; private set; }
     public long TimesheetId { get; private set; }

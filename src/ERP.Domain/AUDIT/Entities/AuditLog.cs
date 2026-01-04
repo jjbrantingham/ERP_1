@@ -6,7 +6,7 @@ namespace ERP.Domain.AUDIT.Entities;
 /// <summary>
 /// Audit log entry for tracking all system changes and activities
 /// </summary>
-public class AuditLog : Entity
+public class AuditLog : AggregateRoot
 {
     /// <summary>
     /// Type of audit event

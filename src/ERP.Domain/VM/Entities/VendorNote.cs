@@ -5,7 +5,7 @@ namespace ERP.Domain.VM.Entities;
 /// <summary>
 /// Note or interaction record for a vendor.
 /// </summary>
-public class VendorNote : Entity
+public class VendorNote : AggregateRoot
 {
     public long Id { get; private set; }
     public long VendorId { get; private set; }

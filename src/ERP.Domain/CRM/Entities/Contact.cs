@@ -7,7 +7,7 @@ namespace ERP.Domain.CRM.Entities;
 /// <summary>
 /// Represents a contact person for a client.
 /// </summary>
-public class Contact : Entity
+public class Contact : AggregateRoot
 {
     public long ClientId { get; private set; }
     public ContactType ContactType { get; private set; }

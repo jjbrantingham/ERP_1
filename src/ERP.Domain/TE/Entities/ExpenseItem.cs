@@ -7,7 +7,7 @@ namespace ERP.Domain.TE.Entities;
 /// <summary>
 /// Individual expense item within an expense report.
 /// </summary>
-public class ExpenseItem : Entity
+public class ExpenseItem : AggregateRoot
 {
     public long Id { get; private set; }
     public long ExpenseReportId { get; private set; }

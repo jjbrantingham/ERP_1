@@ -7,7 +7,7 @@ namespace ERP.Domain.VM.Entities;
 /// <summary>
 /// Contact person for a vendor.
 /// </summary>
-public class VendorContact : Entity
+public class VendorContact : AggregateRoot
 {
     public long Id { get; private set; }
     public long VendorId { get; private set; }

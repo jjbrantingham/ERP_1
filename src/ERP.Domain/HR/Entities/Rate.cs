@@ -8,7 +8,7 @@ namespace ERP.Domain.HR.Entities;
 /// Represents a cost or billing rate for an employee or resource type.
 /// Supports time-based rates (effective dates) and different rate types.
 /// </summary>
-public class Rate : Entity
+public class Rate : AggregateRoot
 {
     public long? EmployeeId { get; private set; }
     public long? ResourceTypeId { get; private set; }
