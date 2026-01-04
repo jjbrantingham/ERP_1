@@ -2,6 +2,7 @@ using ERP.Domain.BILL.Repositories;
 using ERP.Domain.WF.Events;
 using ERP.Application.Common.Interfaces;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace ERP.Application.WF.EventHandlers;
 
