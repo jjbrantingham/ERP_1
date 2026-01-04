@@ -1,5 +1,4 @@
 using ERP.Domain.Common;
-using ERP.Domain.Common;
 using ERP.Domain.FIN.Enums;
 using ERP.Domain.FIN.Events;
 using ERP.Domain.FIN.ValueObjects;

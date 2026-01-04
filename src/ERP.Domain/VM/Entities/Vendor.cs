@@ -1,8 +1,7 @@
 using ERP.Domain.Common;
 using ERP.Domain.Common.ValueObjects;
-using ERP.Domain.Common;
-using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.VM.Enums;
+using ERP.Domain.VM.Events;
 using ERP.Domain.VM.ValueObjects;
 
 namespace ERP.Domain.VM.Entities;
@@ -199,30 +198,5 @@ public class Vendor : AggregateRoot
         Notes = $"BLACKLISTED: {reason}\n\n{Notes}";
         IsActive = false;
         ModifiedDate = DateTime.UtcNow;
-    }
-}
-
-/// <summary>
-/// Domain event raised when vendor status changes.
-/// </summary>
-public class VendorStatusChangedEvent : DomainEvent
-{
-    public long VendorId { get; }
-    public Guid TenantId { get; }
-    public VendorStatus OldStatus { get; }
-    public VendorStatus NewStatus { get; }
-    public DateTime ChangedAt { get; }
-
-    public VendorStatusChangedEvent(
-        long vendorId,
-        Guid tenantId,
-        VendorStatus oldStatus,
-        VendorStatus newStatus)
-    {
-        VendorId = vendorId;
-        TenantId = tenantId;
-        OldStatus = oldStatus;
-        NewStatus = newStatus;
-        ChangedAt = DateTime.UtcNow;
     }
 }

@@ -1,7 +1,5 @@
 using ERP.Domain.Common;
 using ERP.Domain.Common.ValueObjects;
-using ERP.Domain.Common;
-using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.BILL.Enums;
 using ERP.Domain.BILL.Events;
 
