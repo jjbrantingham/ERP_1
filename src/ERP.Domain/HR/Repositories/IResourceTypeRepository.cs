@@ -1,4 +1,4 @@
-using ERP.Application.Common.Interfaces;
+using ERP.Domain.Common.Interfaces;
 using ERP.Domain.HR.Entities;
 
 namespace ERP.Domain.HR.Repositories;

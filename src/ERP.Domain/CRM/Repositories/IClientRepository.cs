@@ -1,4 +1,4 @@
-using ERP.Application.Common.Interfaces;
+using ERP.Domain.Common.Interfaces;
 using ERP.Domain.CRM.Entities;
 using ERP.Domain.CRM.Enums;
 
