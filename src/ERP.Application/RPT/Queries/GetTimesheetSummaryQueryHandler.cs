@@ -24,7 +24,7 @@ public class GetTimesheetSummaryQueryHandler : IRequestHandler<GetTimesheetSumma
     public async Task<TimesheetSummaryDto> Handle(GetTimesheetSummaryQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Get timesheets for the period
         var query = _context.Timesheets

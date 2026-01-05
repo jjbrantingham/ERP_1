@@ -26,7 +26,7 @@ public class GetAllVendorsQueryHandler : IQueryHandler<GetAllVendorsQuery, IEnum
     public async Task<IEnumerable<VendorDto>> Handle(GetAllVendorsQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var vendors = query.ActiveOnly
             ? await _vendorRepository.GetActiveVendorsAsync(cancellationToken)

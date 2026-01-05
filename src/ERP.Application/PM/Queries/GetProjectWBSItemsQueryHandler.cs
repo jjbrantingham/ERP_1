@@ -26,7 +26,7 @@ public class GetProjectWBSItemsQueryHandler : IQueryHandler<GetProjectWBSItemsQu
     public async Task<IEnumerable<WBSItemDto>> Handle(GetProjectWBSItemsQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var wbsItems = await _wbsItemRepository.GetByProjectIdAsync(query.ProjectId, cancellationToken);
 

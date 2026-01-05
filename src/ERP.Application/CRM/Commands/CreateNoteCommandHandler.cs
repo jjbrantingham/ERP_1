@@ -34,7 +34,7 @@ public class CreateNoteCommandHandler : ICommandHandler<CreateNoteCommand, long>
     public async Task<long> Handle(CreateNoteCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Verify client exists
         var client = await _clientRepository.GetByIdAsync(command.ClientId, cancellationToken);

@@ -22,7 +22,7 @@ public class CancelWorkflowCommandHandler : IRequestHandler<CancelWorkflowComman
     public async Task Handle(CancelWorkflowCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var workflowInstance = await _workflowInstanceRepository.GetByIdAsync(
             request.WorkflowInstanceId,

@@ -28,7 +28,7 @@ public class SearchAuditLogsQueryHandler : IRequestHandler<SearchAuditLogsQuery,
     public async Task<PagedResult<AuditLogDto>> Handle(SearchAuditLogsQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var auditLogs = await _auditLogRepository.SearchAsync(
             entityType: request.EntityType,

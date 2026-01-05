@@ -25,7 +25,7 @@ public class GetAccountByIdQueryHandler : IRequestHandler<GetAccountByIdQuery, A
     public async Task<AccountDto> Handle(GetAccountByIdQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var account = await _accountRepository.GetByIdAsync(request.AccountId, cancellationToken);
 

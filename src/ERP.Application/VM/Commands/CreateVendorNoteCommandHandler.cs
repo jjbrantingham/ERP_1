@@ -30,7 +30,7 @@ public class CreateVendorNoteCommandHandler : ICommandHandler<CreateVendorNoteCo
     public async Task<long> Handle(CreateVendorNoteCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var note = VendorNote.Create(
             _currentTenant.TenantId,

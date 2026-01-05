@@ -26,7 +26,7 @@ public class PurgeOldAuditLogsCommandHandler : IRequestHandler<PurgeOldAuditLogs
     public async Task<int> Handle(PurgeOldAuditLogsCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var logsToDelete = await _context.AuditLogs
             .Where(a => a.Timestamp < request.OlderThan)

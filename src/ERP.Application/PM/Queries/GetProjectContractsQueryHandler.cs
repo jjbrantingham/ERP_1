@@ -26,7 +26,7 @@ public class GetProjectContractsQueryHandler : IQueryHandler<GetProjectContracts
     public async Task<IEnumerable<ContractDto>> Handle(GetProjectContractsQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var contracts = await _contractRepository.GetByProjectIdAsync(query.ProjectId, cancellationToken);
 

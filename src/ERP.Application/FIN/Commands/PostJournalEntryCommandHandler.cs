@@ -32,7 +32,7 @@ public class PostJournalEntryCommandHandler : IRequestHandler<PostJournalEntryCo
     public async Task Handle(PostJournalEntryCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Get journal entry and verify tenant ownership
         var journalEntry = await _journalEntryRepository.GetByIdAsync(request.JournalEntryId, cancellationToken);

@@ -32,7 +32,7 @@ public class CreateClientCommandHandler : ICommandHandler<CreateClientCommand, l
     public async Task<long> Handle(CreateClientCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Generate client number
         var clientNumber = Client.GenerateClientNumber();

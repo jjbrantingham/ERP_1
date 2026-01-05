@@ -34,7 +34,7 @@ public class ExportUserDataCommandHandler : IRequestHandler<ExportUserDataComman
     public async Task<string> Handle(ExportUserDataCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var exportData = new Dictionary<string, object>();
 

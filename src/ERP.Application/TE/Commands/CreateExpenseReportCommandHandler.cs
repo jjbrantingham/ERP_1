@@ -27,7 +27,7 @@ public class CreateExpenseReportCommandHandler : ICommandHandler<CreateExpenseRe
     public async Task<long> Handle(CreateExpenseReportCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var reportNumber = $"EXP-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid():N}"[..26];
 

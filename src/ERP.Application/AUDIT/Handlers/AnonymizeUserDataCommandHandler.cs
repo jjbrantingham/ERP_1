@@ -40,7 +40,7 @@ public class AnonymizeUserDataCommandHandler : IRequestHandler<AnonymizeUserData
     public async Task<bool> Handle(AnonymizeUserDataCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var anonymousId = Guid.NewGuid().ToString("N").Substring(0, 8);
         var anonymousEmail = $"anonymized-{anonymousId}@deleted.local";

@@ -23,7 +23,7 @@ public class GetTimesheetByIdQueryHandler : IQueryHandler<GetTimesheetByIdQuery,
     public async Task<TimesheetDto> Handle(GetTimesheetByIdQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var timesheet = await _timesheetRepository.GetByIdAsync(query.TimesheetId, cancellationToken);
         if (timesheet == null)

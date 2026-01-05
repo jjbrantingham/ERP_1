@@ -27,7 +27,7 @@ public class GetClientByIdQueryHandler : IQueryHandler<GetClientByIdQuery, Clien
     public async Task<ClientDto> Handle(GetClientByIdQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var client = await _clientRepository.GetByIdAsync(query.ClientId, cancellationToken);
         if (client == null)

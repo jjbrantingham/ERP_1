@@ -26,7 +26,7 @@ public class GetClientContactsQueryHandler : IQueryHandler<GetClientContactsQuer
     public async Task<IEnumerable<ContactDto>> Handle(GetClientContactsQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var contacts = await _contactRepository.GetByClientIdAsync(query.ClientId, cancellationToken);
 

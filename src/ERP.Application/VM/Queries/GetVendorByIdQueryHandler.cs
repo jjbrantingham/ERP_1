@@ -26,7 +26,7 @@ public class GetVendorByIdQueryHandler : IQueryHandler<GetVendorByIdQuery, Vendo
     public async Task<VendorDto> Handle(GetVendorByIdQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var vendor = await _vendorRepository.GetByIdAsync(query.VendorId, cancellationToken);
 

@@ -43,7 +43,7 @@ public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashb
     public async Task<EmployeeDashboardDto> Handle(GetEmployeeDashboardQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Get employee (would typically get from current user context)
         var employeeId = request.EmployeeId ?? 1; // Placeholder

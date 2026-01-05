@@ -31,7 +31,7 @@ public class CreateContractCommandHandler : ICommandHandler<CreateContractComman
     public async Task<long> Handle(CreateContractCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Create contract value if provided
         Money? contractValue = null;

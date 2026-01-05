@@ -39,7 +39,7 @@ public class GetFinancialDashboardQueryHandler : IRequestHandler<GetFinancialDas
     public async Task<FinancialDashboardDto> Handle(GetFinancialDashboardQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var asOfDate = request.AsOfDate ?? DateTime.UtcNow;
         var currentMonth = new DateTime(asOfDate.Year, asOfDate.Month, 1);

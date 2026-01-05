@@ -41,7 +41,7 @@ public class GetProjectDashboardQueryHandler : IRequestHandler<GetProjectDashboa
     public async Task<ProjectDashboardDto> Handle(GetProjectDashboardQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var asOfDate = request.AsOfDate ?? DateTime.UtcNow;
         var currency = request.Currency;

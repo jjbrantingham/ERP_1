@@ -32,7 +32,7 @@ public class CreateProjectCommandHandler : ICommandHandler<CreateProjectCommand,
     public async Task<long> Handle(CreateProjectCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Generate project number
         var projectNumber = ProjectNumber.Generate();

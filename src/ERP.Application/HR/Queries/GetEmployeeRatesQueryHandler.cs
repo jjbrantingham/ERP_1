@@ -28,7 +28,7 @@ public class GetEmployeeRatesQueryHandler : IQueryHandler<GetEmployeeRatesQuery,
     public async Task<IEnumerable<RateDto>> Handle(GetEmployeeRatesQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var rates = await _rateRepository.GetByEmployeeIdAsync(query.EmployeeId, cancellationToken);
 

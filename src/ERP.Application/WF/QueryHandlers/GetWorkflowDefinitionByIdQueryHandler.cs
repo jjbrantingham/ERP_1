@@ -24,7 +24,7 @@ public class GetWorkflowDefinitionByIdQueryHandler : IRequestHandler<GetWorkflow
     public async Task<WorkflowDefinitionDto?> Handle(GetWorkflowDefinitionByIdQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var workflow = await _workflowDefinitionRepository.GetByIdWithStepsAsync(
             request.WorkflowDefinitionId,

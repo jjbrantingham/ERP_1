@@ -35,7 +35,7 @@ public class CreateContactCommandHandler : ICommandHandler<CreateContactCommand,
     public async Task<long> Handle(CreateContactCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Verify client exists
         var client = await _clientRepository.GetByIdAsync(command.ClientId, cancellationToken);

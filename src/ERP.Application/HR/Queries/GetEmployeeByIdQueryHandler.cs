@@ -27,7 +27,7 @@ public class GetEmployeeByIdQueryHandler : IQueryHandler<GetEmployeeByIdQuery, E
     public async Task<EmployeeDto> Handle(GetEmployeeByIdQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var employee = await _employeeRepository.GetByIdWithRatesAsync(query.EmployeeId, cancellationToken);
         if (employee == null)

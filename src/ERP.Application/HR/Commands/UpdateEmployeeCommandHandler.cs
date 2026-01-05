@@ -28,7 +28,7 @@ public class UpdateEmployeeCommandHandler : ICommandHandler<UpdateEmployeeComman
     public async Task Handle(UpdateEmployeeCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Get employee
         var employee = await _employeeRepository.GetByIdAsync(command.EmployeeId, cancellationToken);

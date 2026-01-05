@@ -33,7 +33,7 @@ public class CreateAuditLogCommandHandler : IRequestHandler<CreateAuditLogComman
     public async Task<long> Handle(CreateAuditLogCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var auditLog = AuditLog.Create(
             tenantId: _currentTenantService.TenantId,

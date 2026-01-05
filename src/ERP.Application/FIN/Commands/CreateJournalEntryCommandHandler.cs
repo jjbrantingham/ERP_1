@@ -38,7 +38,7 @@ public class CreateJournalEntryCommandHandler : IRequestHandler<CreateJournalEnt
     public async Task<long> Handle(CreateJournalEntryCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
         var totalDebits = request.Lines.Sum(l => l.DebitAmount);
         var totalCredits = request.Lines.Sum(l => l.CreditAmount);
 

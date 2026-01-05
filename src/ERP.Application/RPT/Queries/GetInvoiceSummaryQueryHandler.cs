@@ -23,7 +23,7 @@ public class GetInvoiceSummaryQueryHandler : IRequestHandler<GetInvoiceSummaryQu
     public async Task<InvoiceSummaryDto> Handle(GetInvoiceSummaryQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Get all invoices
         var invoices = await _invoiceRepository.GetAllAsync(cancellationToken);

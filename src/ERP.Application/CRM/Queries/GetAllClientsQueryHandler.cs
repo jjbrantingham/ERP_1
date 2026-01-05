@@ -26,7 +26,7 @@ public class GetAllClientsQueryHandler : IQueryHandler<GetAllClientsQuery, IEnum
     public async Task<IEnumerable<ClientDto>> Handle(GetAllClientsQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var clients = query.ActiveOnly
             ? await _clientRepository.GetActiveClientsAsync(cancellationToken)

@@ -22,7 +22,7 @@ public class DeactivateWorkflowDefinitionCommandHandler : IRequestHandler<Deacti
     public async Task Handle(DeactivateWorkflowDefinitionCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var workflow = await _workflowDefinitionRepository.GetByIdAsync(
             request.WorkflowDefinitionId,

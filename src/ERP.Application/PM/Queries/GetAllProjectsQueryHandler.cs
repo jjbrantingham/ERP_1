@@ -26,7 +26,7 @@ public class GetAllProjectsQueryHandler : IQueryHandler<GetAllProjectsQuery, IEn
     public async Task<IEnumerable<ProjectDto>> Handle(GetAllProjectsQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         var projects = query.ActiveOnly
             ? await _projectRepository.GetActiveProjectsAsync(cancellationToken)

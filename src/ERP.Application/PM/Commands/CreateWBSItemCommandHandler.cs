@@ -31,7 +31,7 @@ public class CreateWBSItemCommandHandler : ICommandHandler<CreateWBSItemCommand,
     public async Task<long> Handle(CreateWBSItemCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Create budget if provided
         Money? budget = null;

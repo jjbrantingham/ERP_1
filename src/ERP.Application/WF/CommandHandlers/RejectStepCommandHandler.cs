@@ -26,7 +26,7 @@ public class RejectStepCommandHandler : IRequestHandler<RejectStepCommand>
     public async Task Handle(RejectStepCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         if (!_currentUser.IsAuthenticated || !_currentUser.UserId.HasValue)
             throw new UnauthorizedAccessException("User must be authenticated");

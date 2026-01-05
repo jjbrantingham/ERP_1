@@ -37,7 +37,7 @@ public class GetProjectProfitabilityQueryHandler : IRequestHandler<GetProjectPro
     public async Task<ProjectProfitabilityDto> Handle(GetProjectProfitabilityQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Get projects
         var projects = await _projectRepository.GetAllAsync(cancellationToken);

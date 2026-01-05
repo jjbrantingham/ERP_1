@@ -24,7 +24,7 @@ public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery,
     public async Task<BalanceSheetDto> Handle(GetBalanceSheetQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
 
         // Get all accounts
         var accounts = await _accountRepository.GetAllAsync(cancellationToken);

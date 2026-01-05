@@ -31,7 +31,7 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
     public async Task<long> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUser);
+        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
         // Validate account number is unique
         var accountNumber = new AccountNumber(request.AccountNumber);
         if (await _accountRepository.ExistsAsync(accountNumber, cancellationToken))
