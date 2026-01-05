@@ -1,36 +1,6 @@
 namespace ERP.Application.RPT.DTOs;
 
 /// <summary>
-/// Timesheet summary report
-/// </summary>
-public class TimesheetSummaryDto
-{
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public List<TimesheetSummaryLineDto> Lines { get; set; } = new();
-    public decimal TotalHours { get; set; }
-    public decimal BillableHours { get; set; }
-    public decimal NonBillableHours { get; set; }
-    public int EmployeeCount { get; set; }
-    public int ProjectCount { get; set; }
-}
-
-/// <summary>
-/// Timesheet summary line item
-/// </summary>
-public class TimesheetSummaryLineDto
-{
-    public long EmployeeId { get; set; }
-    public string EmployeeName { get; set; } = string.Empty;
-    public long? ProjectId { get; set; }
-    public string ProjectName { get; set; } = string.Empty;
-    public decimal TotalHours { get; set; }
-    public decimal BillableHours { get; set; }
-    public decimal NonBillableHours { get; set; }
-    public string Status { get; set; } = string.Empty;
-}
-
-/// <summary>
 /// Expense summary report
 /// </summary>
 public class ExpenseSummaryDto
