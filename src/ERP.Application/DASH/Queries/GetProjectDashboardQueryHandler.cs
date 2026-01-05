@@ -18,24 +18,23 @@ namespace ERP.Application.DASH.Queries;
 public class GetProjectDashboardQueryHandler : IRequestHandler<GetProjectDashboardQuery, ProjectDashboardDto>
 {
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
     private readonly IProjectRepository _projectRepository;
     private readonly ITimesheetRepository _timesheetRepository;
     private readonly IInvoiceRepository _invoiceRepository;
-    private readonly ICurrentUserService _currentUser;
-    private readonly ICurrentTenantService _currentTenant;
 
     public GetProjectDashboardQueryHandler(
         ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser,
         IProjectRepository projectRepository,
         ITimesheetRepository timesheetRepository,
         IInvoiceRepository invoiceRepository)
     {
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
         _projectRepository = projectRepository;
         _timesheetRepository = timesheetRepository;
         _invoiceRepository = invoiceRepository;
-        _currentUser = currentUser;
-        _currentTenant = currentTenant;
     }
 
     public async Task<ProjectDashboardDto> Handle(GetProjectDashboardQuery request, CancellationToken cancellationToken)

@@ -16,24 +16,23 @@ namespace ERP.Application.DASH.Queries;
 public class GetFinancialDashboardQueryHandler : IRequestHandler<GetFinancialDashboardQuery, FinancialDashboardDto>
 {
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
     private readonly IAccountRepository _accountRepository;
     private readonly IJournalEntryRepository _journalEntryRepository;
     private readonly IInvoiceRepository _invoiceRepository;
-    private readonly ICurrentUserService _currentUser;
-    private readonly ICurrentTenantService _currentTenant;
 
     public GetFinancialDashboardQueryHandler(
         ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser,
         IAccountRepository accountRepository,
         IJournalEntryRepository journalEntryRepository,
         IInvoiceRepository invoiceRepository)
     {
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
         _accountRepository = accountRepository;
         _journalEntryRepository = journalEntryRepository;
         _invoiceRepository = invoiceRepository;
-        _currentUser = currentUser;
-        _currentTenant = currentTenant;
     }
 
     public async Task<FinancialDashboardDto> Handle(GetFinancialDashboardQuery request, CancellationToken cancellationToken)

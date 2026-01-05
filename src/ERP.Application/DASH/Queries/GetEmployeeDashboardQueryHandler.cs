@@ -17,27 +17,26 @@ namespace ERP.Application.DASH.Queries;
 public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashboardQuery, EmployeeDashboardDto>
 {
     private readonly ICurrentTenantService _currentTenant;
+    private readonly ICurrentUserService _currentUser;
     private readonly IEmployeeRepository _employeeRepository;
     private readonly ITimesheetRepository _timesheetRepository;
     private readonly IExpenseReportRepository _expenseReportRepository;
     private readonly IProjectRepository _projectRepository;
-    private readonly ICurrentUserService _currentUser;
-    private readonly ICurrentTenantService _currentTenant;
 
     public GetEmployeeDashboardQueryHandler(
         ICurrentTenantService currentTenant,
+        ICurrentUserService currentUser,
         IEmployeeRepository employeeRepository,
         ITimesheetRepository timesheetRepository,
         IExpenseReportRepository expenseReportRepository,
         IProjectRepository projectRepository)
     {
         _currentTenant = currentTenant;
+        _currentUser = currentUser;
         _employeeRepository = employeeRepository;
         _timesheetRepository = timesheetRepository;
         _expenseReportRepository = expenseReportRepository;
         _projectRepository = projectRepository;
-        _currentUser = currentUser;
-        _currentTenant = currentTenant;
     }
 
     public async Task<EmployeeDashboardDto> Handle(GetEmployeeDashboardQuery request, CancellationToken cancellationToken)
