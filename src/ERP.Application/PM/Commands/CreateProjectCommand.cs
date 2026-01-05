@@ -1,3 +1,4 @@
+using ERP.Application.Common.Interfaces;
 using ERP.Domain.PM.Enums;
 
 namespace ERP.Application.PM.Commands;
@@ -5,7 +6,7 @@ namespace ERP.Application.PM.Commands;
 /// <summary>
 /// Command to create a new project.
 /// </summary>
-public class CreateProjectCommand
+public class CreateProjectCommand : ICommand<long>
 {
     public long ClientId { get; init; }
     public string Name { get; init; } = string.Empty;

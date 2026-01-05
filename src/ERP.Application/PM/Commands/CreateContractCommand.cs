@@ -1,3 +1,4 @@
+using ERP.Application.Common.Interfaces;
 using ERP.Domain.PM.Enums;
 
 namespace ERP.Application.PM.Commands;
@@ -5,7 +6,7 @@ namespace ERP.Application.PM.Commands;
 /// <summary>
 /// Command to create a new contract.
 /// </summary>
-public class CreateContractCommand
+public class CreateContractCommand : ICommand<long>
 {
     public long ProjectId { get; init; }
     public string ContractNumber { get; init; } = string.Empty;

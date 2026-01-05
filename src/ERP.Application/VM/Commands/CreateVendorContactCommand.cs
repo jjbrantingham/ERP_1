@@ -1,3 +1,4 @@
+using ERP.Application.Common.Interfaces;
 using ERP.Domain.VM.Enums;
 
 namespace ERP.Application.VM.Commands;
@@ -5,7 +6,7 @@ namespace ERP.Application.VM.Commands;
 /// <summary>
 /// Command to create a new vendor contact.
 /// </summary>
-public class CreateVendorContactCommand
+public class CreateVendorContactCommand : ICommand<long>
 {
     public long VendorId { get; init; }
     public ContactType ContactType { get; init; }
