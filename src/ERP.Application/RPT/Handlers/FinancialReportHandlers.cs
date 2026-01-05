@@ -1,7 +1,6 @@
 using ERP.Application.RPT.DTOs;
 using ERP.Application.RPT.Queries;
 using ERP.Application.RPT.Services;
-using ERP.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,10 +11,10 @@ namespace ERP.Application.RPT.Handlers;
 /// </summary>
 public class GetProfitAndLossQueryHandler : IRequestHandler<GetProfitAndLossQuery, ProfitAndLossDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
     private readonly IReportPeriodService _periodService;
 
-    public GetProfitAndLossQueryHandler(ERPDbContext context, IReportPeriodService periodService)
+    public GetProfitAndLossQueryHandler(IDbContext context, IReportPeriodService periodService)
     {
         _context = context;
         _periodService = periodService;
@@ -81,9 +80,9 @@ public class GetProfitAndLossQueryHandler : IRequestHandler<GetProfitAndLossQuer
 /// </summary>
 public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery, BalanceSheetDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
 
-    public GetBalanceSheetQueryHandler(ERPDbContext context)
+    public GetBalanceSheetQueryHandler(IDbContext context)
     {
         _context = context;
     }
@@ -161,10 +160,10 @@ public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery,
 /// </summary>
 public class GetCashFlowQueryHandler : IRequestHandler<GetCashFlowQuery, CashFlowDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
     private readonly IReportPeriodService _periodService;
 
-    public GetCashFlowQueryHandler(ERPDbContext context, IReportPeriodService periodService)
+    public GetCashFlowQueryHandler(IDbContext context, IReportPeriodService periodService)
     {
         _context = context;
         _periodService = periodService;
@@ -199,9 +198,9 @@ public class GetCashFlowQueryHandler : IRequestHandler<GetCashFlowQuery, CashFlo
 /// </summary>
 public class GetARAgingQueryHandler : IRequestHandler<GetARAgingQuery, ARAgingDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
 
-    public GetARAgingQueryHandler(ERPDbContext context)
+    public GetARAgingQueryHandler(IDbContext context)
     {
         _context = context;
     }

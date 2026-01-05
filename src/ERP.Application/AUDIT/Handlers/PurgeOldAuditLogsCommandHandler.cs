@@ -3,7 +3,6 @@ using ERP.Domain.AUDIT.Repositories;
 using ERP.Domain.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ERP.Infrastructure.Persistence;
 
 namespace ERP.Application.AUDIT.Handlers;
 
@@ -12,11 +11,11 @@ namespace ERP.Application.AUDIT.Handlers;
 /// </summary>
 public class PurgeOldAuditLogsCommandHandler : IRequestHandler<PurgeOldAuditLogsCommand, int>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
 
     public PurgeOldAuditLogsCommandHandler(
-        ERPDbContext context,
+        IDbContext context,
         IUnitOfWork unitOfWork)
     {
         _context = context;

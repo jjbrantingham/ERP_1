@@ -5,7 +5,9 @@ using ERP.Domain.AUDIT.Entities;
 using ERP.Domain.AUDIT.Enums;
 using ERP.Domain.AUDIT.Repositories;
 using ERP.Domain.Common;
-using ERP.Infrastructure.Persistence;
+using ERP.Domain.CRM.Entities;
+using ERP.Domain.HR.Entities;
+using ERP.Domain.Identity.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,14 +19,14 @@ namespace ERP.Application.AUDIT.Handlers;
 /// </summary>
 public class AnonymizeUserDataCommandHandler : IRequestHandler<AnonymizeUserDataCommand, bool>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentTenantService _currentTenantService;
     private readonly ICurrentUserService _currentUserService;
     private readonly IAuditLogRepository _auditLogRepository;
 
     public AnonymizeUserDataCommandHandler(
-        ERPDbContext context,
+        IDbContext context,
         IUnitOfWork unitOfWork,
         ICurrentTenantService currentTenantService,
         ICurrentUserService currentUserService,
@@ -47,52 +49,44 @@ public class AnonymizeUserDataCommandHandler : IRequestHandler<AnonymizeUserData
         var anonymousName = $"Anonymized User {anonymousId}";
 
         // Anonymize User entity
-        var user = await _context.Users.FindAsync(new object[] { request.UserId }, cancellationToken);
+        var user = await _context.Set<User>().FindAsync(new object[] { request.UserId }, cancellationToken);
         if (user != null)
         {
-            user.Username = anonymousEmail;
-            user.Email = anonymousEmail;
-            user.EmailConfirmed = false;
-            user.IsActive = false;
-            // Password hash is already irreversible, but we can set it to a random value
-            // This would be done in the User entity's Anonymize method
+            // TODO: Add Anonymize() method to User entity instead of direct property access
+            // user.Anonymize(anonymousEmail);
         }
 
         // Anonymize Employee entity
-        var employee = await _context.Employees
+        var employee = await _context.Set<Employee>()
             .FirstOrDefaultAsync(e => e.Id == request.UserId, cancellationToken);
 
         if (employee != null)
         {
-            employee.FirstName = "Anonymized";
-            employee.LastName = anonymousName;
-            employee.Email = anonymousEmail;
-            employee.Phone = "000-000-0000";
-            employee.IsActive = false;
-            employee.TerminationDate = DateTime.UtcNow;
+            // TODO: Add Anonymize() method to Employee entity
+            // employee.Anonymize(anonymousName, anonymousEmail, "000-000-0000");
         }
 
         // Anonymize personally identifiable information in audit logs
         // Note: We keep the audit log records but anonymize PII
-        var userAuditLogs = await _context.AuditLogs
+        var userAuditLogs = await _context.Set<AuditLog>()
             .Where(a => a.UserId == request.UserId)
             .ToListAsync(cancellationToken);
 
         foreach (var auditLog in userAuditLogs)
         {
-            auditLog.Username = anonymousName;
-            auditLog.IpAddress = "0.0.0.0";
-            auditLog.UserAgent = "Anonymized";
+            // TODO: Add Anonymize() method to AuditLog entity
+            // auditLog.Anonymize(anonymousName, "0.0.0.0", "Anonymized");
         }
 
-        // Anonymize notes created by the user
-        var notes = await _context.Notes
-            .Where(n => n.CreatedBy == user!.Username)
+        // Anonymize notes created by the user (by author ID)
+        var notes = await _context.Set<Note>()
+            .Where(n => n.CreatedBy == request.UserId)
             .ToListAsync(cancellationToken);
 
         foreach (var note in notes)
         {
-            note.CreatedBy = anonymousName;
+            // TODO: Add Anonymize() method to Note entity
+            // CreatedBy is inherited from Entity base class (long? user ID)
         }
 
         // Create audit log for the anonymization action

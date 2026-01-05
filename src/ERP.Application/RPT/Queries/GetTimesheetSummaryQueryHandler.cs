@@ -1,5 +1,4 @@
 using ERP.Application.RPT.DTOs;
-using ERP.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ERP.Application.Common.Interfaces;
@@ -8,11 +7,11 @@ namespace ERP.Application.RPT.Queries;
 
 public class GetTimesheetSummaryQueryHandler : IRequestHandler<GetTimesheetSummaryQuery, TimesheetSummaryDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
     private readonly ICurrentUserService _currentUser;
     private readonly ICurrentTenantService _currentTenant;
 
-    public GetTimesheetSummaryQueryHandler(ERPDbContext context,
+    public GetTimesheetSummaryQueryHandler(IDbContext context,
         ICurrentUserService currentUser,
         ICurrentTenantService currentTenant)
     {

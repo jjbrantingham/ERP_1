@@ -1,6 +1,5 @@
 using ERP.Application.RPT.DTOs;
 using ERP.Application.RPT.Queries;
-using ERP.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,9 +11,9 @@ namespace ERP.Application.RPT.Handlers;
 /// </summary>
 public class GetProjectStatusQueryHandler : IRequestHandler<GetProjectStatusQuery, List<ProjectStatusDto>>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
 
-    public GetProjectStatusQueryHandler(ERPDbContext context)
+    public GetProjectStatusQueryHandler(IDbContext context)
     {
         _context = context;
     }
@@ -52,10 +51,10 @@ public class GetProjectStatusQueryHandler : IRequestHandler<GetProjectStatusQuer
 /// </summary>
 public class GetResourceUtilizationQueryHandler : IRequestHandler<GetResourceUtilizationQuery, ResourceUtilizationDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
     private readonly Application.RPT.Services.IReportPeriodService _periodService;
 
-    public GetResourceUtilizationQueryHandler(ERPDbContext context, Application.RPT.Services.IReportPeriodService periodService)
+    public GetResourceUtilizationQueryHandler(IDbContext context, Application.RPT.Services.IReportPeriodService periodService)
     {
         _context = context;
         _periodService = periodService;
@@ -114,9 +113,9 @@ public class GetResourceUtilizationQueryHandler : IRequestHandler<GetResourceUti
 /// </summary>
 public class GetTimesheetSummaryQueryHandler : IRequestHandler<GetTimesheetSummaryQuery, TimesheetSummaryDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
 
-    public GetTimesheetSummaryQueryHandler(ERPDbContext context)
+    public GetTimesheetSummaryQueryHandler(IDbContext context)
     {
         _context = context;
     }
@@ -167,10 +166,10 @@ public class GetTimesheetSummaryQueryHandler : IRequestHandler<GetTimesheetSumma
 // Full implementations for remaining reports
 public class GetProjectProfitabilityQueryHandler : IRequestHandler<GetProjectProfitabilityQuery, List<ProjectProfitabilityDto>>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
     private readonly Application.RPT.Services.IReportPeriodService _periodService;
 
-    public GetProjectProfitabilityQueryHandler(ERPDbContext context, Application.RPT.Services.IReportPeriodService periodService)
+    public GetProjectProfitabilityQueryHandler(IDbContext context, Application.RPT.Services.IReportPeriodService periodService)
     {
         _context = context;
         _periodService = periodService;
@@ -292,9 +291,9 @@ public class GetProjectProfitabilityQueryHandler : IRequestHandler<GetProjectPro
 
 public class GetBudgetVarianceQueryHandler : IRequestHandler<GetBudgetVarianceQuery, BudgetVarianceDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
 
-    public GetBudgetVarianceQueryHandler(ERPDbContext context)
+    public GetBudgetVarianceQueryHandler(IDbContext context)
     {
         _context = context;
     }
@@ -396,9 +395,9 @@ public class GetBudgetVarianceQueryHandler : IRequestHandler<GetBudgetVarianceQu
 
 public class GetExpenseSummaryQueryHandler : IRequestHandler<GetExpenseSummaryQuery, ExpenseSummaryDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
 
-    public GetExpenseSummaryQueryHandler(ERPDbContext context)
+    public GetExpenseSummaryQueryHandler(IDbContext context)
     {
         _context = context;
     }
@@ -451,9 +450,9 @@ public class GetExpenseSummaryQueryHandler : IRequestHandler<GetExpenseSummaryQu
 
 public class GetProjectManagerDashboardQueryHandler : IRequestHandler<GetProjectManagerDashboardQuery, ProjectManagerDashboardDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
 
-    public GetProjectManagerDashboardQueryHandler(ERPDbContext context)
+    public GetProjectManagerDashboardQueryHandler(IDbContext context)
     {
         _context = context;
     }
@@ -504,10 +503,10 @@ public class GetProjectManagerDashboardQueryHandler : IRequestHandler<GetProject
 
 public class GetFinanceDashboardQueryHandler : IRequestHandler<GetFinanceDashboardQuery, FinanceDashboardDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
     private readonly IMediator _mediator;
 
-    public GetFinanceDashboardQueryHandler(ERPDbContext context, IMediator mediator)
+    public GetFinanceDashboardQueryHandler(IDbContext context, IMediator mediator)
     {
         _context = context;
         _mediator = mediator;
@@ -575,9 +574,9 @@ public class GetFinanceDashboardQueryHandler : IRequestHandler<GetFinanceDashboa
 
 public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashboardQuery, EmployeeDashboardDto>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
 
-    public GetEmployeeDashboardQueryHandler(ERPDbContext context)
+    public GetEmployeeDashboardQueryHandler(IDbContext context)
     {
         _context = context;
     }

@@ -1,7 +1,6 @@
 using ERP.Application.RPT.DTOs;
 using ERP.Domain.FIN.Enums;
 using ERP.Domain.FIN.Repositories;
-using ERP.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ERP.Application.Common.Interfaces;
@@ -12,14 +11,14 @@ public class GetIncomeStatementQueryHandler : IRequestHandler<GetIncomeStatement
 {
     private readonly IAccountRepository _accountRepository;
     private readonly IJournalEntryRepository _journalEntryRepository;
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
     private readonly ICurrentUserService _currentUser;
     private readonly ICurrentTenantService _currentTenant;
 
     public GetIncomeStatementQueryHandler(
         IAccountRepository accountRepository,
         IJournalEntryRepository journalEntryRepository,
-        ERPDbContext context,
+        IDbContext context,
         ICurrentUserService currentUser,
         ICurrentTenantService currentTenant)
     {

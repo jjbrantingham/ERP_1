@@ -2,7 +2,6 @@ using ERP.Application.AUDIT.Commands;
 using ERP.Domain.HR.Repositories;
 using ERP.Domain.TE.Repositories;
 using ERP.Domain.AUDIT.Repositories;
-using ERP.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -14,13 +13,13 @@ namespace ERP.Application.AUDIT.Handlers;
 /// </summary>
 public class ExportUserDataCommandHandler : IRequestHandler<ExportUserDataCommand, string>
 {
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
     private readonly IEmployeeRepository _employeeRepository;
     private readonly ITimesheetRepository _timesheetRepository;
     private readonly IAuditLogRepository _auditLogRepository;
 
     public ExportUserDataCommandHandler(
-        ERPDbContext context,
+        IDbContext context,
         IEmployeeRepository employeeRepository,
         ITimesheetRepository timesheetRepository,
         IAuditLogRepository auditLogRepository)

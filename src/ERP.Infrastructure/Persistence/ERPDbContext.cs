@@ -23,7 +23,7 @@ namespace ERP.Infrastructure.Persistence;
 /// Main database context for the ERP application.
 /// Implements multi-tenancy with global query filters.
 /// </summary>
-public class ERPDbContext : DbContext
+public class ERPDbContext : DbContext, IDbContext
 {
     private readonly ICurrentTenantService _currentTenantService;
     private readonly ICurrentUserService _currentUserService;

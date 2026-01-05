@@ -2,7 +2,6 @@ using ERP.Application.RPT.DTOs;
 using ERP.Domain.PM.Repositories;
 using ERP.Domain.TE.Repositories;
 using ERP.Domain.BILL.Repositories;
-using ERP.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ERP.Application.Common.Interfaces;
@@ -14,7 +13,7 @@ public class GetProjectProfitabilityQueryHandler : IRequestHandler<GetProjectPro
     private readonly IProjectRepository _projectRepository;
     private readonly ITimesheetRepository _timesheetRepository;
     private readonly IInvoiceRepository _invoiceRepository;
-    private readonly ERPDbContext _context;
+    private readonly IDbContext _context;
     private readonly ICurrentUserService _currentUser;
     private readonly ICurrentTenantService _currentTenant;
 
@@ -22,7 +21,7 @@ public class GetProjectProfitabilityQueryHandler : IRequestHandler<GetProjectPro
         IProjectRepository projectRepository,
         ITimesheetRepository timesheetRepository,
         IInvoiceRepository invoiceRepository,
-        ERPDbContext context,
+        IDbContext context,
         ICurrentUserService currentUser,
         ICurrentTenantService currentTenant)
     {
