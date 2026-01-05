@@ -32,7 +32,7 @@ public class CreateVendorCommandHandler : ICommandHandler<CreateVendorCommand, l
     public async Task<long> Handle(CreateVendorCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         // Generate vendor number
         var vendorNumber = VendorNumber.Generate();

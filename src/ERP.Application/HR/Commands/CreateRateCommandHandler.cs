@@ -38,7 +38,7 @@ public class CreateRateCommandHandler : ICommandHandler<CreateRateCommand, long>
     public async Task<long> Handle(CreateRateCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         // Validate that either EmployeeId or ResourceTypeId is provided (but not both)
         if (!command.EmployeeId.HasValue && !command.ResourceTypeId.HasValue)

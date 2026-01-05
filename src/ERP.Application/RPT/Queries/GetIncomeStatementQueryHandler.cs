@@ -32,7 +32,7 @@ public class GetIncomeStatementQueryHandler : IRequestHandler<GetIncomeStatement
     public async Task<IncomeStatementDto> Handle(GetIncomeStatementQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         // Get all accounts
         var accounts = await _accountRepository.GetAllAsync(cancellationToken);

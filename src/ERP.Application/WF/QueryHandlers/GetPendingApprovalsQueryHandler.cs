@@ -26,7 +26,7 @@ public class GetPendingApprovalsQueryHandler : IRequestHandler<GetPendingApprova
     public async Task<IEnumerable<WorkflowInstanceDto>> Handle(GetPendingApprovalsQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         // Use current user if not specified
         var userId = request.UserId ?? _currentUser.UserId;

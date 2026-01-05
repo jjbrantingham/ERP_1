@@ -26,7 +26,7 @@ public class GetClientNotesQueryHandler : IQueryHandler<GetClientNotesQuery, IEn
     public async Task<IEnumerable<NoteDto>> Handle(GetClientNotesQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var notes = await _noteRepository.GetByClientIdAsync(query.ClientId, cancellationToken);
 

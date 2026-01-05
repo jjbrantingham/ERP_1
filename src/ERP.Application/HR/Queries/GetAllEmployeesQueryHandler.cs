@@ -26,7 +26,7 @@ public class GetAllEmployeesQueryHandler : IQueryHandler<GetAllEmployeesQuery, I
     public async Task<IEnumerable<EmployeeDto>> Handle(GetAllEmployeesQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var employees = query.ActiveOnly
             ? await _employeeRepository.GetActiveEmployeesAsync(cancellationToken)

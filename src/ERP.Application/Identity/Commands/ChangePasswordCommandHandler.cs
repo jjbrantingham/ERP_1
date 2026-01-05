@@ -29,7 +29,7 @@ public class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordComman
     public async Task Handle(ChangePasswordCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         // Validate new passwords match
         if (command.NewPassword != command.ConfirmNewPassword)

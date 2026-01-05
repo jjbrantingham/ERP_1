@@ -29,7 +29,7 @@ public class PostInvoiceCommandHandler : IRequestHandler<PostInvoiceCommand>
     public async Task Handle(PostInvoiceCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         // Get invoice and verify tenant ownership
         var invoice = await _invoiceRepository.GetByIdAsync(request.InvoiceId, cancellationToken);

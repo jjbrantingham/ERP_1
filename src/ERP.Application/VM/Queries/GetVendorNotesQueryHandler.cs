@@ -26,7 +26,7 @@ public class GetVendorNotesQueryHandler : IQueryHandler<GetVendorNotesQuery, IEn
     public async Task<IEnumerable<VendorNoteDto>> Handle(GetVendorNotesQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var notes = await _vendorNoteRepository.GetByVendorIdAsync(query.VendorId, cancellationToken);
 

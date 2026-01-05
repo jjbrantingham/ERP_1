@@ -26,7 +26,7 @@ public class GetAllResourceTypesQueryHandler : IQueryHandler<GetAllResourceTypes
     public async Task<IEnumerable<ResourceTypeDto>> Handle(GetAllResourceTypesQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var resourceTypes = query.ActiveOnly
             ? await _resourceTypeRepository.GetActiveResourceTypesAsync(cancellationToken)

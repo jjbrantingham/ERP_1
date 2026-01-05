@@ -32,7 +32,7 @@ public class StartWorkflowCommandHandler : IRequestHandler<StartWorkflowCommand,
     public async Task<long> Handle(StartWorkflowCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         // Get workflow definition with steps
         var workflowDefinition = await _workflowDefinitionRepository.GetByIdWithStepsAsync(

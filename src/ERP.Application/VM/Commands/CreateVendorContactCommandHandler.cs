@@ -31,7 +31,7 @@ public class CreateVendorContactCommandHandler : ICommandHandler<CreateVendorCon
     public async Task<long> Handle(CreateVendorContactCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var email = Email.Create(command.Email);
 

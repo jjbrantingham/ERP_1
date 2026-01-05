@@ -36,7 +36,7 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
     public async Task<long> Handle(CreateInvoiceCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         _logger.LogInformation(
             "Creating invoice for TenantId: {TenantId}, ClientId: {ClientId}, ProjectId: {ProjectId}, BillingMode: {BillingMode}",

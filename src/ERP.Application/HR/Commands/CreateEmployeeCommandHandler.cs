@@ -36,7 +36,7 @@ public class CreateEmployeeCommandHandler : ICommandHandler<CreateEmployeeComman
     public async Task<long> Handle(CreateEmployeeCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         // Verify resource type exists
         var resourceType = await _resourceTypeRepository.GetByIdAsync(command.ResourceTypeId, cancellationToken);

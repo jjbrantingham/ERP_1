@@ -27,7 +27,7 @@ public class GetAuditTrailForEntityQueryHandler : IRequestHandler<GetAuditTrailF
     public async Task<IEnumerable<AuditLogDto>> Handle(GetAuditTrailForEntityQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var auditLogs = await _auditLogRepository.GetByEntityAsync(
             request.EntityType,

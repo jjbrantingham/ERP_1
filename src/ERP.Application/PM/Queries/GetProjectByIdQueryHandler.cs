@@ -26,7 +26,7 @@ public class GetProjectByIdQueryHandler : IQueryHandler<GetProjectByIdQuery, Pro
     public async Task<ProjectDto> Handle(GetProjectByIdQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var project = await _projectRepository.GetByIdAsync(query.ProjectId, cancellationToken);
 

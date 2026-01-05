@@ -23,7 +23,7 @@ public class GetExpenseReportByIdQueryHandler : IQueryHandler<GetExpenseReportBy
     public async Task<ExpenseReportDto> Handle(GetExpenseReportByIdQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var report = await _expenseReportRepository.GetByIdAsync(query.ExpenseReportId, cancellationToken);
         if (report == null)

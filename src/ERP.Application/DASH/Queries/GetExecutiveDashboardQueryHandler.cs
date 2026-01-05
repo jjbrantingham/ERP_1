@@ -53,7 +53,7 @@ public class GetExecutiveDashboardQueryHandler : IRequestHandler<GetExecutiveDas
     public async Task<ExecutiveDashboardDto> Handle(GetExecutiveDashboardQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var asOfDate = request.AsOfDate ?? DateTime.UtcNow;
         var currentMonth = new DateTime(asOfDate.Year, asOfDate.Month, 1);

@@ -26,7 +26,7 @@ public class GetVendorContactsQueryHandler : IQueryHandler<GetVendorContactsQuer
     public async Task<IEnumerable<VendorContactDto>> Handle(GetVendorContactsQuery query, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var contacts = await _vendorContactRepository.GetByVendorIdAsync(query.VendorId, cancellationToken);
 

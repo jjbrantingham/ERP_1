@@ -30,7 +30,7 @@ public class CreateWorkflowDefinitionCommandHandler : IRequestHandler<CreateWork
     public async Task<long> Handle(CreateWorkflowDefinitionCommand request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         // Create workflow definition
         var workflow = WorkflowDefinition.Create(

@@ -31,7 +31,7 @@ public class CreateResourceTypeCommandHandler : ICommandHandler<CreateResourceTy
     public async Task<long> Handle(CreateResourceTypeCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         // Check if name already exists
         var existingResourceType = await _resourceTypeRepository.GetByNameAsync(command.Name, cancellationToken);

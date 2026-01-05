@@ -28,7 +28,7 @@ public class GetWorkflowInstanceByEntityQueryHandler : IRequestHandler<GetWorkfl
     public async Task<WorkflowInstanceDto?> Handle(GetWorkflowInstanceByEntityQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var instance = await _workflowInstanceRepository.GetByEntityAsync(
             request.EntityType,

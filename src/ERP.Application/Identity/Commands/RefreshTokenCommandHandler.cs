@@ -30,7 +30,7 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, A
     public async Task<AuthenticationResponse> Handle(RefreshTokenCommand command, CancellationToken cancellationToken = default)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         // Validate the access token (even if expired) to get user ID
         var userId = _jwtTokenService.ValidateToken(command.AccessToken);

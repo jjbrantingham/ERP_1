@@ -28,7 +28,7 @@ public class GetWorkflowDefinitionsByEntityTypeQueryHandler
         CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var workflows = request.ActiveOnly
             ? await _workflowDefinitionRepository.GetActiveByEntityTypeAsync(request.EntityType, cancellationToken)

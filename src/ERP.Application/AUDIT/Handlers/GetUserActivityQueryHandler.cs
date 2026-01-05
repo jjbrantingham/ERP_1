@@ -28,7 +28,7 @@ public class GetUserActivityQueryHandler : IRequestHandler<GetUserActivityQuery,
     public async Task<PagedResult<AuditLogDto>> Handle(GetUserActivityQuery request, CancellationToken cancellationToken)
     {
         // Ensure user is authenticated
-        AuthorizationHelper.EnsureAuthenticated(_currentUserService);
+        AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
         var auditLogs = await _auditLogRepository.SearchAsync(
             entityType: null,
