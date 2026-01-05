@@ -1,4 +1,5 @@
 using ERP.Application.AUDIT.Commands;
+using ERP.Application.Common.Interfaces;
 using ERP.Domain.AUDIT.Repositories;
 using ERP.Domain.Common;
 using MediatR;

@@ -1,4 +1,5 @@
 using ERP.Application.RPT.DTOs;
+using ERP.Application.Common.Interfaces;
 using ERP.Application.RPT.Queries;
 using ERP.Application.RPT.Services;
 using MediatR;

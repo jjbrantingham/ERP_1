@@ -1,4 +1,5 @@
 using ERP.Application.AUDIT.Commands;
+using ERP.Application.Common.Interfaces;
 using ERP.Domain.HR.Repositories;
 using ERP.Domain.TE.Repositories;
 using ERP.Domain.AUDIT.Repositories;
