@@ -67,7 +67,7 @@ public interface IDbContext
     DbSet<WorkflowDefinition> WorkflowDefinitions { get; }
     DbSet<WorkflowStep> WorkflowSteps { get; }
     DbSet<WorkflowInstance> WorkflowInstances { get; }
-    DbSet<WorkflowStepInstance> WorkflowStepInstances { get; }
+    DbSet<StepInstance> StepInstances { get; }
 
     // Audit
     DbSet<AuditLog> AuditLogs { get; }
