@@ -1,5 +1,6 @@
 using ERP.Application.Common.Exceptions;
 using ERP.Application.Common.Interfaces;
+using ERP.Domain.Common;
 using ERP.Domain.Common.Interfaces;
 
 namespace ERP.Application.Common.Security;
@@ -63,7 +64,7 @@ public static class AuthorizationHelper
         IRepository<TEntity> repository,
         ICurrentTenantService currentTenant,
         string? entityName = null,
-        CancellationToken cancellationToken = default) where TEntity : class, ITenantEntity
+        CancellationToken cancellationToken = default) where TEntity : class, IAggregateRoot, ITenantEntity
     {
         var entity = await repository.GetByIdAsync(entityId, cancellationToken);
 
