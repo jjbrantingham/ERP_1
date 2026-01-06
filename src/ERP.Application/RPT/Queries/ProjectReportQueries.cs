@@ -15,17 +15,6 @@ public class GetProjectStatusQuery : IRequest<List<ProjectStatusDto>>
 }
 
 /// <summary>
-/// Query to get Project Profitability report
-/// </summary>
-public class GetProjectProfitabilityQuery : IRequest<List<ProjectProfitabilityDto>>
-{
-    public long? ProjectId { get; set; }
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
-    public ReportPeriod Period { get; set; } = ReportPeriod.ThisMonth;
-}
-
-/// <summary>
 /// Query to get Resource Utilization report
 /// </summary>
 public class GetResourceUtilizationQuery : IRequest<ResourceUtilizationDto>

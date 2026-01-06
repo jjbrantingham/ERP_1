@@ -25,28 +25,6 @@ public class ProjectStatusDto
 }
 
 /// <summary>
-/// Project profitability report
-/// </summary>
-public class ProjectProfitabilityDto
-{
-    public long ProjectId { get; set; }
-    public string ProjectNumber { get; set; } = string.Empty;
-    public string ProjectName { get; set; } = string.Empty;
-    public string ClientName { get; set; } = string.Empty;
-    public decimal TotalRevenue { get; set; }
-    public decimal TotalCost { get; set; }
-    public decimal GrossProfit { get; set; }
-    public decimal GrossProfitMargin { get; set; }
-    public decimal BillableHours { get; set; }
-    public decimal BillableRevenue { get; set; }
-    public decimal ExpenseRevenue { get; set; }
-    public decimal LaborCost { get; set; }
-    public decimal ExpenseCost { get; set; }
-    public decimal OverheadCost { get; set; }
-    public decimal RealizationRate { get; set; }
-}
-
-/// <summary>
 /// Resource utilization report
 /// </summary>
 public class ResourceUtilizationDto
