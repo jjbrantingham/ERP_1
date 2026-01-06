@@ -1,3 +1,4 @@
+using ERP.Domain.Common.Interfaces;
 using ERP.Domain.Identity.Entities;
 
 namespace ERP.Application.Common.Interfaces;
