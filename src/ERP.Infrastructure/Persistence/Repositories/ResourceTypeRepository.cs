@@ -1,3 +1,4 @@
+using ERP.Domain.Common;
 using ERP.Domain.HR.Entities;
 using ERP.Domain.HR.Repositories;
 using Microsoft.EntityFrameworkCore;

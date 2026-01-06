@@ -1,3 +1,4 @@
+using ERP.Domain.Common;
 using ERP.Domain.VM.Entities;
 using ERP.Domain.VM.Enums;
 using ERP.Domain.VM.Repositories;

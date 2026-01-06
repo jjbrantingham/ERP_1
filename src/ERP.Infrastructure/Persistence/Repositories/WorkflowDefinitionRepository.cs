@@ -1,3 +1,4 @@
+using ERP.Domain.Common;
 using ERP.Domain.WF.Entities;
 using ERP.Domain.WF.Enums;
 using ERP.Domain.WF.Repositories;

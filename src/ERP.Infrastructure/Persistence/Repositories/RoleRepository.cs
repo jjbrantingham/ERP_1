@@ -1,3 +1,4 @@
+using ERP.Domain.Common;
 using ERP.Application.Common.Interfaces;
 using ERP.Domain.Identity.Entities;
 using Microsoft.EntityFrameworkCore;

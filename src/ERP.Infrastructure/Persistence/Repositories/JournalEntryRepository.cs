@@ -1,3 +1,4 @@
+using ERP.Domain.Common;
 using ERP.Domain.FIN.Entities;
 using ERP.Domain.FIN.Enums;
 using ERP.Domain.FIN.Repositories;
