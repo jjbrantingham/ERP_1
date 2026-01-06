@@ -38,17 +38,6 @@ public class GetEmployeeDashboardQuery : IRequest<EmployeeDashboardDto>
 }
 
 /// <summary>
-/// Query to get Timesheet Summary report
-/// </summary>
-public class GetTimesheetSummaryQuery : IRequest<TimesheetSummaryDto>
-{
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
-    public long? EmployeeId { get; set; }
-    public long? ProjectId { get; set; }
-}
-
-/// <summary>
 /// Query to get Expense Summary report
 /// </summary>
 public class GetExpenseSummaryQuery : IRequest<ExpenseSummaryDto>

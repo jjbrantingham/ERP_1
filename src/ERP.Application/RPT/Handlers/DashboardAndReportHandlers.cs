@@ -109,61 +109,6 @@ public class GetResourceUtilizationQueryHandler : IRequestHandler<GetResourceUti
     }
 }
 
-/// <summary>
-/// Handler for Timesheet Summary report
-/// </summary>
-public class GetTimesheetSummaryQueryHandler : IRequestHandler<GetTimesheetSummaryQuery, TimesheetSummaryDto>
-{
-    private readonly IDbContext _context;
-
-    public GetTimesheetSummaryQueryHandler(IDbContext context)
-    {
-        _context = context;
-    }
-
-    public async Task<TimesheetSummaryDto> Handle(GetTimesheetSummaryQuery request, CancellationToken cancellationToken)
-    {
-        var query = _context.Timesheets
-            .Include(t => t.Employee)
-            .Include(t => t.Entries).ThenInclude(e => e.Project)
-            .AsQueryable();
-
-        if (request.StartDate.HasValue)
-            query = query.Where(t => t.WeekStartDate >= request.StartDate.Value);
-        if (request.EndDate.HasValue)
-            query = query.Where(t => t.WeekEndDate <= request.EndDate.Value);
-        if (request.EmployeeId.HasValue)
-            query = query.Where(t => t.EmployeeId == request.EmployeeId.Value);
-
-        var timesheets = await query.ToListAsync(cancellationToken);
-
-        var lines = timesheets.SelectMany(t => t.Entries.GroupBy(e => new { t.EmployeeId, t.Employee, e.ProjectId, e.Project })
-            .Select(g => new TimesheetSummaryLineDto
-            {
-                EmployeeId = g.Key.EmployeeId,
-                EmployeeName = $"{g.Key.Employee.FirstName} {g.Key.Employee.LastName}",
-                ProjectId = g.Key.ProjectId,
-                ProjectName = g.Key.Project?.Name ?? "No Project",
-                TotalHours = g.Sum(e => e.Hours),
-                BillableHours = g.Where(e => e.IsBillable).Sum(e => e.Hours),
-                NonBillableHours = g.Where(e => !e.IsBillable).Sum(e => e.Hours),
-                Status = g.First().Timesheet.Status.ToString()
-            })).ToList();
-
-        return new TimesheetSummaryDto
-        {
-            StartDate = request.StartDate ?? DateTime.UtcNow.AddDays(-30),
-            EndDate = request.EndDate ?? DateTime.UtcNow,
-            Lines = lines,
-            TotalHours = lines.Sum(l => l.TotalHours),
-            BillableHours = lines.Sum(l => l.BillableHours),
-            NonBillableHours = lines.Sum(l => l.NonBillableHours),
-            EmployeeCount = lines.Select(l => l.EmployeeId).Distinct().Count(),
-            ProjectCount = lines.Select(l => l.ProjectId).Distinct().Count()
-        };
-    }
-}
-
 public class GetBudgetVarianceQueryHandler : IRequestHandler<GetBudgetVarianceQuery, BudgetVarianceDto>
 {
     private readonly IDbContext _context;
