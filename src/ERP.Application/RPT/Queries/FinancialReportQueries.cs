@@ -5,14 +5,6 @@ using MediatR;
 namespace ERP.Application.RPT.Queries;
 
 /// <summary>
-/// Query to get Balance Sheet report
-/// </summary>
-public class GetBalanceSheetQuery : IRequest<BalanceSheetDto>
-{
-    public DateTime? AsOfDate { get; set; }
-}
-
-/// <summary>
 /// Query to get Cash Flow Statement report
 /// </summary>
 public class GetCashFlowQuery : IRequest<CashFlowDto>
