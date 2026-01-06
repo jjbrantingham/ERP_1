@@ -37,20 +37,6 @@ public class ExpenseLineDto
 }
 
 /// <summary>
-/// Balance Sheet report
-/// </summary>
-public class BalanceSheetDto
-{
-    public DateTime AsOfDate { get; set; }
-    public List<AssetLineDto> Assets { get; set; } = new();
-    public List<LiabilityLineDto> Liabilities { get; set; } = new();
-    public List<EquityLineDto> Equity { get; set; } = new();
-    public decimal TotalAssets { get; set; }
-    public decimal TotalLiabilities { get; set; }
-    public decimal TotalEquity { get; set; }
-}
-
-/// <summary>
 /// Asset line in Balance Sheet
 /// </summary>
 public class AssetLineDto
