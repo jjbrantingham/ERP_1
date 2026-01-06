@@ -37,38 +37,6 @@ public class ExpenseLineDto
 }
 
 /// <summary>
-/// Asset line in Balance Sheet
-/// </summary>
-public class AssetLineDto
-{
-    public string AccountNumber { get; set; } = string.Empty;
-    public string AccountName { get; set; } = string.Empty;
-    public string Category { get; set; } = string.Empty;
-    public decimal Amount { get; set; }
-}
-
-/// <summary>
-/// Liability line in Balance Sheet
-/// </summary>
-public class LiabilityLineDto
-{
-    public string AccountNumber { get; set; } = string.Empty;
-    public string AccountName { get; set; } = string.Empty;
-    public string Category { get; set; } = string.Empty;
-    public decimal Amount { get; set; }
-}
-
-/// <summary>
-/// Equity line in Balance Sheet
-/// </summary>
-public class EquityLineDto
-{
-    public string AccountNumber { get; set; } = string.Empty;
-    public string AccountName { get; set; } = string.Empty;
-    public decimal Amount { get; set; }
-}
-
-/// <summary>
 /// Cash Flow Statement report
 /// </summary>
 public class CashFlowDto
