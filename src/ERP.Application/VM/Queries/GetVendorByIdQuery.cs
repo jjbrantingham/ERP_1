@@ -1,5 +1,5 @@
 using ERP.Application.Common.Interfaces;
-namespace ERP.Application.VM.DTOs;
+using ERP.Application.VM.DTOs;
 
 namespace ERP.Application.VM.Queries;
 
