@@ -68,8 +68,8 @@ public class CreateRateCommandValidator : AbstractValidator<CreateRateCommand>
             .WithMessage("End date must be after effective date");
 
         RuleFor(x => x.Notes)
-            .MaximumLength(BusinessConstants.Lengths.Notes)
+            .MaximumLength(BusinessConstants.Lengths.LongDescription)
             .When(x => !string.IsNullOrEmpty(x.Notes))
-            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.Notes} characters");
+            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.LongDescription} characters");
     }
 }

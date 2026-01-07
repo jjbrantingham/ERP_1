@@ -21,19 +21,19 @@ public class UpdateEmployeeCommandValidator : AbstractValidator<UpdateEmployeeCo
         RuleFor(x => x.FirstName)
             .NotEmpty()
             .WithMessage("First name is required")
-            .MaximumLength(BusinessConstants.Lengths.Name)
-            .WithMessage($"First name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .MaximumLength(BusinessConstants.Lengths.ShortName)
+            .WithMessage($"First name must not exceed {BusinessConstants.Lengths.ShortName} characters");
 
         RuleFor(x => x.LastName)
             .NotEmpty()
             .WithMessage("Last name is required")
-            .MaximumLength(BusinessConstants.Lengths.Name)
-            .WithMessage($"Last name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .MaximumLength(BusinessConstants.Lengths.ShortName)
+            .WithMessage($"Last name must not exceed {BusinessConstants.Lengths.ShortName} characters");
 
         RuleFor(x => x.MiddleName)
-            .MaximumLength(BusinessConstants.Lengths.Name)
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
             .When(x => !string.IsNullOrEmpty(x.MiddleName))
-            .WithMessage($"Middle name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .WithMessage($"Middle name must not exceed {BusinessConstants.Lengths.ShortName} characters");
 
         RuleFor(x => x.Email)
             .NotEmpty()
@@ -63,14 +63,14 @@ public class UpdateEmployeeCommandValidator : AbstractValidator<UpdateEmployeeCo
             .WithMessage("Invalid employment type");
 
         RuleFor(x => x.JobTitle)
-            .MaximumLength(BusinessConstants.Lengths.Name)
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
             .When(x => !string.IsNullOrEmpty(x.JobTitle))
-            .WithMessage($"Job title must not exceed {BusinessConstants.Lengths.Name} characters");
+            .WithMessage($"Job title must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.Department)
-            .MaximumLength(BusinessConstants.Lengths.Name)
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
             .When(x => !string.IsNullOrEmpty(x.Department))
-            .WithMessage($"Department must not exceed {BusinessConstants.Lengths.Name} characters");
+            .WithMessage($"Department must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.ManagerId)
             .GreaterThan(0)
@@ -104,8 +104,8 @@ public class UpdateEmployeeCommandValidator : AbstractValidator<UpdateEmployeeCo
             .WithMessage("Standard hours per week must be between 1 and 168 (hours in a week)");
 
         RuleFor(x => x.Notes)
-            .MaximumLength(BusinessConstants.Lengths.Notes)
+            .MaximumLength(BusinessConstants.Lengths.LongDescription)
             .When(x => !string.IsNullOrEmpty(x.Notes))
-            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.Notes} characters");
+            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.LongDescription} characters");
     }
 }

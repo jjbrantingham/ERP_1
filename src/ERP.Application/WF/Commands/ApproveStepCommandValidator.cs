@@ -19,8 +19,8 @@ public class ApproveStepCommandValidator : AbstractValidator<ApproveStepCommand>
             .WithMessage("Step sequence number must be greater than zero");
 
         RuleFor(x => x.Comments)
-            .MaximumLength(BusinessConstants.Lengths.Notes)
+            .MaximumLength(BusinessConstants.Lengths.LongDescription)
             .When(x => !string.IsNullOrEmpty(x.Comments))
-            .WithMessage($"Comments must not exceed {BusinessConstants.Lengths.Notes} characters");
+            .WithMessage($"Comments must not exceed {BusinessConstants.Lengths.LongDescription} characters");
     }
 }

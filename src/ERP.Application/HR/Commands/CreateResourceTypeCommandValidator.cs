@@ -13,8 +13,8 @@ public class CreateResourceTypeCommandValidator : AbstractValidator<CreateResour
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("Resource type name is required")
-            .MaximumLength(BusinessConstants.Lengths.Name)
-            .WithMessage($"Resource type name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
+            .WithMessage($"Resource type name must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.Description)
             .MaximumLength(BusinessConstants.Lengths.Description)

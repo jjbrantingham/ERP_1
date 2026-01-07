@@ -13,17 +13,17 @@ public class CreateClientCommandValidator : AbstractValidator<CreateClientComman
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("Client name is required")
-            .MaximumLength(BusinessConstants.Lengths.Name)
-            .WithMessage($"Client name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
+            .WithMessage($"Client name must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.ClientType)
             .IsInEnum()
             .WithMessage("Invalid client type");
 
         RuleFor(x => x.LegalName)
-            .MaximumLength(BusinessConstants.Lengths.Name)
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
             .When(x => !string.IsNullOrEmpty(x.LegalName))
-            .WithMessage($"Legal name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .WithMessage($"Legal name must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.TaxId)
             .MaximumLength(50)
@@ -124,8 +124,8 @@ public class CreateClientCommandValidator : AbstractValidator<CreateClientComman
             .WithMessage("Credit limit must not exceed 100 characters");
 
         RuleFor(x => x.Notes)
-            .MaximumLength(BusinessConstants.Lengths.Notes)
+            .MaximumLength(BusinessConstants.Lengths.LongDescription)
             .When(x => !string.IsNullOrEmpty(x.Notes))
-            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.Notes} characters");
+            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.LongDescription} characters");
     }
 }

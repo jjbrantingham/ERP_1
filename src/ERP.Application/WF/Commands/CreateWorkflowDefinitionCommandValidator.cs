@@ -13,8 +13,8 @@ public class CreateWorkflowDefinitionCommandValidator : AbstractValidator<Create
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("Workflow name is required")
-            .MaximumLength(BusinessConstants.Lengths.Name)
-            .WithMessage($"Workflow name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
+            .WithMessage($"Workflow name must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.Description)
             .NotEmpty()
@@ -62,8 +62,8 @@ public class WorkflowStepCommandValidator : AbstractValidator<WorkflowStepComman
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("Step name is required")
-            .MaximumLength(BusinessConstants.Lengths.Name)
-            .WithMessage($"Step name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
+            .WithMessage($"Step name must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.Description)
             .NotEmpty()

@@ -21,7 +21,7 @@ public class RejectStepCommandValidator : AbstractValidator<RejectStepCommand>
         RuleFor(x => x.Comments)
             .NotEmpty()
             .WithMessage("Comments are required when rejecting a workflow step")
-            .MaximumLength(BusinessConstants.Lengths.Notes)
-            .WithMessage($"Comments must not exceed {BusinessConstants.Lengths.Notes} characters");
+            .MaximumLength(BusinessConstants.Lengths.LongDescription)
+            .WithMessage($"Comments must not exceed {BusinessConstants.Lengths.LongDescription} characters");
     }
 }

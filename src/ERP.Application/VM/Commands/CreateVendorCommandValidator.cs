@@ -13,8 +13,8 @@ public class CreateVendorCommandValidator : AbstractValidator<CreateVendorComman
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("Vendor name is required")
-            .MaximumLength(BusinessConstants.Lengths.Name)
-            .WithMessage($"Vendor name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
+            .WithMessage($"Vendor name must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.VendorType)
             .IsInEnum()
@@ -47,8 +47,8 @@ public class CreateVendorCommandValidator : AbstractValidator<CreateVendorComman
             .WithMessage("Phone must be in E.164 format (e.g., +12125551234)");
 
         RuleFor(x => x.Notes)
-            .MaximumLength(BusinessConstants.Lengths.Notes)
+            .MaximumLength(BusinessConstants.Lengths.LongDescription)
             .When(x => !string.IsNullOrEmpty(x.Notes))
-            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.Notes} characters");
+            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.LongDescription} characters");
     }
 }

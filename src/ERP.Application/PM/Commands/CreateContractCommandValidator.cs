@@ -25,9 +25,9 @@ public class CreateContractCommandValidator : AbstractValidator<CreateContractCo
             .WithMessage("Invalid contract type");
 
         RuleFor(x => x.Title)
-            .MaximumLength(BusinessConstants.Lengths.Name)
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
             .When(x => !string.IsNullOrEmpty(x.Title))
-            .WithMessage($"Title must not exceed {BusinessConstants.Lengths.Name} characters");
+            .WithMessage($"Title must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.Description)
             .MaximumLength(BusinessConstants.Lengths.Description)

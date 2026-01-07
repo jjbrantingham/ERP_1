@@ -29,8 +29,8 @@ public class CreateTimesheetCommandValidator : AbstractValidator<CreateTimesheet
             .WithMessage("Timesheet period cannot exceed 31 days");
 
         RuleFor(x => x.Notes)
-            .MaximumLength(BusinessConstants.Lengths.Notes)
+            .MaximumLength(BusinessConstants.Lengths.LongDescription)
             .When(x => !string.IsNullOrEmpty(x.Notes))
-            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.Notes} characters");
+            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.LongDescription} characters");
     }
 }

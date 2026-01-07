@@ -21,14 +21,14 @@ public class CreateVendorContactCommandValidator : AbstractValidator<CreateVendo
         RuleFor(x => x.FirstName)
             .NotEmpty()
             .WithMessage("First name is required")
-            .MaximumLength(BusinessConstants.Lengths.Name)
-            .WithMessage($"First name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .MaximumLength(BusinessConstants.Lengths.ShortName)
+            .WithMessage($"First name must not exceed {BusinessConstants.Lengths.ShortName} characters");
 
         RuleFor(x => x.LastName)
             .NotEmpty()
             .WithMessage("Last name is required")
-            .MaximumLength(BusinessConstants.Lengths.Name)
-            .WithMessage($"Last name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .MaximumLength(BusinessConstants.Lengths.ShortName)
+            .WithMessage($"Last name must not exceed {BusinessConstants.Lengths.ShortName} characters");
 
         RuleFor(x => x.Email)
             .NotEmpty()
@@ -39,9 +39,9 @@ public class CreateVendorContactCommandValidator : AbstractValidator<CreateVendo
             .WithMessage($"Email must not exceed {BusinessConstants.Lengths.Email} characters");
 
         RuleFor(x => x.Title)
-            .MaximumLength(BusinessConstants.Lengths.Name)
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
             .When(x => !string.IsNullOrEmpty(x.Title))
-            .WithMessage($"Title must not exceed {BusinessConstants.Lengths.Name} characters");
+            .WithMessage($"Title must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.Phone)
             .Matches(@"^\+?[1-9]\d{1,14}$")
@@ -54,8 +54,8 @@ public class CreateVendorContactCommandValidator : AbstractValidator<CreateVendo
             .WithMessage("Mobile must be in E.164 format (e.g., +12125551234)");
 
         RuleFor(x => x.Notes)
-            .MaximumLength(BusinessConstants.Lengths.Notes)
+            .MaximumLength(BusinessConstants.Lengths.LongDescription)
             .When(x => !string.IsNullOrEmpty(x.Notes))
-            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.Notes} characters");
+            .WithMessage($"Notes must not exceed {BusinessConstants.Lengths.LongDescription} characters");
     }
 }

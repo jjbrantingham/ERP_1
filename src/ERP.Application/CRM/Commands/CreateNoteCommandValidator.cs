@@ -22,8 +22,8 @@ public class CreateNoteCommandValidator : AbstractValidator<CreateNoteCommand>
         RuleFor(x => x.Subject)
             .NotEmpty()
             .WithMessage("Subject is required")
-            .MaximumLength(BusinessConstants.Lengths.Name)
-            .WithMessage($"Subject must not exceed {BusinessConstants.Lengths.Name} characters");
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
+            .WithMessage($"Subject must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.Content)
             .NotEmpty()

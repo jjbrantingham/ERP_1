@@ -30,8 +30,8 @@ public class CreateWBSItemCommandValidator : AbstractValidator<CreateWBSItemComm
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("WBS item name is required")
-            .MaximumLength(BusinessConstants.Lengths.Name)
-            .WithMessage($"WBS item name must not exceed {BusinessConstants.Lengths.Name} characters");
+            .MaximumLength(BusinessConstants.Lengths.StandardName)
+            .WithMessage($"WBS item name must not exceed {BusinessConstants.Lengths.StandardName} characters");
 
         RuleFor(x => x.Description)
             .MaximumLength(BusinessConstants.Lengths.Description)
