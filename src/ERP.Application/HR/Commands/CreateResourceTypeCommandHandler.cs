@@ -36,14 +36,14 @@ public class CreateResourceTypeCommandHandler : ICommandHandler<CreateResourceTy
         // Check if name already exists
         var existingResourceType = await _resourceTypeRepository.GetByNameAsync(command.Name, cancellationToken);
         if (existingResourceType != null)
-            throw new ValidationException("Resource type name already exists");
+            throw new ValidationException("Name", "Resource type name already exists");
 
         // Check if code already exists (if provided)
         if (!string.IsNullOrWhiteSpace(command.Code))
         {
             var existingCode = await _resourceTypeRepository.GetByCodeAsync(command.Code, cancellationToken);
             if (existingCode != null)
-                throw new ValidationException("Resource type code already exists");
+                throw new ValidationException("Code", "Resource type code already exists");
         }
 
         // Create resource type
