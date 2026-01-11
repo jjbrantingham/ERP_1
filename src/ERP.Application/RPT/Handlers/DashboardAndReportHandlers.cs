@@ -35,7 +35,7 @@ public class GetProjectStatusQueryHandler : IRequestHandler<GetProjectStatusQuer
         return projects.Select(p => new ProjectStatusDto
         {
             ProjectId = p.Id,
-            ProjectNumber = p.ProjectNumber,
+            ProjectNumber = p.ProjectNumber.Value,
             ProjectName = p.Name,
             ClientName = p.Client?.Name ?? "",
             Status = p.Status.ToString(),
@@ -68,7 +68,7 @@ public class GetResourceUtilizationQueryHandler : IRequestHandler<GetResourceUti
         var timesheets = await _context.Timesheets
             .Include(t => t.Entries)
             .Include(t => t.Employee)
-            .Where(t => t.WeekStartDate >= startDate && t.WeekEndDate <= endDate)
+            .Where(t => t.PeriodStart >= startDate && t.PeriodEnd <= endDate)
             .Where(t => t.Status == ERP.Domain.TE.Enums.TimesheetStatus.Approved)
             .ToListAsync(cancellationToken);
 
@@ -200,7 +200,7 @@ public class GetBudgetVarianceQueryHandler : IRequestHandler<GetBudgetVarianceQu
         return new BudgetVarianceDto
         {
             ProjectId = request.ProjectId,
-            ProjectNumber = project.ProjectNumber,
+            ProjectNumber = project.ProjectNumber.Value,
             ProjectName = project.Name,
             Lines = lines,
             TotalBudget = lines.Sum(l => l.BudgetedAmount),
@@ -289,7 +289,7 @@ public class GetProjectManagerDashboardQueryHandler : IRequestHandler<GetProject
             .Select(p => new ProjectStatusDto
             {
                 ProjectId = p.Id,
-                ProjectNumber = p.ProjectNumber,
+                ProjectNumber = p.ProjectNumber.Value,
                 ProjectName = p.Name,
                 ClientName = p.Client != null ? p.Client.Name : "",
                 Status = p.Status.ToString(),
@@ -347,7 +347,7 @@ public class GetFinanceDashboardQueryHandler : IRequestHandler<GetFinanceDashboa
             .Select(i => new InvoiceAgingLineDto
             {
                 InvoiceId = i.Id,
-                InvoiceNumber = i.InvoiceNumber,
+                InvoiceNumber = i.InvoiceNumber.Value,
                 ClientId = i.ClientId,
                 ClientName = i.Client != null ? i.Client.Name : "",
                 InvoiceDate = i.InvoiceDate,
@@ -412,13 +412,13 @@ public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashb
         // Get recent timesheets
         var recentTimesheets = await _context.Timesheets
             .Where(t => t.EmployeeId == request.EmployeeId)
-            .OrderByDescending(t => t.WeekStartDate)
+            .OrderByDescending(t => t.PeriodStart)
             .Take(5)
             .Select(t => new TimesheetStatusDto
             {
                 TimesheetId = t.Id,
-                WeekStartDate = t.WeekStartDate,
-                WeekEndDate = t.WeekEndDate,
+                WeekStartDate = t.PeriodStart,
+                WeekEndDate = t.PeriodEnd,
                 TotalHours = t.TotalHours,
                 Status = t.Status.ToString(),
                 SubmittedDate = t.SubmittedDate,
@@ -450,7 +450,7 @@ public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashb
         var currentPeriodTimesheets = await _context.Timesheets
             .Include(t => t.Entries)
             .Where(t => t.EmployeeId == request.EmployeeId)
-            .Where(t => t.WeekStartDate >= currentPeriodStart)
+            .Where(t => t.PeriodStart >= currentPeriodStart)
             .ToListAsync(cancellationToken);
 
         var currentPeriodHours = currentPeriodTimesheets.SelectMany(t => t.Entries).Sum(e => e.Hours);
