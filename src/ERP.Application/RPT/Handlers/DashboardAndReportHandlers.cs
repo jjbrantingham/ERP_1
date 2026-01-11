@@ -73,26 +73,37 @@ public class GetResourceUtilizationQueryHandler : IRequestHandler<GetResourceUti
 
         var timesheets = await _context.Timesheets
             .Include(t => t.Entries)
-            .Include(t => t.Employee)
             .Where(t => t.PeriodStart >= startDate && t.PeriodEnd <= endDate)
             .Where(t => t.Status == ERP.Domain.TE.Enums.TimesheetStatus.Approved)
             .ToListAsync(cancellationToken);
 
+        // Get employee IDs to fetch employee details
+        var employeeIds = timesheets.Select(t => t.EmployeeId).Distinct().ToList();
+        var employees = await _context.Employees
+            .Where(e => employeeIds.Contains(e.Id))
+            .ToListAsync(cancellationToken);
+
+        var employeeDict = employees.ToDictionary(e => e.Id);
+
         var employeeUtilization = timesheets
-            .GroupBy(t => new { t.EmployeeId, t.Employee.FirstName, t.Employee.LastName, t.Employee.Department, t.Employee.Title })
-            .Select(g => new EmployeeUtilizationDto
+            .GroupBy(t => t.EmployeeId)
+            .Select(g =>
             {
-                EmployeeId = g.Key.EmployeeId,
-                EmployeeName = $"{g.Key.FirstName} {g.Key.LastName}",
-                Department = g.Key.Department ?? "",
-                Title = g.Key.Title ?? "",
-                TotalHours = g.SelectMany(t => t.Entries).Sum(e => e.Hours),
-                BillableHours = g.SelectMany(t => t.Entries).Where(e => e.IsBillable).Sum(e => e.Hours),
-                NonBillableHours = g.SelectMany(t => t.Entries).Where(e => !e.IsBillable).Sum(e => e.Hours),
-                AvailableHours = 160, // Standard 40hrs/week * 4 weeks
-                UtilizationRate = 0,
-                BillableRate = 0,
-                ProjectCount = g.SelectMany(t => t.Entries).Select(e => e.ProjectId).Distinct().Count()
+                var employee = employeeDict.GetValueOrDefault(g.Key);
+                return new EmployeeUtilizationDto
+                {
+                    EmployeeId = g.Key,
+                    EmployeeName = employee != null ? $"{employee.FirstName} {employee.LastName}" : "Unknown",
+                    Department = employee?.Department ?? "",
+                    Title = employee?.JobTitle ?? "",
+                    TotalHours = g.SelectMany(t => t.Entries).Sum(e => e.Hours),
+                    BillableHours = g.SelectMany(t => t.Entries).Where(e => e.IsBillable).Sum(e => e.Hours),
+                    NonBillableHours = g.SelectMany(t => t.Entries).Where(e => !e.IsBillable).Sum(e => e.Hours),
+                    AvailableHours = 160, // Standard 40hrs/week * 4 weeks
+                    UtilizationRate = 0,
+                    BillableRate = 0,
+                    ProjectCount = g.SelectMany(t => t.Entries).Select(e => e.ProjectId).Distinct().Count()
+                };
             })
             .ToList();
 
