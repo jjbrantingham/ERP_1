@@ -38,9 +38,9 @@ public class CreateContractCommandValidator : AbstractValidator<CreateContractCo
             .GreaterThan(0)
             .When(x => x.ContractValueAmount.HasValue)
             .WithMessage("Contract value amount must be greater than zero if specified")
-            .ScalePrecision(BusinessConstants.Currency.DefaultDecimalPlaces, BusinessConstants.Currency.DefaultPrecision)
+            .ScalePrecision(BusinessConstants.Currency.MoneyScale, BusinessConstants.Currency.MoneyPrecision)
             .When(x => x.ContractValueAmount.HasValue)
-            .WithMessage($"Contract value amount must have at most {BusinessConstants.Currency.DefaultDecimalPlaces} decimal places");
+            .WithMessage($"Contract value amount must have at most {BusinessConstants.Currency.MoneyScale} decimal places");
 
         RuleFor(x => x.ContractValueCurrency)
             .NotEmpty()
