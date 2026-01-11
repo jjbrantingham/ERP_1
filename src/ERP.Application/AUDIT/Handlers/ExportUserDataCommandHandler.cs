@@ -1,5 +1,6 @@
 using ERP.Application.AUDIT.Commands;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.HR.Repositories;
 using ERP.Domain.TE.Repositories;
 using ERP.Domain.AUDIT.Repositories;
@@ -18,17 +19,20 @@ public class ExportUserDataCommandHandler : IRequestHandler<ExportUserDataComman
     private readonly IEmployeeRepository _employeeRepository;
     private readonly ITimesheetRepository _timesheetRepository;
     private readonly IAuditLogRepository _auditLogRepository;
+    private readonly ICurrentUserService _currentUserService;
 
     public ExportUserDataCommandHandler(
         IDbContext context,
         IEmployeeRepository employeeRepository,
         ITimesheetRepository timesheetRepository,
-        IAuditLogRepository auditLogRepository)
+        IAuditLogRepository auditLogRepository,
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _employeeRepository = employeeRepository;
         _timesheetRepository = timesheetRepository;
         _auditLogRepository = auditLogRepository;
+        _currentUserService = currentUserService;
     }
 
     public async Task<string> Handle(ExportUserDataCommand request, CancellationToken cancellationToken)
@@ -49,10 +53,10 @@ public class ExportUserDataCommandHandler : IRequestHandler<ExportUserDataComman
                 employee.FirstName,
                 employee.LastName,
                 employee.Email,
-                employee.Phone,
-                employee.Title,
+                Phone = employee.PhoneNumber,
+                Title = employee.JobTitle,
                 employee.Department,
-                employee.IsActive,
+                Status = employee.Status,
                 employee.HireDate,
                 employee.TerminationDate
             };
@@ -86,8 +90,8 @@ public class ExportUserDataCommandHandler : IRequestHandler<ExportUserDataComman
             .Select(t => new
             {
                 t.Id,
-                t.WeekStartDate,
-                t.WeekEndDate,
+                WeekStartDate = t.PeriodStart,
+                WeekEndDate = t.PeriodEnd,
                 t.Status,
                 t.TotalHours,
                 t.SubmittedDate,
