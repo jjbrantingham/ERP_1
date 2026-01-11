@@ -44,7 +44,7 @@ public class GetWorkflowDefinitionsByEntityTypeQueryHandler
             Status = w.Status,
             Version = w.Version,
             CreatedDate = w.CreatedDate,
-            CreatedBy = w.CreatedBy,
+            CreatedBy = w.CreatedBy?.ToString(),
             Steps = w.Steps.Select(s => new WorkflowStepDto
             {
                 Id = s.Id,
