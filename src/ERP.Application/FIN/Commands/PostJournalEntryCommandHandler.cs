@@ -39,7 +39,7 @@ public class PostJournalEntryCommandHandler : IRequestHandler<PostJournalEntryCo
         AuthorizationHelper.EnsureTenantOwnership(journalEntry, _currentTenant, "Journal Entry");
 
         // Post the entry (validates that debits = credits)
-        var userName = _currentUser.UserName ?? "System";
+        var userName = _currentUser.Username ?? "System";
         journalEntry.Post(userName);
 
         // Apply transactions to accounts
