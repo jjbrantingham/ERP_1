@@ -21,7 +21,7 @@ public class GetProjectStatusQueryHandler : IRequestHandler<GetProjectStatusQuer
 
     public async Task<List<ProjectStatusDto>> Handle(GetProjectStatusQuery request, CancellationToken cancellationToken)
     {
-        var query = _context.Projects.Include(p => p.Client).AsQueryable();
+        var query = _context.Projects.AsQueryable();
 
         if (request.ProjectId.HasValue)
             query = query.Where(p => p.Id == request.ProjectId.Value);
@@ -30,15 +30,21 @@ public class GetProjectStatusQueryHandler : IRequestHandler<GetProjectStatusQuer
         if (!string.IsNullOrEmpty(request.Status))
             query = query.Where(p => p.Status.ToString() == request.Status);
 
-        var projects = await query.ToListAsync(cancellationToken);
+        // Join with Clients to get client names
+        var projectsWithClients = await query
+            .GroupJoin(_context.Clients,
+                p => p.ClientId,
+                c => c.Id,
+                (p, clients) => new { Project = p, Client = clients.FirstOrDefault() })
+            .ToListAsync(cancellationToken);
 
-        return projects.Select(p => new ProjectStatusDto
+        return projectsWithClients.Select(pc => new ProjectStatusDto
         {
-            ProjectId = p.Id,
-            ProjectNumber = p.ProjectNumber.Value,
-            ProjectName = p.Name,
-            ClientName = p.Client?.Name ?? "",
-            Status = p.Status.ToString(),
+            ProjectId = pc.Project.Id,
+            ProjectNumber = pc.Project.ProjectNumber.Value,
+            ProjectName = pc.Project.Name,
+            ClientName = pc.Client?.Name ?? "",
+            Status = pc.Project.Status.ToString(),
             BudgetAmount = 0, // TODO: Calculate from WBS
             ActualCost = 0, // TODO: Calculate from timesheets + expenses
             PercentComplete = 0 // TODO: Calculate from WBS
@@ -283,16 +289,19 @@ public class GetProjectManagerDashboardQueryHandler : IRequestHandler<GetProject
 
         // Get projects managed by this user (simplified - assumes ProjectManagerId field exists or uses a different approach)
         var myProjects = await _context.Projects
-            .Include(p => p.Client)
             .Where(p => p.Status == ERP.Domain.PM.Enums.ProjectStatus.Active)
             .Take(10) // Top 10 active projects
-            .Select(p => new ProjectStatusDto
+            .GroupJoin(_context.Clients,
+                p => p.ClientId,
+                c => c.Id,
+                (p, clients) => new { Project = p, Client = clients.FirstOrDefault() })
+            .Select(pc => new ProjectStatusDto
             {
-                ProjectId = p.Id,
-                ProjectNumber = p.ProjectNumber.Value,
-                ProjectName = p.Name,
-                ClientName = p.Client != null ? p.Client.Name : "",
-                Status = p.Status.ToString(),
+                ProjectId = pc.Project.Id,
+                ProjectNumber = pc.Project.ProjectNumber.Value,
+                ProjectName = pc.Project.Name,
+                ClientName = pc.Client != null ? pc.Client.Name : "",
+                Status = pc.Project.Status.ToString(),
                 BudgetAmount = 0, // Simplified
                 ActualCost = 0,
                 PercentComplete = 0
@@ -341,36 +350,46 @@ public class GetFinanceDashboardQueryHandler : IRequestHandler<GetFinanceDashboa
 
         // Get recent invoices
         var recentInvoices = await _context.Invoices
-            .Include(i => i.Client)
             .OrderByDescending(i => i.InvoiceDate)
             .Take(10)
-            .Select(i => new InvoiceAgingLineDto
+            .GroupJoin(_context.Clients,
+                i => i.ClientId,
+                c => c.Id,
+                (i, clients) => new { Invoice = i, Client = clients.FirstOrDefault() })
+            .Select(ic => new InvoiceAgingLineDto
             {
-                InvoiceId = i.Id,
-                InvoiceNumber = i.InvoiceNumber.Value,
-                ClientId = i.ClientId,
-                ClientName = i.Client != null ? i.Client.Name : "",
-                InvoiceDate = i.InvoiceDate,
-                DueDate = i.DueDate,
-                TotalAmount = i.TotalAmount,
-                OutstandingAmount = i.TotalAmount,
-                Status = i.Status.ToString()
+                InvoiceId = ic.Invoice.Id,
+                InvoiceNumber = ic.Invoice.InvoiceNumber.Value,
+                ClientId = ic.Invoice.ClientId,
+                ClientName = ic.Client != null ? ic.Client.Name : "",
+                InvoiceDate = ic.Invoice.InvoiceDate,
+                DueDate = ic.Invoice.DueDate,
+                TotalAmount = ic.Invoice.TotalAmount,
+                OutstandingAmount = ic.Invoice.TotalAmount,
+                Status = ic.Invoice.Status.ToString()
             })
             .ToListAsync(cancellationToken);
 
         // Get recent payments
         var recentPayments = await _context.Payments
-            .Include(p => p.Invoice).ThenInclude(i => i.Client)
             .OrderByDescending(p => p.PaymentDate)
             .Take(10)
-            .Select(p => new PaymentSummaryDto
+            .GroupJoin(_context.Invoices,
+                p => p.InvoiceId,
+                i => (long?)i.Id,
+                (p, invoices) => new { Payment = p, Invoice = invoices.FirstOrDefault() })
+            .GroupJoin(_context.Clients,
+                pi => pi.Invoice != null ? pi.Invoice.ClientId : 0,
+                c => c.Id,
+                (pi, clients) => new { pi.Payment, pi.Invoice, Client = clients.FirstOrDefault() })
+            .Select(pic => new PaymentSummaryDto
             {
-                PaymentId = p.Id,
-                PaymentDate = p.PaymentDate,
-                ClientName = p.Invoice.Client != null ? p.Invoice.Client.Name : "",
-                Amount = p.Amount,
-                PaymentMethod = p.PaymentMethod.ToString(),
-                ReferenceNumber = p.ReferenceNumber ?? ""
+                PaymentId = pic.Payment.Id,
+                PaymentDate = pic.Payment.PaymentDate,
+                ClientName = pic.Client != null ? pic.Client.Name : "",
+                Amount = pic.Payment.Amount,
+                PaymentMethod = pic.Payment.PaymentMethod.ToString(),
+                ReferenceNumber = pic.Payment.ReferenceNumber ?? ""
             })
             .ToListAsync(cancellationToken);
 
