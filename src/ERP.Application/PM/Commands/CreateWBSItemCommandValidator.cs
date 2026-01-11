@@ -54,9 +54,9 @@ public class CreateWBSItemCommandValidator : AbstractValidator<CreateWBSItemComm
             .GreaterThan(0)
             .When(x => x.BudgetAmount.HasValue)
             .WithMessage("Budget amount must be greater than zero if specified")
-            .ScalePrecision(BusinessConstants.Currency.DefaultDecimalPlaces, BusinessConstants.Currency.DefaultPrecision)
+            .ScalePrecision(BusinessConstants.Currency.MoneyScale, BusinessConstants.Currency.MoneyPrecision)
             .When(x => x.BudgetAmount.HasValue)
-            .WithMessage($"Budget amount must have at most {BusinessConstants.Currency.DefaultDecimalPlaces} decimal places");
+            .WithMessage($"Budget amount must have at most {BusinessConstants.Currency.MoneyScale} decimal places");
 
         RuleFor(x => x.BudgetCurrency)
             .NotEmpty()
