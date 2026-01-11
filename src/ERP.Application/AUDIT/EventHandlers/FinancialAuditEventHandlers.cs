@@ -176,7 +176,7 @@ public class InvoicePostedAuditEventHandler : INotificationHandler<InvoicePosted
                 ClientId = invoice.ClientId,
                 ProjectId = invoice.ProjectId,
                 TotalAmount = invoice.TotalAmount,
-                TaxAmount = invoice.TaxAmount
+                TaxAmount = invoice.CalculateTax().Amount
             })
         );
 
