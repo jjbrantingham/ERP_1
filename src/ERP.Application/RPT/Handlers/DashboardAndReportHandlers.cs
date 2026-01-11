@@ -135,7 +135,7 @@ public class GetBudgetVarianceQueryHandler : IRequestHandler<GetBudgetVarianceQu
 
         // Get actual costs from timesheets and expenses
         var timesheets = await _context.Timesheets
-            .Include(t => t.Entries).ThenInclude(e => e.Employee)
+            .Include(t => t.Entries)
             .Where(t => t.Entries.Any(e => e.ProjectId == request.ProjectId))
             .Where(t => t.Status == ERP.Domain.TE.Enums.TimesheetStatus.Approved)
             .ToListAsync(cancellationToken);
@@ -149,14 +149,16 @@ public class GetBudgetVarianceQueryHandler : IRequestHandler<GetBudgetVarianceQu
         var lines = new List<BudgetVarianceLineDto>();
 
         // Get all timesheet entries for this project to avoid N+1
-        var allProjectEntries = timesheets.SelectMany(t => t.Entries).ToList();
+        var allProjectEntries = timesheets
+            .SelectMany(t => t.Entries, (t, e) => new { Timesheet = t, Entry = e })
+            .ToList();
 
         // Get all employee rates for the date range in a single query to avoid N+1
-        var employeeIds = allProjectEntries.Select(e => e.EmployeeId).Distinct().ToList();
+        var employeeIds = allProjectEntries.Select(e => e.Timesheet.EmployeeId).Distinct().ToList();
         if (employeeIds.Any())
         {
-            var minDate = allProjectEntries.Min(e => e.WorkDate);
-            var maxDate = allProjectEntries.Max(e => e.WorkDate);
+            var minDate = allProjectEntries.Min(e => e.Entry.WorkDate);
+            var maxDate = allProjectEntries.Max(e => e.Entry.WorkDate);
 
             var allRates = await _context.Rates
                 .Where(r => employeeIds.Contains(r.EmployeeId))
@@ -170,20 +172,20 @@ public class GetBudgetVarianceQueryHandler : IRequestHandler<GetBudgetVarianceQu
             // Calculate variance by WBS item
             foreach (var wbs in project.WBSItems)
             {
-                var budgetedAmount = wbs.BudgetedAmount;
+                var budgetedAmount = wbs.Budget?.Amount ?? 0;
 
                 // Get actual for this WBS
                 var wbsEntries = allProjectEntries
-                    .Where(e => e.WBSItemId == wbs.Id)
+                    .Where(e => e.Entry.WBSItemId == wbs.Id)
                     .ToList();
 
                 var actualAmount = 0m;
                 foreach (var entry in wbsEntries)
                 {
-                    if (ratesByEmployee.TryGetValue(entry.EmployeeId, out var employeeRates))
+                    if (ratesByEmployee.TryGetValue(entry.Timesheet.EmployeeId, out var employeeRates))
                     {
-                        var rate = employeeRates.FirstOrDefault(r => r.EffectiveDate <= entry.WorkDate);
-                        actualAmount += (rate?.CostRate ?? 0) * entry.Hours;
+                        var rate = employeeRates.FirstOrDefault(r => r.EffectiveDate <= entry.Entry.WorkDate);
+                        actualAmount += (rate?.CostRate ?? 0) * entry.Entry.Hours;
                     }
                 }
 
