@@ -50,10 +50,9 @@ public class JournalEntryPostedAuditEventHandler : INotificationHandler<JournalE
             eventType: AuditEventType.FinancialPost,
             entityType: "JournalEntry",
             entityId: notification.JournalEntryId,
-            amount: totalDebit,
-            currency: "USD", // Note: JournalEntry is base currency (USD) per tenant default
             userId: _currentUserService.UserId,
             username: _currentUserService.Username ?? "System",
+            amount: totalDebit,
             description: $"Journal Entry '{journalEntry.EntryNumber}' posted to General Ledger. Description: {journalEntry.Description}",
             metadata: System.Text.Json.JsonSerializer.Serialize(new
             {
@@ -108,10 +107,9 @@ public class JournalEntryReversedAuditEventHandler : INotificationHandler<Journa
             eventType: AuditEventType.FinancialReverse,
             entityType: "JournalEntry",
             entityId: notification.JournalEntryId,
-            amount: totalDebit,
-            currency: "USD", // Note: JournalEntry is base currency (USD) per tenant default
             userId: _currentUserService.UserId,
             username: _currentUserService.Username ?? "System",
+            amount: totalDebit,
             description: $"Journal Entry '{journalEntry.EntryNumber}' reversed. Reversal Entry: {notification.ReversalEntryId}",
             metadata: System.Text.Json.JsonSerializer.Serialize(new
             {
@@ -163,10 +161,9 @@ public class InvoicePostedAuditEventHandler : INotificationHandler<InvoicePosted
             eventType: AuditEventType.InvoicePosted,
             entityType: "Invoice",
             entityId: notification.InvoiceId,
-            amount: invoice.TotalAmount,
-            currency: invoice.Currency,
             userId: _currentUserService.UserId,
             username: _currentUserService.Username ?? "System",
+            amount: invoice.TotalAmount,
             description: $"Invoice '{invoice.InvoiceNumber}' posted. Client: {invoice.ClientId}, Amount: {invoice.TotalAmount:C}",
             metadata: System.Text.Json.JsonSerializer.Serialize(new
             {
@@ -176,7 +173,8 @@ public class InvoicePostedAuditEventHandler : INotificationHandler<InvoicePosted
                 ClientId = invoice.ClientId,
                 ProjectId = invoice.ProjectId,
                 TotalAmount = invoice.TotalAmount,
-                TaxAmount = invoice.CalculateTax().Amount
+                TaxAmount = invoice.CalculateTax().Amount,
+                Currency = invoice.Currency
             })
         );
 
@@ -222,16 +220,16 @@ public class InvoiceVoidedAuditEventHandler : INotificationHandler<InvoiceVoided
             eventType: AuditEventType.InvoiceVoided,
             entityType: "Invoice",
             entityId: notification.InvoiceId,
-            amount: invoice.TotalAmount,
-            currency: invoice.Currency,
             userId: _currentUserService.UserId,
             username: _currentUserService.Username ?? "System",
+            amount: invoice.TotalAmount,
             description: $"Invoice '{invoice.InvoiceNumber}' voided. Reason: {notification.Reason}",
             metadata: System.Text.Json.JsonSerializer.Serialize(new
             {
                 InvoiceNumber = invoice.InvoiceNumber,
                 VoidReason = notification.Reason,
-                OriginalAmount = invoice.TotalAmount
+                OriginalAmount = invoice.TotalAmount,
+                Currency = invoice.Currency
             })
         );
 
@@ -277,10 +275,9 @@ public class PaymentReceivedAuditEventHandler : INotificationHandler<PaymentRece
             eventType: AuditEventType.PaymentReceived,
             entityType: "Payment",
             entityId: notification.PaymentId,
-            amount: payment.Amount.Amount,
-            currency: payment.Amount.Currency,
             userId: _currentUserService.UserId,
             username: _currentUserService.Username ?? "System",
+            amount: payment.Amount.Amount,
             description: $"Payment received. Amount: {payment.Amount:C}, Method: {payment.Method}, Reference: {payment.ReferenceNumber}",
             metadata: System.Text.Json.JsonSerializer.Serialize(new
             {
@@ -288,7 +285,8 @@ public class PaymentReceivedAuditEventHandler : INotificationHandler<PaymentRece
                 Amount = payment.Amount,
                 PaymentMethod = payment.Method,
                 ReferenceNumber = payment.ReferenceNumber,
-                InvoiceId = payment.InvoiceId
+                InvoiceId = payment.InvoiceId,
+                Currency = payment.Amount.Currency
             })
         );
 
