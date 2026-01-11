@@ -128,13 +128,13 @@ public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashb
             .Where(e => e.CreatedDate >= monthStart && e.CreatedDate < monthStart.AddMonths(1))
             .ToList();
 
-        var expensesThisMonth = monthExpenses.SelectMany(e => e.Expenses).Sum(ex => ex.Amount.Amount);
+        var expensesThisMonth = monthExpenses.SelectMany(e => e.Items).Sum(ex => ex.Amount.Amount);
         var pendingExpenses = expenseReports.Count(e => e.Status == ExpenseReportStatus.Draft || e.Status == ExpenseReportStatus.Submitted);
         var approvedExpenses = expenseReports.Count(e => e.Status == ExpenseReportStatus.Approved);
         var rejectedExpenses = expenseReports.Count(e => e.Status == ExpenseReportStatus.Rejected);
         var reimbursementDue = expenseReports
             .Where(e => e.Status == ExpenseReportStatus.Approved)
-            .SelectMany(e => e.Expenses)
+            .SelectMany(e => e.Items)
             .Sum(ex => ex.Amount.Amount);
 
         dashboard.ExpensesThisMonth = CreateKpiMetric(KpiType.Revenue, "Expenses This Month", expensesThisMonth, null, null, "USD", "currency");
