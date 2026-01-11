@@ -17,7 +17,7 @@ public class ApplyPaymentCommandValidator : AbstractValidator<ApplyPaymentComman
         RuleFor(x => x.PaymentAmount)
             .GreaterThan(0)
             .WithMessage("Payment amount must be greater than zero")
-            .ScalePrecision(BusinessConstants.Currency.MoneyScale, BusinessConstants.Currency.MoneyPrecision)
+            .PrecisionScale(BusinessConstants.Currency.MoneyPrecision, BusinessConstants.Currency.MoneyScale, ignoreTrailingZeros: true)
             .WithMessage($"Payment amount must have at most {BusinessConstants.Currency.MoneyScale} decimal places");
 
         RuleFor(x => x.Currency)

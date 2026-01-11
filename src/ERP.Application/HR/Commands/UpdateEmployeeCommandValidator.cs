@@ -84,7 +84,7 @@ public class UpdateEmployeeCommandValidator : AbstractValidator<UpdateEmployeeCo
             .GreaterThan(0)
             .When(x => x.BaseSalaryAmount.HasValue)
             .WithMessage("Base salary amount must be greater than zero if specified")
-            .ScalePrecision(BusinessConstants.Currency.MoneyScale, BusinessConstants.Currency.MoneyPrecision)
+            .PrecisionScale(BusinessConstants.Currency.MoneyPrecision, BusinessConstants.Currency.MoneyScale, ignoreTrailingZeros: true)
             .When(x => x.BaseSalaryAmount.HasValue)
             .WithMessage($"Base salary amount must have at most {BusinessConstants.Currency.MoneyScale} decimal places");
 

@@ -33,7 +33,7 @@ public class CreateRateCommandValidator : AbstractValidator<CreateRateCommand>
         RuleFor(x => x.CostRateAmount)
             .GreaterThanOrEqualTo(0)
             .WithMessage("Cost rate amount must be zero or greater")
-            .ScalePrecision(BusinessConstants.Currency.MoneyScale, BusinessConstants.Currency.MoneyPrecision)
+            .PrecisionScale(BusinessConstants.Currency.MoneyPrecision, BusinessConstants.Currency.MoneyScale, ignoreTrailingZeros: true)
             .WithMessage($"Cost rate amount must have at most {BusinessConstants.Currency.MoneyScale} decimal places");
 
         RuleFor(x => x.CostRateCurrency)
@@ -47,7 +47,7 @@ public class CreateRateCommandValidator : AbstractValidator<CreateRateCommand>
         RuleFor(x => x.BillingRateAmount)
             .GreaterThanOrEqualTo(0)
             .WithMessage("Billing rate amount must be zero or greater")
-            .ScalePrecision(BusinessConstants.Currency.MoneyScale, BusinessConstants.Currency.MoneyPrecision)
+            .PrecisionScale(BusinessConstants.Currency.MoneyPrecision, BusinessConstants.Currency.MoneyScale, ignoreTrailingZeros: true)
             .WithMessage($"Billing rate amount must have at most {BusinessConstants.Currency.MoneyScale} decimal places");
 
         RuleFor(x => x.BillingRateCurrency)
