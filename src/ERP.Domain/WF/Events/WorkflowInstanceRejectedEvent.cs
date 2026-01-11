@@ -10,6 +10,8 @@ public class WorkflowInstanceRejectedEvent : DomainEvent
     public long EntityId { get; }
     public int RejectedAtStepNumber { get; }
     public string RejectedAtStepName { get; }
+    public long RejectedByUserId { get; }
+    public string? RejectionReason { get; }
     public DateTime RejectedAt { get; }
 
     public WorkflowInstanceRejectedEvent(
@@ -18,7 +20,9 @@ public class WorkflowInstanceRejectedEvent : DomainEvent
         string entityType,
         long entityId,
         int rejectedAtStepNumber,
-        string rejectedAtStepName)
+        string rejectedAtStepName,
+        long rejectedByUserId,
+        string? rejectionReason)
     {
         WorkflowInstanceId = workflowInstanceId;
         TenantId = tenantId;
@@ -26,6 +30,8 @@ public class WorkflowInstanceRejectedEvent : DomainEvent
         EntityId = entityId;
         RejectedAtStepNumber = rejectedAtStepNumber;
         RejectedAtStepName = rejectedAtStepName;
+        RejectedByUserId = rejectedByUserId;
+        RejectionReason = rejectionReason;
         RejectedAt = DateTime.UtcNow;
     }
 }

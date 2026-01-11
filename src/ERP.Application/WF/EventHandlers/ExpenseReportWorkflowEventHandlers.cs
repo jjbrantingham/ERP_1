@@ -100,12 +100,15 @@ public class ExpenseReportWorkflowRejectedEventHandler : INotificationHandler<Wo
         }
 
         // Reject the expense report
-        expenseReport.Reject();
+        expenseReport.Reject(
+            notification.RejectedByUserId,
+            notification.RejectionReason ?? $"Rejected at workflow step: {notification.RejectedAtStepName}");
 
         _logger.LogInformation(
-            "ExpenseReport {ExpenseReportId} rejected via workflow {WorkflowInstanceId}",
+            "ExpenseReport {ExpenseReportId} rejected via workflow {WorkflowInstanceId} by user {UserId}",
             expenseReport.Id,
-            notification.WorkflowInstanceId);
+            notification.WorkflowInstanceId,
+            notification.RejectedByUserId);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }

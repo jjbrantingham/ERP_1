@@ -100,12 +100,15 @@ public class TimesheetWorkflowRejectedEventHandler : INotificationHandler<Workfl
         }
 
         // Reject the timesheet
-        timesheet.Reject();
+        timesheet.Reject(
+            notification.RejectedByUserId,
+            notification.RejectionReason ?? $"Rejected at workflow step: {notification.RejectedAtStepName}");
 
         _logger.LogInformation(
-            "Timesheet {TimesheetId} rejected via workflow {WorkflowInstanceId}",
+            "Timesheet {TimesheetId} rejected via workflow {WorkflowInstanceId} by user {UserId}",
             timesheet.Id,
-            notification.WorkflowInstanceId);
+            notification.WorkflowInstanceId,
+            notification.RejectedByUserId);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }

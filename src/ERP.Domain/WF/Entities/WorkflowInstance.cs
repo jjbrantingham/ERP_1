@@ -173,7 +173,9 @@ public class WorkflowInstance : AggregateRoot
             EntityType,
             EntityId,
             step.SequenceNumber,
-            step.Name));
+            step.Name,
+            step.CompletedByUserId ?? 0, // Default to 0 if not set (system user)
+            step.Comments));
     }
 
     private void HandleStepReturned(StepInstance step)
