@@ -40,17 +40,21 @@ public class CreateWBSItemCommandHandler : ICommandHandler<CreateWBSItemCommand,
             budget = new Money(command.BudgetAmount.Value, command.BudgetCurrency ?? "USD");
         }
 
+        // Calculate level from WBS code (count periods + 1)
+        var level = command.WBSCode.Split('.').Length;
+
         // Create WBS item
         var wbsItem = WBSItem.Create(
             _currentTenant.TenantId,
             command.ProjectId,
             command.WBSCode,
             command.Name,
+            level,
             command.SortOrder,
             command.ParentId,
             command.Description,
-            command.EstimatedHours,
             budget,
+            command.EstimatedHours,
             command.StartDate,
             command.EndDate
         );
