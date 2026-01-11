@@ -129,11 +129,11 @@ public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashb
             .ToList();
 
         var expensesThisMonth = monthExpenses.SelectMany(e => e.Items).Sum(ex => ex.Amount.Amount);
-        var pendingExpenses = expenseReports.Count(e => e.Status == ExpenseReportStatus.Draft || e.Status == ExpenseReportStatus.Submitted);
-        var approvedExpenses = expenseReports.Count(e => e.Status == ExpenseReportStatus.Approved);
-        var rejectedExpenses = expenseReports.Count(e => e.Status == ExpenseReportStatus.Rejected);
+        var pendingExpenses = expenseReports.Count(e => e.Status == ExpenseStatus.Draft || e.Status == ExpenseStatus.Submitted);
+        var approvedExpenses = expenseReports.Count(e => e.Status == ExpenseStatus.Approved);
+        var rejectedExpenses = expenseReports.Count(e => e.Status == ExpenseStatus.Rejected);
         var reimbursementDue = expenseReports
-            .Where(e => e.Status == ExpenseReportStatus.Approved)
+            .Where(e => e.Status == ExpenseStatus.Approved)
             .SelectMany(e => e.Items)
             .Sum(ex => ex.Amount.Amount);
 
@@ -284,7 +284,7 @@ public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashb
         }
 
         // Pending expense reports
-        var pendingExpenses = expenseReports.Where(e => e.Status == ExpenseReportStatus.Draft).ToList();
+        var pendingExpenses = expenseReports.Where(e => e.Status == ExpenseStatus.Draft).ToList();
         foreach (var exp in pendingExpenses)
         {
             actions.Add(new ActionItemDto
