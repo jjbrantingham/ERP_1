@@ -281,12 +281,12 @@ public class PaymentReceivedAuditEventHandler : INotificationHandler<PaymentRece
             currency: payment.Amount.Currency,
             userId: _currentUserService.UserId,
             username: _currentUserService.Username ?? "System",
-            description: $"Payment received. Amount: {payment.Amount:C}, Method: {payment.PaymentMethod}, Reference: {payment.ReferenceNumber}",
+            description: $"Payment received. Amount: {payment.Amount:C}, Method: {payment.Method}, Reference: {payment.ReferenceNumber}",
             metadata: System.Text.Json.JsonSerializer.Serialize(new
             {
                 PaymentDate = payment.PaymentDate,
                 Amount = payment.Amount,
-                PaymentMethod = payment.PaymentMethod,
+                PaymentMethod = payment.Method,
                 ReferenceNumber = payment.ReferenceNumber,
                 InvoiceId = payment.InvoiceId
             })
