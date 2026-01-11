@@ -42,10 +42,10 @@ public class CreateRateCommandHandler : ICommandHandler<CreateRateCommand, long>
 
         // Validate that either EmployeeId or ResourceTypeId is provided (but not both)
         if (!command.EmployeeId.HasValue && !command.ResourceTypeId.HasValue)
-            throw new ValidationException("Either EmployeeId or ResourceTypeId must be provided");
+            throw new ValidationException("EmployeeId", "Either EmployeeId or ResourceTypeId must be provided");
 
         if (command.EmployeeId.HasValue && command.ResourceTypeId.HasValue)
-            throw new ValidationException("Cannot specify both EmployeeId and ResourceTypeId");
+            throw new ValidationException("EmployeeId", "Cannot specify both EmployeeId and ResourceTypeId");
 
         // Create Money value objects
         var costRate = new Money(command.CostRateAmount, command.CostRateCurrency);

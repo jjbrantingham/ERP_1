@@ -54,7 +54,7 @@ public class CreateEmployeeCommandHandler : ICommandHandler<CreateEmployeeComman
         // Check if email already exists
         var existingEmployee = await _employeeRepository.GetByEmailAsync(command.Email, cancellationToken);
         if (existingEmployee != null)
-            throw new ValidationException("Email already in use");
+            throw new ValidationException("Email", "Email already in use");
 
         // Generate employee number
         var employeeNumber = EmployeeNumber.Generate();

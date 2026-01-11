@@ -55,7 +55,7 @@ public class UpdateEmployeeCommandHandler : ICommandHandler<UpdateEmployeeComman
         {
             var existingEmployee = await _employeeRepository.GetByEmailAsync(command.Email, cancellationToken);
             if (existingEmployee != null && existingEmployee.Id != command.EmployeeId)
-                throw new ValidationException("Email already in use");
+                throw new ValidationException("Email", "Email already in use");
         }
 
         // Create base salary if provided
