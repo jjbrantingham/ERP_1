@@ -1,5 +1,6 @@
 using ERP.Application.AUDIT.Commands;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 using ERP.Domain.AUDIT.Repositories;
 using ERP.Domain.Common;
 using MediatR;
@@ -14,13 +15,16 @@ public class PurgeOldAuditLogsCommandHandler : IRequestHandler<PurgeOldAuditLogs
 {
     private readonly IDbContext _context;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
     public PurgeOldAuditLogsCommandHandler(
         IDbContext context,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task<int> Handle(PurgeOldAuditLogsCommand request, CancellationToken cancellationToken)
