@@ -143,7 +143,7 @@ public class GetProjectDashboardQueryHandler : IRequestHandler<GetProjectDashboa
     {
         var activeProjects = projects.Where(p => p.Status == ProjectStatus.Active).ToList();
 
-        var totalPlannedHours = activeProjects.Sum(p => p.WBSItems.Sum(w => w.PlannedHours ?? 0));
+        var totalPlannedHours = activeProjects.Sum(p => p.WBSItems.Sum(w => w.EstimatedHours ?? 0));
         var totalActualHours = timesheets
             .Where(t => t.Status == TimesheetStatus.Approved)
             .SelectMany(t => t.Entries)
