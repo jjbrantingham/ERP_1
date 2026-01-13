@@ -68,8 +68,8 @@ public class ExportUserDataCommandHandler : IRequestHandler<ExportUserDataComman
             .Select(u => new
             {
                 u.Id,
-                u.Username,
-                u.Email,
+                Username = u.UserName,
+                Email = u.Email.Value,
                 u.EmailConfirmed,
                 u.IsActive,
                 u.LastLoginDate,
