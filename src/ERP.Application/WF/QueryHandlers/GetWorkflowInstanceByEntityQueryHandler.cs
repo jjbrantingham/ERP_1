@@ -3,6 +3,7 @@ using ERP.Application.WF.Queries;
 using ERP.Domain.WF.Repositories;
 using MediatR;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 
 namespace ERP.Application.WF.QueryHandlers;
 
