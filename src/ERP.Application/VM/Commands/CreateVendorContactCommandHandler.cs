@@ -33,7 +33,7 @@ public class CreateVendorContactCommandHandler : ICommandHandler<CreateVendorCon
         // Ensure user is authenticated
         AuthorizationHelper.EnsureAuthenticated(_currentUser);
 
-        var email = Email.Create(command.Email);
+        var email = new Email(command.Email);
 
         var contact = VendorContact.Create(
             _currentTenant.TenantId,
