@@ -14,15 +14,18 @@ public class UpdateEmployeeCommandHandler : ICommandHandler<UpdateEmployeeComman
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IResourceTypeRepository _resourceTypeRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
     public UpdateEmployeeCommandHandler(
         IEmployeeRepository employeeRepository,
         IResourceTypeRepository resourceTypeRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _employeeRepository = employeeRepository;
         _resourceTypeRepository = resourceTypeRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task Handle(UpdateEmployeeCommand command, CancellationToken cancellationToken = default)
