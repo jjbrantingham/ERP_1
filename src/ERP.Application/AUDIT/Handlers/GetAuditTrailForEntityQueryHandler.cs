@@ -3,6 +3,7 @@ using ERP.Application.AUDIT.Queries;
 using ERP.Domain.AUDIT.Repositories;
 using MediatR;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 
 namespace ERP.Application.AUDIT.Handlers;
 
