@@ -44,7 +44,7 @@ public class GetWorkflowDefinitionByIdQueryHandler : IRequestHandler<GetWorkflow
             Status = workflow.Status,
             Version = workflow.Version,
             CreatedDate = workflow.CreatedDate,
-            CreatedBy = workflow.CreatedBy,
+            CreatedBy = workflow.CreatedBy?.ToString(),
             Steps = workflow.Steps.Select(s => new WorkflowStepDto
             {
                 Id = s.Id,
