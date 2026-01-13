@@ -237,7 +237,7 @@ public class GetProjectDashboardQueryHandler : IRequestHandler<GetProjectDashboa
                 .Where(e => e.ProjectId == project.Id)
                 .ToList();
 
-            var plannedHours = project.WBSItems.Sum(w => w.PlannedHours ?? 0);
+            var plannedHours = project.WBSItems.Sum(w => w.EstimatedHours ?? 0);
             var actualHours = projectTimesheets.Sum(e => e.Hours);
             var actualCost = actualHours * 100m;
 
