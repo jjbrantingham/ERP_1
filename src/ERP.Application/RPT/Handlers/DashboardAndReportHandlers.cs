@@ -400,8 +400,8 @@ public class GetFinanceDashboardQueryHandler : IRequestHandler<GetFinanceDashboa
                 PaymentId = pic.Payment.Id,
                 PaymentDate = pic.Payment.PaymentDate,
                 ClientName = pic.Client != null ? pic.Client.Name : "",
-                Amount = pic.Payment.Amount,
-                PaymentMethod = pic.Payment.PaymentMethod.ToString(),
+                Amount = pic.Payment.Amount.Amount,
+                PaymentMethod = pic.Payment.Method.ToString(),
                 ReferenceNumber = pic.Payment.ReferenceNumber ?? ""
             })
             .ToListAsync(cancellationToken);
