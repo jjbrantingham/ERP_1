@@ -259,7 +259,7 @@ public class GetProjectDashboardQueryHandler : IRequestHandler<GetProjectDashboa
                 ProjectName = project.Name,
                 ClientName = "Client", // Would join with client
                 Status = project.Status,
-                Type = project.Type,
+                Type = project.ProjectType,
                 Budget = budget,
                 ActualCost = actualCost,
                 Revenue = revenue,
