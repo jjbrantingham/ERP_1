@@ -63,7 +63,7 @@ public class GetClientByIdQueryHandler : IQueryHandler<GetClientByIdQuery, Clien
             AccountManagerId = client.AccountManagerId,
             PaymentTerms = client.PaymentTerms,
             CreditLimit = client.CreditLimit,
-            Notes = client.Notes,
+            Notes = client.GeneralNotes,
             IsActive = client.IsActive,
             CreatedDate = client.CreatedDate,
             ModifiedDate = client.ModifiedDate
