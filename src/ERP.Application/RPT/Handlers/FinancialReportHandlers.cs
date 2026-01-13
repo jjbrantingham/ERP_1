@@ -27,10 +27,17 @@ public class GetProfitAndLossQueryHandler : IRequestHandler<GetProfitAndLossQuer
 
         // Get all journal entry lines in the period
         var journalLines = await _context.JournalEntryLines
-            .Include(l => l.Account)
             .Where(l => l.JournalEntry.EntryDate >= startDate && l.JournalEntry.EntryDate <= endDate)
             .Where(l => l.JournalEntry.Status == ERP.Domain.FIN.Enums.JournalEntryStatus.Posted)
             .ToListAsync(cancellationToken);
+
+        // Get accounts for these lines
+        var accountIds = journalLines.Select(l => l.AccountId).Distinct().ToList();
+        var accounts = await _context.Accounts
+            .Where(a => accountIds.Contains(a.Id))
+            .ToListAsync(cancellationToken);
+
+        var accountDict = accounts.ToDictionary(a => a.Id);
 
         var report = new ProfitAndLossDto
         {
@@ -40,11 +47,11 @@ public class GetProfitAndLossQueryHandler : IRequestHandler<GetProfitAndLossQuer
 
         // Revenue accounts (4000-4999)
         report.Revenue = journalLines
-            .Where(l => l.Account.AccountNumber.StartsWith("4"))
-            .GroupBy(l => new { l.Account.AccountNumber, l.Account.Name })
+            .Where(l => accountDict.TryGetValue(l.AccountId, out var acc) && acc.AccountNumber.Value.StartsWith("4"))
+            .GroupBy(l => accountDict[l.AccountId])
             .Select(g => new RevenueLineDto
             {
-                AccountNumber = g.Key.AccountNumber,
+                AccountNumber = g.Key.AccountNumber.Value,
                 AccountName = g.Key.Name,
                 Amount = g.Sum(l => l.CreditAmount - l.DebitAmount) // Revenue is credit balance
             })
@@ -54,11 +61,11 @@ public class GetProfitAndLossQueryHandler : IRequestHandler<GetProfitAndLossQuer
 
         // Expense accounts (6000-9999)
         report.Expenses = journalLines
-            .Where(l => int.Parse(l.Account.AccountNumber.Substring(0, 1)) >= 6)
-            .GroupBy(l => new { l.Account.AccountNumber, l.Account.Name })
+            .Where(l => accountDict.TryGetValue(l.AccountId, out var acc) && int.Parse(acc.AccountNumber.Value.Substring(0, 1)) >= 6)
+            .GroupBy(l => accountDict[l.AccountId])
             .Select(g => new ExpenseLineDto
             {
-                AccountNumber = g.Key.AccountNumber,
+                AccountNumber = g.Key.AccountNumber.Value,
                 AccountName = g.Key.Name,
                 Amount = g.Sum(l => l.DebitAmount - l.CreditAmount) // Expenses are debit balance
             })
