@@ -110,11 +110,11 @@ public class JournalEntryReversedAuditEventHandler : INotificationHandler<Journa
             userId: _currentUserService.UserId ?? 0,
             username: _currentUserService.Username ?? "System",
             amount: totalDebit,
-            description: $"Journal Entry '{journalEntry.EntryNumber}' reversed. Reversal Entry: {notification.ReversalEntryId}",
+            description: $"Journal Entry '{journalEntry.EntryNumber}' reversed. Reversal Entry: {notification.ReversalJournalEntryId}",
             metadata: System.Text.Json.JsonSerializer.Serialize(new
             {
                 EntryNumber = journalEntry.EntryNumber,
-                ReversalEntryId = notification.ReversalEntryId,
+                ReversalJournalEntryId = notification.ReversalJournalEntryId,
                 ReversalReason = notification.Reason
             })
         );
