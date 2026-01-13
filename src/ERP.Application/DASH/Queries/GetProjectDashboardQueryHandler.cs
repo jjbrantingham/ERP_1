@@ -299,9 +299,9 @@ public class GetProjectDashboardQueryHandler : IRequestHandler<GetProjectDashboa
         // Projects by type
         dashboard.ProjectsByType = new List<PieChartDataDto>
         {
-            new PieChartDataDto { Label = "Billable", Value = projects.Count(p => p.Type == ProjectType.Billable), Percentage = 0 },
-            new PieChartDataDto { Label = "Overhead", Value = projects.Count(p => p.Type == ProjectType.Overhead), Percentage = 0 },
-            new PieChartDataDto { Label = "Proposal", Value = projects.Count(p => p.Type == ProjectType.Proposal), Percentage = 0 }
+            new PieChartDataDto { Label = "Billable", Value = projects.Count(p => p.ProjectType == ProjectType.Billable), Percentage = 0 },
+            new PieChartDataDto { Label = "Overhead", Value = projects.Count(p => p.ProjectType == ProjectType.Overhead), Percentage = 0 },
+            new PieChartDataDto { Label = "Proposal", Value = projects.Count(p => p.ProjectType == ProjectType.Proposal), Percentage = 0 }
         };
 
         total = dashboard.ProjectsByType.Sum(p => p.Value);
