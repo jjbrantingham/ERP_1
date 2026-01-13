@@ -13,15 +13,18 @@ public class ExpenseReportWorkflowCompletedEventHandler : INotificationHandler<W
 {
     private readonly IExpenseReportRepository _expenseReportRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ExpenseReportWorkflowCompletedEventHandler> _logger;
 
     public ExpenseReportWorkflowCompletedEventHandler(
         IExpenseReportRepository expenseReportRepository,
         IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService,
         ILogger<ExpenseReportWorkflowCompletedEventHandler> logger)
     {
         _expenseReportRepository = expenseReportRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
         _logger = logger;
     }
 
@@ -47,7 +50,7 @@ public class ExpenseReportWorkflowCompletedEventHandler : INotificationHandler<W
         }
 
         // Approve the expense report
-        expenseReport.Approve();
+        expenseReport.Approve(_currentUserService.UserId ?? 0, "Approved via workflow");
 
         _logger.LogInformation(
             "ExpenseReport {ExpenseReportId} approved via workflow {WorkflowInstanceId}",
