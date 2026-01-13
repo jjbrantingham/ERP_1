@@ -154,7 +154,7 @@ public class GetBudgetVarianceQueryHandler : IRequestHandler<GetBudgetVarianceQu
         var expenses = await _context.ExpenseReports
             .Include(e => e.Items)
             .Where(e => e.Items.Any(i => i.ProjectId == request.ProjectId))
-            .Where(e => e.Status == ERP.Domain.TE.Enums.ExpenseReportStatus.Approved)
+            .Where(e => e.Status == ERP.Domain.TE.Enums.ExpenseStatus.Approved)
             .ToListAsync(cancellationToken);
 
         var lines = new List<BudgetVarianceLineDto>();
