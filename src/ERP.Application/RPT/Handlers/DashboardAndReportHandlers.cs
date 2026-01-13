@@ -172,12 +172,12 @@ public class GetBudgetVarianceQueryHandler : IRequestHandler<GetBudgetVarianceQu
             var maxDate = allProjectEntries.Max(e => e.Entry.WorkDate);
 
             var allRates = await _context.Rates
-                .Where(r => employeeIds.Contains(r.EmployeeId))
+                .Where(r => r.EmployeeId.HasValue && employeeIds.Contains(r.EmployeeId.Value))
                 .Where(r => r.EffectiveDate <= maxDate)
                 .ToListAsync(cancellationToken);
 
             var ratesByEmployee = allRates
-                .GroupBy(r => r.EmployeeId)
+                .GroupBy(r => r.EmployeeId.Value)
                 .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.EffectiveDate).ToList());
 
             // Calculate variance by WBS item
