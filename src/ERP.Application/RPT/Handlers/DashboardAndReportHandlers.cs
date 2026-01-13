@@ -196,7 +196,7 @@ public class GetBudgetVarianceQueryHandler : IRequestHandler<GetBudgetVarianceQu
                     if (ratesByEmployee.TryGetValue(entry.Timesheet.EmployeeId, out var employeeRates))
                     {
                         var rate = employeeRates.FirstOrDefault(r => r.EffectiveDate <= entry.Entry.WorkDate);
-                        actualAmount += (rate?.CostRate ?? 0) * entry.Entry.Hours;
+                        actualAmount += (rate?.CostRate.Amount ?? 0) * entry.Entry.Hours;
                     }
                 }
 
