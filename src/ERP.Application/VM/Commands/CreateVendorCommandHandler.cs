@@ -47,7 +47,7 @@ public class CreateVendorCommandHandler : ICommandHandler<CreateVendorCommand, l
         Email? email = null;
         if (!string.IsNullOrWhiteSpace(command.Email))
         {
-            email = Email.Create(command.Email);
+            email = new Email(command.Email);
         }
 
         // Create vendor
