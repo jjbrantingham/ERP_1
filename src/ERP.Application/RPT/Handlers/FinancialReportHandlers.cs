@@ -25,10 +25,16 @@ public class GetProfitAndLossQueryHandler : IRequestHandler<GetProfitAndLossQuer
     {
         var (startDate, endDate) = _periodService.GetDateRange(request.Period, request.StartDate, request.EndDate);
 
-        // Get all journal entry lines in the period
+        // Get posted journal entries in the period
+        var postedEntries = await _context.JournalEntries
+            .Where(je => je.EntryDate >= startDate && je.EntryDate <= endDate)
+            .Where(je => je.Status == ERP.Domain.FIN.Enums.JournalEntryStatus.Posted)
+            .Select(je => je.Id)
+            .ToListAsync(cancellationToken);
+
+        // Get all journal entry lines for these entries
         var journalLines = await _context.JournalEntryLines
-            .Where(l => l.JournalEntry.EntryDate >= startDate && l.JournalEntry.EntryDate <= endDate)
-            .Where(l => l.JournalEntry.Status == ERP.Domain.FIN.Enums.JournalEntryStatus.Posted)
+            .Where(l => postedEntries.Contains(l.JournalEntryId))
             .ToListAsync(cancellationToken);
 
         // Get accounts for these lines
