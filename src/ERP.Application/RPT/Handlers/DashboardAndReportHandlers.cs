@@ -468,7 +468,7 @@ public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashb
                 ExpenseReportId = e.Id,
                 ReportNumber = e.ReportNumber,
                 ReportDate = e.ReportDate,
-                TotalAmount = e.TotalAmount,
+                TotalAmount = e.TotalAmount.Amount,
                 Status = e.Status.ToString(),
                 ItemCount = e.Items.Count
             })
