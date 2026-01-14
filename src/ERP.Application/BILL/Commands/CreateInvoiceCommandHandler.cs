@@ -7,7 +7,6 @@ using ERP.Domain.BILL.Enums;
 using ERP.Domain.BILL.Repositories;
 using ERP.Domain.BILL.ValueObjects;
 using MediatR;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
 namespace ERP.Application.BILL.Commands;
@@ -100,8 +99,6 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
                 return invoice.Id;
             }
             catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
-                when (ex.InnerException is SqlException sqlEx &&
-                      (sqlEx.Number == 2601 || sqlEx.Number == 2627)) // Unique constraint violation
             {
                 _logger.LogWarning(
                     "Invoice number collision detected on attempt {Attempt}/{MaxRetries}. Retrying...",
