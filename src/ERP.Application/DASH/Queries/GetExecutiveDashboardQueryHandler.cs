@@ -410,7 +410,7 @@ public class GetExecutiveDashboardQueryHandler : IRequestHandler<GetExecutiveDas
                 ProjectName = project.Name,
                 ClientName = "Client", // Would need to join with client
                 Status = project.Status,
-                Type = project.Type,
+                Type = project.ProjectType,
                 Budget = project.Budget?.Amount ?? 0,
                 ActualCost = actualCost,
                 Revenue = revenue,
