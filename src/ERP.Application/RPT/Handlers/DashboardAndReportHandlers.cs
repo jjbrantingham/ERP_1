@@ -327,7 +327,7 @@ public class GetProjectManagerDashboardQueryHandler : IRequestHandler<GetProject
             .CountAsync(cancellationToken);
 
         var pendingExpenses = await _context.ExpenseReports
-            .Where(e => e.Status == ERP.Domain.TE.Enums.ExpenseReportStatus.Submitted)
+            .Where(e => e.Status == ERP.Domain.TE.Enums.ExpenseStatus.Submitted)
             .CountAsync(cancellationToken);
 
         return new ProjectManagerDashboardDto
