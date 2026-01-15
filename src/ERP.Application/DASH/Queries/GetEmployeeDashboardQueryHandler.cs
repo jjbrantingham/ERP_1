@@ -290,7 +290,7 @@ public class GetEmployeeDashboardQueryHandler : IRequestHandler<GetEmployeeDashb
             actions.Add(new ActionItemDto
             {
                 Type = "Expense",
-                Description = $"Submit expense report: {exp.Title}",
+                Description = $"Submit expense report: {exp.ReportNumber}",
                 DueDate = DateTime.UtcNow.AddDays(14),
                 IsOverdue = false,
                 Priority = "Normal"
