@@ -10,13 +10,16 @@ public class DeactivateWorkflowDefinitionCommandHandler : IRequestHandler<Deacti
 {
     private readonly IWorkflowDefinitionRepository _workflowDefinitionRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
     public DeactivateWorkflowDefinitionCommandHandler(
         IWorkflowDefinitionRepository workflowDefinitionRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _workflowDefinitionRepository = workflowDefinitionRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task Handle(DeactivateWorkflowDefinitionCommand request, CancellationToken cancellationToken)
