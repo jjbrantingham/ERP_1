@@ -13,15 +13,18 @@ public class TimesheetWorkflowCompletedEventHandler : INotificationHandler<Workf
 {
     private readonly ITimesheetRepository _timesheetRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<TimesheetWorkflowCompletedEventHandler> _logger;
 
     public TimesheetWorkflowCompletedEventHandler(
         ITimesheetRepository timesheetRepository,
         IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService,
         ILogger<TimesheetWorkflowCompletedEventHandler> logger)
     {
         _timesheetRepository = timesheetRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
         _logger = logger;
     }
 
@@ -47,7 +50,7 @@ public class TimesheetWorkflowCompletedEventHandler : INotificationHandler<Workf
         }
 
         // Approve the timesheet
-        timesheet.Approve();
+        timesheet.Approve(_currentUserService.UserId ?? 0, "Approved via workflow");
 
         _logger.LogInformation(
             "Timesheet {TimesheetId} approved via workflow {WorkflowInstanceId}",
