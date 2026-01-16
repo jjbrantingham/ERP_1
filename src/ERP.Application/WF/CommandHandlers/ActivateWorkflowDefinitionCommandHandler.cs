@@ -10,13 +10,16 @@ public class ActivateWorkflowDefinitionCommandHandler : IRequestHandler<Activate
 {
     private readonly IWorkflowDefinitionRepository _workflowDefinitionRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
     public ActivateWorkflowDefinitionCommandHandler(
         IWorkflowDefinitionRepository workflowDefinitionRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _workflowDefinitionRepository = workflowDefinitionRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task Handle(ActivateWorkflowDefinitionCommand request, CancellationToken cancellationToken)
