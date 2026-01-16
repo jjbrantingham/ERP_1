@@ -10,13 +10,16 @@ public class CancelWorkflowCommandHandler : IRequestHandler<CancelWorkflowComman
 {
     private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
     public CancelWorkflowCommandHandler(
         IWorkflowInstanceRepository workflowInstanceRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService)
     {
         _workflowInstanceRepository = workflowInstanceRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task Handle(CancelWorkflowCommand request, CancellationToken cancellationToken)
