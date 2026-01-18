@@ -130,7 +130,7 @@ public class ExportUserDataCommandHandler : IRequestHandler<ExportUserDataComman
                     i.Amount,
                     i.Category,
                     i.Description,
-                    i.Vendor
+                    i.Merchant
                 })
             })
             .ToListAsync(cancellationToken);
