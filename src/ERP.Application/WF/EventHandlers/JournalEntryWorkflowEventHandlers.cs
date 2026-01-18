@@ -69,15 +69,18 @@ public class JournalEntryWorkflowRejectedEventHandler : INotificationHandler<Wor
 {
     private readonly IJournalEntryRepository _journalEntryRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<JournalEntryWorkflowRejectedEventHandler> _logger;
 
     public JournalEntryWorkflowRejectedEventHandler(
         IJournalEntryRepository journalEntryRepository,
         IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService,
         ILogger<JournalEntryWorkflowRejectedEventHandler> logger)
     {
         _journalEntryRepository = journalEntryRepository;
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
         _logger = logger;
     }
 
@@ -103,11 +106,12 @@ public class JournalEntryWorkflowRejectedEventHandler : INotificationHandler<Wor
             return;
         }
 
-        // Cancel the journal entry
-        journalEntry.Cancel($"Rejected in workflow at step {notification.RejectedAtStepNumber}");
+        // Void the journal entry
+        var voidedBy = _currentUserService.Username ?? "System";
+        journalEntry.Void(voidedBy, $"Rejected in workflow at step {notification.RejectedAtStepNumber}");
 
         _logger.LogInformation(
-            "JournalEntry {JournalEntryId} cancelled via workflow {WorkflowInstanceId}",
+            "JournalEntry {JournalEntryId} voided via workflow {WorkflowInstanceId}",
             journalEntry.Id,
             notification.WorkflowInstanceId);
 
