@@ -103,12 +103,17 @@ public class AuthenticationController : ControllerBase
             return Unauthorized();
         }
 
-        command.UserId = userId;
-
         _logger.LogInformation("Password change request for user ID: {UserId}", userId);
 
+        var changePasswordCommand = new ChangePasswordCommand
+        {
+            UserId = userId,
+            CurrentPassword = command.CurrentPassword,
+            NewPassword = command.NewPassword
+        };
+
         var handler = HttpContext.RequestServices.GetRequiredService<ChangePasswordCommandHandler>();
-        await handler.Handle(command);
+        await handler.Handle(changePasswordCommand);
 
         _logger.LogInformation("Password changed successfully for user ID: {UserId}", userId);
 
