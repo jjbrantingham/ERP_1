@@ -85,16 +85,14 @@ public class ReportsController : ControllerBase
     [Authorize(Roles = "Administrator,ProjectManager,Finance")]
     public async Task<IActionResult> GetProjectProfitability(
         [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate,
-        [FromQuery] ReportPeriod period = ReportPeriod.ThisMonth,
-        [FromQuery] long? projectId = null, [FromQuery] long? clientId = null)
+        [FromQuery] long? clientId = null, [FromQuery] string? status = null)
     {
         var result = await _mediator.Send(new GetProjectProfitabilityQuery
         {
             StartDate = startDate,
             EndDate = endDate,
-            Period = period,
-            ProjectId = projectId,
-            ClientId = clientId
+            ClientId = clientId,
+            Status = status
         });
         return Ok(result);
     }
