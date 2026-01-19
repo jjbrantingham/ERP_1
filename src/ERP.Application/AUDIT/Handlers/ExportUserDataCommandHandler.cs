@@ -159,7 +159,7 @@ public class ExportUserDataCommandHandler : IRequestHandler<ExportUserDataComman
 
         // Export notes/comments created by the user
         var notes = await _context.Notes
-            .Where(n => n.CreatedBy == user!.Username)
+            .Where(n => n.CreatedBy == user!.Id)
             .Select(n => new
             {
                 n.Id,
