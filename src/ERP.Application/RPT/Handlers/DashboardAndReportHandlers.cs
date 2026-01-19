@@ -272,7 +272,7 @@ public class GetExpenseSummaryQueryHandler : IRequestHandler<GetExpenseSummaryQu
                 EmployeeName = employeeDict.TryGetValue(e.EmployeeId, out var emp) ? $"{emp.FirstName} {emp.LastName}" : "Unknown",
                 ProjectId = g.FirstOrDefault()?.ProjectId,
                 ProjectName = "Project", // Would need to join with projects
-                Category = g.Key.Category,
+                Category = g.Key.Category.ToString(),
                 TotalAmount = g.Sum(i => i.Amount.Amount),
                 Status = e.Status.ToString(),
                 ItemCount = g.Count()
