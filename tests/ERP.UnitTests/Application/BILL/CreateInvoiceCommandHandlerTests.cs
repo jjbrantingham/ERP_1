@@ -67,7 +67,7 @@ public class CreateInvoiceCommandHandlerTests
             ClientId = client.Id,
             InvoiceDate = DateTime.UtcNow,
             DueDate = DateTime.UtcNow.AddDays(30),
-            BillingMode = BillingMode.TimeAndMaterials,
+            BillingMode = ERP.Domain.BILL.Enums.BillingMode.TimeAndMaterials,
             LineItems = new List<CreateInvoiceCommand.InvoiceLineItemDto>
             {
                 new()
@@ -102,7 +102,7 @@ public class CreateInvoiceCommandHandlerTests
             x => x.AddAsync(It.Is<Invoice>(inv =>
                 inv.ProjectId == project.Id &&
                 inv.ClientId == client.Id &&
-                inv.BillingMode == BillingMode.TimeAndMaterials &&
+                inv.BillingMode == ERP.Domain.BILL.Enums.BillingMode.TimeAndMaterials &&
                 inv.Status == InvoiceStatus.Draft &&
                 inv.TenantId == _testTenantId &&
                 inv.TotalAmount != null &&
@@ -128,7 +128,7 @@ public class CreateInvoiceCommandHandlerTests
             ClientId = client.Id,
             InvoiceDate = DateTime.UtcNow,
             DueDate = DateTime.UtcNow.AddDays(30),
-            BillingMode = BillingMode.TimeAndMaterials,
+            BillingMode = ERP.Domain.BILL.Enums.BillingMode.TimeAndMaterials,
             LineItems = new List<CreateInvoiceCommand.InvoiceLineItemDto>
             {
                 new()
@@ -192,7 +192,7 @@ public class CreateInvoiceCommandHandlerTests
             ClientId = 1,
             InvoiceDate = DateTime.UtcNow,
             DueDate = DateTime.UtcNow.AddDays(30),
-            BillingMode = BillingMode.TimeAndMaterials,
+            BillingMode = ERP.Domain.BILL.Enums.BillingMode.TimeAndMaterials,
             LineItems = new List<CreateInvoiceCommand.InvoiceLineItemDto>()
         };
 
@@ -224,7 +224,7 @@ public class CreateInvoiceCommandHandlerTests
             ClientId = 999,
             InvoiceDate = DateTime.UtcNow,
             DueDate = DateTime.UtcNow.AddDays(30),
-            BillingMode = BillingMode.TimeAndMaterials,
+            BillingMode = ERP.Domain.BILL.Enums.BillingMode.TimeAndMaterials,
             LineItems = new List<CreateInvoiceCommand.InvoiceLineItemDto>()
         };
 
@@ -255,7 +255,7 @@ public class CreateInvoiceCommandHandlerTests
             ClientId = client.Id,
             InvoiceDate = DateTime.UtcNow,
             DueDate = DateTime.UtcNow.AddDays(30),
-            BillingMode = BillingMode.TimeAndMaterials,
+            BillingMode = ERP.Domain.BILL.Enums.BillingMode.TimeAndMaterials,
             LineItems = new List<CreateInvoiceCommand.InvoiceLineItemDto>()
         };
 
@@ -285,7 +285,7 @@ public class CreateInvoiceCommandHandlerTests
             ClientId = client.Id,
             InvoiceDate = DateTime.UtcNow,
             DueDate = DateTime.UtcNow.AddDays(30),
-            BillingMode = BillingMode.FixedPrice,
+            BillingMode = ERP.Domain.BILL.Enums.BillingMode.FixedPrice,
             LineItems = new List<CreateInvoiceCommand.InvoiceLineItemDto>()
         };
 
