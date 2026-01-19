@@ -146,7 +146,7 @@ public class ReportsController : ControllerBase
 
     [HttpGet("dashboards/employee")]
     [Authorize]
-    public async Task<IActionResult> GetEmployeeDashboard([FromQuery] long? employeeId = null)
+    public async Task<IActionResult> GetEmployeeDashboard([FromQuery] long employeeId)
     {
         var result = await _mediator.Send(new GetEmployeeDashboardQuery { EmployeeId = employeeId });
         return Ok(result);
