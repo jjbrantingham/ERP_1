@@ -2,6 +2,7 @@ using ERP.Application.RPT.DTOs;
 using ERP.Domain.BILL.Repositories;
 using MediatR;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 
 namespace ERP.Application.RPT.Queries;
 
