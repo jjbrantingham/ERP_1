@@ -67,8 +67,13 @@ public class InvoicesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ApplyPayment(long id, [FromBody] ApplyPaymentCommand command)
     {
-        command.InvoiceId = id;
-        await _mediator.Send(command);
+        var applyPaymentCommand = new ApplyPaymentCommand
+        {
+            InvoiceId = id,
+            PaymentAmount = command.PaymentAmount,
+            Currency = command.Currency
+        };
+        await _mediator.Send(applyPaymentCommand);
         return NoContent();
     }
 }
