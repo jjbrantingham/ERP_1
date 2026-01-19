@@ -271,6 +271,7 @@ public class ERPDbContext : DbContext, IDbContext
         foreach (var entry in entries)
         {
             var entityType = entry.Entity.GetType().Name;
+            var tableName = entry.Metadata.GetTableName() ?? entityType;
             var entityId = GetEntityId(entry.Entity);
             var currentUserId = _currentUserService.UserId;
             var currentUsername = _currentUserService.Username ?? "System";
@@ -278,31 +279,23 @@ public class ERPDbContext : DbContext, IDbContext
             AuditEventType eventType;
             string? oldValuesJson = null;
             string? newValuesJson = null;
-            string description;
 
             switch (entry.State)
             {
                 case EntityState.Added:
                     eventType = AuditEventType.Create;
                     newValuesJson = SerializeEntity(entry.CurrentValues);
-                    description = $"{entityType} created";
                     break;
 
                 case EntityState.Modified:
                     eventType = AuditEventType.Update;
                     oldValuesJson = SerializeEntity(entry.OriginalValues);
                     newValuesJson = SerializeEntity(entry.CurrentValues);
-                    var modifiedProperties = entry.Properties
-                        .Where(p => p.IsModified)
-                        .Select(p => p.Metadata.Name)
-                        .ToList();
-                    description = $"{entityType} updated. Modified fields: {string.Join(", ", modifiedProperties)}";
                     break;
 
                 case EntityState.Deleted:
                     eventType = AuditEventType.Delete;
                     oldValuesJson = SerializeEntity(entry.OriginalValues);
-                    description = $"{entityType} deleted";
                     break;
 
                 default:
@@ -316,11 +309,9 @@ public class ERPDbContext : DbContext, IDbContext
                 entityId: entityId,
                 userId: currentUserId,
                 username: currentUsername,
-                description: description,
+                tableName: tableName,
                 oldValues: oldValuesJson,
-                newValues: newValuesJson,
-                ipAddress: null, // Will be set by middleware/controller
-                userAgent: null  // Will be set by middleware/controller
+                newValues: newValuesJson
             );
 
             auditLogs.Add(auditLog);
