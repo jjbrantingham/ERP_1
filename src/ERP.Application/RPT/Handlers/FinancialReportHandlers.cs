@@ -144,31 +144,45 @@ public class GetARAgingQueryHandler : IRequestHandler<GetARAgingQuery, ARAgingDt
         var asOfDate = request.AsOfDate ?? DateTime.UtcNow;
 
         var invoices = await _context.Invoices
-            .Include(i => i.Client)
-            .Include(i => i.Payments)
             .Where(i => i.Status == ERP.Domain.BILL.Enums.InvoiceStatus.Posted ||
                        i.Status == ERP.Domain.BILL.Enums.InvoiceStatus.PartiallyPaid)
             .ToListAsync(cancellationToken);
+
+        // Get clients for these invoices
+        var clientIds = invoices.Select(i => i.ClientId).Distinct().ToList();
+        var clients = await _context.Clients
+            .Where(c => clientIds.Contains(c.Id))
+            .ToListAsync(cancellationToken);
+        var clientDict = clients.ToDictionary(c => c.Id);
+
+        // Get payments for these invoices
+        var invoiceIds = invoices.Select(i => i.Id).Distinct().ToList();
+        var payments = await _context.Payments
+            .Where(p => p.InvoiceId.HasValue && invoiceIds.Contains(p.InvoiceId.Value))
+            .ToListAsync(cancellationToken);
+        var paymentsByInvoice = payments.GroupBy(p => p.InvoiceId.Value)
+            .ToDictionary(g => g.Key, g => g.ToList());
 
         var report = new ARAgingDto
         {
             AsOfDate = asOfDate,
             Lines = invoices.Select(i =>
             {
-                var paidAmount = i.Payments?.Sum(p => p.Amount) ?? 0;
-                var balanceDue = i.TotalAmount - paidAmount;
+                var invoicePayments = paymentsByInvoice.ContainsKey(i.Id) ? paymentsByInvoice[i.Id] : new List<ERP.Domain.BILL.Entities.Payment>();
+                var paidAmount = invoicePayments.Sum(p => p.Amount.Amount);
+                var balanceDue = i.CalculateTotal().Amount - paidAmount;
                 var daysOutstanding = (asOfDate - i.InvoiceDate).Days;
 
                 var line = new ARAgingLineDto
                 {
                     InvoiceId = i.Id,
-                    InvoiceNumber = i.InvoiceNumber,
+                    InvoiceNumber = i.InvoiceNumber.Value,
                     ClientId = i.ClientId,
-                    ClientName = i.Client?.Name ?? "",
+                    ClientName = clientDict.TryGetValue(i.ClientId, out var client) ? client.Name : "",
                     InvoiceDate = i.InvoiceDate,
                     DueDate = i.DueDate,
                     DaysOutstanding = daysOutstanding,
-                    TotalAmount = i.TotalAmount,
+                    TotalAmount = i.CalculateTotal().Amount,
                     PaidAmount = paidAmount,
                     BalanceDue = balanceDue
                 };
