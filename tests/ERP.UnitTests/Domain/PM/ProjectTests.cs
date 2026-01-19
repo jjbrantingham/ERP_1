@@ -297,8 +297,8 @@ public class ProjectTests
     [InlineData(ProjectType.Billable, BillingMode.TimeAndMaterials)]
     [InlineData(ProjectType.Billable, BillingMode.FixedPrice)]
     [InlineData(ProjectType.Billable, BillingMode.Milestone)]
-    [InlineData(ProjectType.Overhead, BillingMode.NotApplicable)]
-    [InlineData(ProjectType.Proposal, BillingMode.NotApplicable)]
+    [InlineData(ProjectType.Overhead, BillingMode.NonBillable)]
+    [InlineData(ProjectType.Proposal, BillingMode.NonBillable)]
     public void Create_WithVariousProjectTypesAndBillingModes_CreatesSuccessfully(
         ProjectType projectType,
         BillingMode billingMode)
