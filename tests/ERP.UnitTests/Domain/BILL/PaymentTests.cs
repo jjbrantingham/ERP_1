@@ -74,7 +74,7 @@ public class PaymentTests
     [InlineData(PaymentMethod.Cash)]
     [InlineData(PaymentMethod.Check)]
     [InlineData(PaymentMethod.CreditCard)]
-    [InlineData(PaymentMethod.BankTransfer)]
+    [InlineData(PaymentMethod.Wire)]
     [InlineData(PaymentMethod.ACH)]
     public void Create_WithVariousPaymentMethods_CreatesSuccessfully(PaymentMethod method)
     {
