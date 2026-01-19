@@ -18,8 +18,8 @@ public class ReportExportService : IReportExportService
     {
         return format switch
         {
-            ExportFormat.CSV => await ExportToCsvAsync<object>(data is IEnumerable<object> enumerable ? enumerable : new[] { data }, true, cancellationToken),
-            ExportFormat.Excel => await ExportToExcelAsync<object>(data is IEnumerable<object> enumerable ? enumerable : new[] { data }, reportTitle, true, cancellationToken),
+            ExportFormat.CSV => await ExportToCsvAsync<object>(data is IEnumerable<object> enumerable ? enumerable : new object[] { data }, true, cancellationToken),
+            ExportFormat.Excel => await ExportToExcelAsync<object>(data is IEnumerable<object> enumerable ? enumerable : new object[] { data }, reportTitle, true, cancellationToken),
             ExportFormat.PDF => await ExportToPdfAsync(ConvertToHtml(data, reportTitle), reportTitle, cancellationToken),
             _ => throw new ArgumentException($"Unsupported export format: {format}", nameof(format))
         };
