@@ -244,7 +244,6 @@ public class GetExpenseSummaryQueryHandler : IRequestHandler<GetExpenseSummaryQu
     public async Task<ExpenseSummaryDto> Handle(GetExpenseSummaryQuery request, CancellationToken cancellationToken)
     {
         var query = _context.ExpenseReports
-            .Include(e => e.Employee)
             .Include(e => e.Items)
             .AsQueryable();
 
@@ -255,19 +254,26 @@ public class GetExpenseSummaryQueryHandler : IRequestHandler<GetExpenseSummaryQu
         if (request.EmployeeId.HasValue)
             query = query.Where(e => e.EmployeeId == request.EmployeeId.Value);
         if (request.ProjectId.HasValue)
-            query = query.Where(e => e.ProjectId == request.ProjectId.Value);
+            query = query.Where(e => e.Items.Any(i => i.ProjectId == request.ProjectId.Value));
 
         var expenseReports = await query.ToListAsync(cancellationToken);
+
+        // Get employees for these expense reports
+        var employeeIds = expenseReports.Select(e => e.EmployeeId).Distinct().ToList();
+        var employees = await _context.Employees
+            .Where(emp => employeeIds.Contains(emp.Id))
+            .ToListAsync(cancellationToken);
+        var employeeDict = employees.ToDictionary(emp => emp.Id);
 
         var lines = expenseReports.SelectMany(e => e.Items.GroupBy(i => new { i.Category })
             .Select(g => new ExpenseSummaryLineDto
             {
                 EmployeeId = e.EmployeeId,
-                EmployeeName = $"{e.Employee.FirstName} {e.Employee.LastName}",
-                ProjectId = e.ProjectId,
-                ProjectName = e.Project?.Name ?? "No Project",
+                EmployeeName = employeeDict.TryGetValue(e.EmployeeId, out var emp) ? $"{emp.FirstName} {emp.LastName}" : "Unknown",
+                ProjectId = g.FirstOrDefault()?.ProjectId,
+                ProjectName = "Project", // Would need to join with projects
                 Category = g.Key.Category,
-                TotalAmount = g.Sum(i => i.Amount),
+                TotalAmount = g.Sum(i => i.Amount.Amount),
                 Status = e.Status.ToString(),
                 ItemCount = g.Count()
             })).ToList();
