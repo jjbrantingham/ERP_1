@@ -108,9 +108,6 @@ public class ExpenseReportConfiguration : IEntityTypeConfiguration<ExpenseReport
         builder.HasIndex(e => new { e.Status, e.ReportDate })
             .HasDatabaseName("IX_ExpenseReports_Status_ReportDate");
 
-        builder.HasIndex(e => new { e.ProjectId, e.Status })
-            .HasDatabaseName("IX_ExpenseReports_ProjectId_Status");
-
         // Global query filter for multi-tenancy
         // Note: This will be set in DbContext OnModelCreating using dynamic expression
     }
