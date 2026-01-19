@@ -5,6 +5,7 @@ using ERP.Domain.BILL.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ERP.Application.Common.Interfaces;
+using ERP.Application.Common.Security;
 
 namespace ERP.Application.RPT.Queries;
 
