@@ -24,7 +24,7 @@ public class WBSItemConfiguration : IEntityTypeConfiguration<WBSItem>
 
         builder.Property(w => w.ParentId);
 
-        builder.Property(w => w.WBSCode)
+        builder.Property(w => w.Code)
             .IsRequired()
             .HasMaxLength(50);
 
@@ -35,7 +35,7 @@ public class WBSItemConfiguration : IEntityTypeConfiguration<WBSItem>
         builder.Property(w => w.Description)
             .HasMaxLength(4000);
 
-        builder.Property(w => w.SortOrder)
+        builder.Property(w => w.DisplayOrder)
             .IsRequired();
 
         builder.Property(w => w.EstimatedHours)
@@ -92,15 +92,15 @@ public class WBSItemConfiguration : IEntityTypeConfiguration<WBSItem>
             .OnDelete(DeleteBehavior.Restrict);
 
         // Indexes
-        builder.HasIndex(w => new { w.ProjectId, w.WBSCode })
+        builder.HasIndex(w => new { w.ProjectId, w.Code })
             .IsUnique()
-            .HasDatabaseName("IX_WBSItems_ProjectId_WBSCode");
+            .HasDatabaseName("IX_WBSItems_ProjectId_Code");
 
         builder.HasIndex(w => w.ParentId)
             .HasDatabaseName("IX_WBSItems_ParentId");
 
-        builder.HasIndex(w => new { w.ProjectId, w.SortOrder })
-            .HasDatabaseName("IX_WBSItems_ProjectId_SortOrder");
+        builder.HasIndex(w => new { w.ProjectId, w.DisplayOrder })
+            .HasDatabaseName("IX_WBSItems_ProjectId_DisplayOrder");
 
         // Global query filter for multi-tenancy
         // Note: This will be set in DbContext OnModelCreating using dynamic expression
