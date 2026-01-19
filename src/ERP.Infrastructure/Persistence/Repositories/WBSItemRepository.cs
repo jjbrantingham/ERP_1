@@ -27,7 +27,7 @@ public class WBSItemRepository : Repository<WBSItem>, IWBSItemRepository
     {
         return await _context.WBSItems
             .Where(w => w.ProjectId == projectId)
-            .OrderBy(w => w.SortOrder)
+            .OrderBy(w => w.DisplayOrder)
             .ToListAsync(cancellationToken);
     }
 
@@ -35,7 +35,7 @@ public class WBSItemRepository : Repository<WBSItem>, IWBSItemRepository
     {
         return await _context.WBSItems
             .Where(w => w.ParentId == parentId)
-            .OrderBy(w => w.SortOrder)
+            .OrderBy(w => w.DisplayOrder)
             .ToListAsync(cancellationToken);
     }
 
@@ -43,14 +43,14 @@ public class WBSItemRepository : Repository<WBSItem>, IWBSItemRepository
     {
         return await _context.WBSItems
             .Where(w => w.ProjectId == projectId && w.ParentId == null)
-            .OrderBy(w => w.SortOrder)
+            .OrderBy(w => w.DisplayOrder)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<WBSItem?> GetByWBSCodeAsync(long projectId, string wbsCode, CancellationToken cancellationToken = default)
     {
         return await _context.WBSItems
-            .FirstOrDefaultAsync(w => w.ProjectId == projectId && w.WBSCode == wbsCode, cancellationToken);
+            .FirstOrDefaultAsync(w => w.ProjectId == projectId && w.Code == wbsCode, cancellationToken);
     }
 
     public async Task<IEnumerable<WBSItem>> GetHierarchicalTreeAsync(long projectId, CancellationToken cancellationToken = default)
@@ -59,13 +59,13 @@ public class WBSItemRepository : Repository<WBSItem>, IWBSItemRepository
         return await _context.WBSItems
             .Where(w => w.ProjectId == projectId)
             .Include(w => w.Parent)
-            .OrderBy(w => w.WBSCode)
+            .OrderBy(w => w.Code)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<bool> ExistsAsync(long projectId, string wbsCode, CancellationToken cancellationToken = default)
     {
         return await _context.WBSItems
-            .AnyAsync(w => w.ProjectId == projectId && w.WBSCode == wbsCode, cancellationToken);
+            .AnyAsync(w => w.ProjectId == projectId && w.Code == wbsCode, cancellationToken);
     }
 }
