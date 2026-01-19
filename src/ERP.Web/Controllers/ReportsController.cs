@@ -114,16 +114,14 @@ public class ReportsController : ControllerBase
     [Authorize(Roles = "Administrator,Finance,HR")]
     public async Task<IActionResult> GetExpenseSummary(
         [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate,
-        [FromQuery] long? employeeId = null, [FromQuery] long? projectId = null,
-        [FromQuery] string? status = null)
+        [FromQuery] long? employeeId = null, [FromQuery] long? projectId = null)
     {
         var result = await _mediator.Send(new GetExpenseSummaryQuery
         {
             StartDate = startDate,
             EndDate = endDate,
             EmployeeId = employeeId,
-            ProjectId = projectId,
-            Status = status
+            ProjectId = projectId
         });
         return Ok(result);
     }
