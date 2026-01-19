@@ -69,7 +69,12 @@ public class ReportsController : ControllerBase
     [HttpGet("operational/timesheet-summary")]
     public async Task<IActionResult> GetTimesheetSummary([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, [FromQuery] long? employeeId)
     {
-        var result = await _mediator.Send(new GetTimesheetSummaryQuery { StartDate = startDate, EndDate = endDate, EmployeeId = employeeId });
+        var result = await _mediator.Send(new GetTimesheetSummaryQuery
+        {
+            StartDate = startDate ?? DateTime.UtcNow.AddDays(-30),
+            EndDate = endDate ?? DateTime.UtcNow,
+            EmployeeId = employeeId
+        });
         return Ok(result);
     }
 
