@@ -30,7 +30,7 @@ public class ReportsController : ControllerBase
     [Authorize(Roles = "Administrator,AccountingManager,Finance")]
     public async Task<IActionResult> GetBalanceSheet([FromQuery] DateTime? asOfDate)
     {
-        var result = await _mediator.Send(new GetBalanceSheetQuery { AsOfDate = asOfDate });
+        var result = await _mediator.Send(new GetBalanceSheetQuery { AsOfDate = asOfDate ?? DateTime.UtcNow });
         return Ok(result);
     }
 
