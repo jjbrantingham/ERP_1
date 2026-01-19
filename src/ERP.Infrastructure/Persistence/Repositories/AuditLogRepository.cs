@@ -2,7 +2,6 @@ using ERP.Domain.Common;
 using ERP.Domain.AUDIT.Entities;
 using ERP.Domain.AUDIT.Enums;
 using ERP.Domain.AUDIT.Repositories;
-using ERP.Infrastructure.Persistence.Common;
 using Microsoft.EntityFrameworkCore;
 using ERP.Infrastructure.Persistence;
 

@@ -2,7 +2,6 @@ using ERP.Domain.Common;
 using ERP.Domain.WF.Entities;
 using ERP.Domain.WF.Enums;
 using ERP.Domain.WF.Repositories;
-using ERP.Infrastructure.Persistence.Common;
 using Microsoft.EntityFrameworkCore;
 using ERP.Infrastructure.Persistence;
 

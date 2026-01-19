@@ -3,7 +3,6 @@ using ERP.Domain.BILL.Entities;
 using ERP.Domain.BILL.Enums;
 using ERP.Domain.BILL.Repositories;
 using ERP.Domain.BILL.ValueObjects;
-using ERP.Infrastructure.Persistence.Common;
 using Microsoft.EntityFrameworkCore;
 using ERP.Infrastructure.Persistence;
 
