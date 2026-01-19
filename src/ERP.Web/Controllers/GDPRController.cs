@@ -122,7 +122,7 @@ public class GDPRController : ControllerBase
             userId,
             consents = new[]
             {
-                new { purpose = "DataProcessing", granted = true, date = DateTime.UtcNow },
+                new { purpose = "DataProcessing", granted = true, date = (DateTime?)DateTime.UtcNow },
                 new { purpose = "Marketing", granted = false, date = (DateTime?)null }
             },
             message = "Consent management not yet fully implemented"
