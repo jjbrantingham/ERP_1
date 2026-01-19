@@ -77,9 +77,28 @@ public class EmployeesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Update(long id, [FromBody] UpdateEmployeeCommand command)
     {
-        command.EmployeeId = id;
+        var updateCommand = new UpdateEmployeeCommand
+        {
+            EmployeeId = id,
+            ResourceTypeId = command.ResourceTypeId,
+            FirstName = command.FirstName,
+            LastName = command.LastName,
+            MiddleName = command.MiddleName,
+            Email = command.Email,
+            PhoneNumber = command.PhoneNumber,
+            MobileNumber = command.MobileNumber,
+            DateOfBirth = command.DateOfBirth,
+            EmploymentType = command.EmploymentType,
+            JobTitle = command.JobTitle,
+            Department = command.Department,
+            ManagerId = command.ManagerId,
+            BaseSalaryAmount = command.BaseSalaryAmount,
+            BaseSalaryCurrency = command.BaseSalaryCurrency,
+            StandardHoursPerWeek = command.StandardHoursPerWeek,
+            Notes = command.Notes
+        };
         var handler = HttpContext.RequestServices.GetRequiredService<UpdateEmployeeCommandHandler>();
-        await handler.Handle(command);
+        await handler.Handle(updateCommand);
         return NoContent();
     }
 }
