@@ -1,0 +1,17 @@
+*.vsidx
+src/ERP.Application/obj/
+src/ERP.Domain/bin/
+src/ERP.Domain/obj/
+src/ERP.Infrastructure/bin/
+src/ERP.Infrastructure/obj/
+src/ERP.Shared/bin/
+src/ERP.Shared/obj/
+src/ERP.Web/bin/
+src/ERP.Web/obj/
+tests/ERP.FunctionalTests/bin/
+tests/ERP.FunctionalTests/obj/
+tests/ERP.IntegrationTests/obj/
+tests/ERP.UnitTests/bin/
+tests/ERP.UnitTests/obj/
+tests/ERP.IntegrationTests/bin/
+src/ERP.Application/bin/
