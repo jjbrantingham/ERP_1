@@ -24,3 +24,9 @@ and make suggestions to fix any issues
 
 review and approve code changes as senior .net developer 
  of this .net web application.
+
+create a plan to create a master-orchestrating agent that will take feature requests and assign them to the appropriate sub-agents in the following sequences as many times as needed until the senior .net expert sub-agent has reviewed and approved the code commit.  Suggest the best way to create the .net backend sub-agents, front-end sub-agents, testing sub-agents, and review sub-agents.  Likely this should include a .net backend expert sub-agent that will utilize the relevant skills to develop backend features for this .net web application, an expert at UI design sub-agent that is an expert with asp.net core web application that will utilize the relevant skills to develop front end features for this .net web application, a senior UI design expert that will review UI changes and make suggestions to improve the UI design, a sub-agent that is an expert at unit testing that will review unit tests for quality for this .net web application and make suggestions to fix any unit tests, and a senior .net expert will perform the final review any code committed for quality, bugs, and unit test quality for features for this .net web application and make suggestions to fix any issues
+
+
+
+
