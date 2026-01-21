@@ -1,25 +1,197 @@
 {
   "format": 1,
   "restore": {
-    "/home/user/ERP_1/tests/ERP.UnitTests/ERP.UnitTests.csproj": {}
+    "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\tests\\ERP.UnitTests\\ERP.UnitTests.csproj": {}
   },
   "projects": {
-    "/home/user/ERP_1/tests/ERP.UnitTests/ERP.UnitTests.csproj": {
+    "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\ERP.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/user/ERP_1/tests/ERP.UnitTests/ERP.UnitTests.csproj",
-        "projectName": "ERP.UnitTests",
-        "projectPath": "/home/user/ERP_1/tests/ERP.UnitTests/ERP.UnitTests.csproj",
-        "packagesPath": "/root/.nuget/packages/",
-        "outputPath": "/home/user/ERP_1/tests/ERP.UnitTests/obj/",
+        "projectUniqueName": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\ERP.Application.csproj",
+        "projectName": "ERP.Application",
+        "projectPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\ERP.Application.csproj",
+        "packagesPath": "C:\\Users\\jj\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/root/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\jj\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\ERP.Domain.csproj": {
+                "projectPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\ERP.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[11.10.0, )"
+            },
+            "FluentValidation.DependencyInjectionExtensions": {
+              "target": "Package",
+              "version": "[11.10.0, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[12.4.1, )"
+            },
+            "Microsoft.AspNetCore.Http.Abstractions": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\ERP.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\ERP.Domain.csproj",
+        "projectName": "ERP.Domain",
+        "projectPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\ERP.Domain.csproj",
+        "packagesPath": "C:\\Users\\jj\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\jj\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Shared\\ERP.Shared.csproj": {
+                "projectPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Shared\\ERP.Shared.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "MediatR.Contracts": {
+              "target": "Package",
+              "version": "[2.0.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Shared\\ERP.Shared.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Shared\\ERP.Shared.csproj",
+        "projectName": "ERP.Shared",
+        "projectPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Shared\\ERP.Shared.csproj",
+        "packagesPath": "C:\\Users\\jj\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Shared\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\jj\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -38,15 +210,95 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\tests\\ERP.UnitTests\\ERP.UnitTests.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\tests\\ERP.UnitTests\\ERP.UnitTests.csproj",
+        "projectName": "ERP.UnitTests",
+        "projectPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\tests\\ERP.UnitTests\\ERP.UnitTests.csproj",
+        "packagesPath": "C:\\Users\\jj\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\tests\\ERP.UnitTests\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\jj\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\ERP.Application.csproj": {
+                "projectPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\ERP.Application.csproj"
+              },
+              "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\ERP.Domain.csproj": {
+                "projectPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\ERP.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
               "version": "[17.12.0, )"
+            },
+            "Moq": {
+              "target": "Package",
+              "version": "[4.20.72, )"
             },
             "coverlet.collector": {
               "target": "Package",
@@ -77,7 +329,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/root/.dotnet/sdk/9.0.308/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
