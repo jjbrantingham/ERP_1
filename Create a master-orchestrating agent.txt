@@ -1,0 +1,26 @@
+Create a master-orchestrating agent that will take feature requests and assign them to the appropriate sub-agents in the following sequences as many times as needed until the senior .net expert sub-agent has reviewed and approved the code commit.
+
+First have the .net backend expert develop the backend feature
+Second then have the unit testing agent review the unit tests the .net backend expert created, and if their are suggestions send the code back to the .net backend expert to correct, and continue to have the unit testing agent reviewing the unit tests until it is approved.
+Third have the expert at UI design create the front end interface for the feature requested.
+Fourth have the senior expert UI design review the front interface the expert at UI design created and if the are suggestions send the code back to the UI design expert to correct and continue to review until the senior expert UI design approves the design.
+Fifth have the senior .net expert review all of the code and approve and if not approved send the code back to the correct agent and repeat until the senior .net expert approves the code.
+
+
+Create a sub-agent that is a .net backend expert that will utilize the relevant skills to develop backend features for this .net web application
+
+Create a sub-agent that is an expert at UI design and expert with asp.net core web application that will utilize the relevant skills to develop front end features for this .net web application
+
+Create a sub-agent that is a senior expert UI design and expert that will review UI changes and make suggestions to improve the UI design
+
+Create a sub-agent that is an expert at unit testing that will review unit tests for quality for this .net web application 
+and make suggestions to fix any unit tests.
+
+Create the sub-agents that is a senior .net expert will perform the final review any code committed for quality, bugs, and unit test quality for features for this .net web application
+and make suggestions to fix any issues
+
+
+, maintain, test, review the UI, improve UI, maintain and improve the backend, 
+
+review and approve code changes as senior .net developer 
+ of this .net web application.
