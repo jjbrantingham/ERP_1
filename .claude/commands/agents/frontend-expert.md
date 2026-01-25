@@ -1,4 +1,5 @@
 ---
+name: agents/frontend-expert
 description: Frontend UI development agent for Razor/Blazor and Tailwind CSS
 ---
 

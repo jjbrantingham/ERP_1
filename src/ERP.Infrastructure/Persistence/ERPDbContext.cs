@@ -134,11 +134,24 @@ public class ERPDbContext : DbContext, IDbContext
 
     /// <summary>
     /// Sets a global query filter for an entity type to filter by TenantId.
+    /// Filter is only applied when a tenant is set; otherwise, no filtering occurs.
     /// </summary>
     private void SetGlobalQueryFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : Entity
     {
+        // Use a filter that checks IsSet first to avoid throwing when no tenant is configured
+        // When tenant is not set (!IsSet), return true (no filtering - allows seeding/admin operations)
+        // When tenant is set (IsSet), filter by the current tenant ID
         modelBuilder.Entity<TEntity>().HasQueryFilter(e =>
-            e.TenantId == _currentTenantService.TenantId);
+            !_currentTenantService.IsSet || e.TenantId == GetCurrentTenantIdSafe());
+    }
+
+    /// <summary>
+    /// Safely gets the current tenant ID, returning Guid.Empty if not set.
+    /// Used by query filters to avoid exceptions.
+    /// </summary>
+    private Guid GetCurrentTenantIdSafe()
+    {
+        return _currentTenantService.IsSet ? _currentTenantService.TenantId : Guid.Empty;
     }
 
     /// <summary>
@@ -183,7 +196,8 @@ public class ERPDbContext : DbContext, IDbContext
     private void SetAuditFields()
     {
         var entries = ChangeTracker.Entries<Entity>();
-        var currentUsername = _currentUserService.Username ?? "System";
+        // Get user ID (nullable long) - will be null for system operations like seeding
+        var currentUserId = _currentUserService.IsAuthenticated ? _currentUserService.UserId : (long?)null;
 
         foreach (var entry in entries)
         {
@@ -191,12 +205,12 @@ public class ERPDbContext : DbContext, IDbContext
             {
                 case EntityState.Added:
                     entry.Entity.GetType().GetProperty("CreatedDate")?.SetValue(entry.Entity, DateTime.UtcNow);
-                    entry.Entity.GetType().GetProperty("CreatedBy")?.SetValue(entry.Entity, currentUsername);
+                    entry.Entity.GetType().GetProperty("CreatedBy")?.SetValue(entry.Entity, currentUserId);
                     break;
 
                 case EntityState.Modified:
                     entry.Entity.GetType().GetProperty("ModifiedDate")?.SetValue(entry.Entity, DateTime.UtcNow);
-                    entry.Entity.GetType().GetProperty("ModifiedBy")?.SetValue(entry.Entity, currentUsername);
+                    entry.Entity.GetType().GetProperty("ModifiedBy")?.SetValue(entry.Entity, currentUserId);
                     break;
             }
         }

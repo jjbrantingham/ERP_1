@@ -128,7 +128,7 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder.Property(c => c.CreditLimit)
             .HasMaxLength(50);
 
-        builder.Property(c => c.Notes)
+        builder.Property(c => c.GeneralNotes)
             .HasMaxLength(4000);
 
         builder.Property(c => c.IsActive)
@@ -141,10 +141,7 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
             .HasForeignKey(co => co.ClientId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(c => c.Notes)
-            .WithOne(n => n.Client)
-            .HasForeignKey(n => n.ClientId)
-            .OnDelete(DeleteBehavior.Cascade);
+        // Notes relationship is configured in NoteConfiguration
 
         // Indexes
         builder.HasIndex(c => new { c.TenantId, c.ClientNumber })

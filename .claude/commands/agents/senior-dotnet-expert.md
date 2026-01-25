@@ -1,4 +1,5 @@
 ---
+name: agents/senior-dotnet-expert
 description: Senior .NET expert - FINAL CODE REVIEW AUTHORITY (5 passes required before approval)
 ---
 

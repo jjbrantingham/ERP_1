@@ -19,6 +19,23 @@ public class Money : ValueObject
     public string Currency { get; }
 
     /// <summary>
+    /// Private parameterless constructor for EF Core.
+    /// </summary>
+    private Money()
+    {
+        Currency = string.Empty;
+    }
+
+    /// <summary>
+    /// Constructor for EF Core materialization (matches persisted properties).
+    /// </summary>
+    private Money(decimal amount, string currency)
+    {
+        Amount = amount;
+        Currency = currency ?? string.Empty;
+    }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="Money"/> class.
     /// </summary>
     /// <param name="amount">The monetary amount.</param>

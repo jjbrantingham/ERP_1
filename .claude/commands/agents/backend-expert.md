@@ -1,4 +1,5 @@
 ---
+name: agents/backend-expert
 description: Backend .NET development agent for domain, CQRS, and EF Core
 ---
 

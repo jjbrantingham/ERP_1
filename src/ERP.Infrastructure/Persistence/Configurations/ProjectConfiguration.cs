@@ -27,6 +27,10 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
                 .HasColumnName("ProjectNumber")
                 .IsRequired()
                 .HasMaxLength(50);
+
+            pn.HasIndex(n => n.Value)
+                .IsUnique()
+                .HasDatabaseName("IX_Projects_ProjectNumber");
         });
 
         builder.Property(p => p.ClientId)
@@ -105,11 +109,7 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
         builder.Property(p => p.RowVersion)
             .IsRowVersion();
 
-        // Indexes
-        builder.HasIndex(p => new { p.TenantId, p.ProjectNumber })
-            .IsUnique()
-            .HasDatabaseName("IX_Projects_TenantId_ProjectNumber");
-
+        // Indexes (ProjectNumber index is configured in the OwnsOne block)
         builder.HasIndex(p => p.ClientId)
             .HasDatabaseName("IX_Projects_ClientId");
 

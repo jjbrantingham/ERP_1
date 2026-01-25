@@ -39,7 +39,9 @@ public class CurrentTenantService : ICurrentTenantService
                 return headerTenantId;
             }
 
-            throw new InvalidOperationException("Tenant ID not found in claims or headers.");
+            // Return empty GUID instead of throwing - callers should check IsSet first
+            // This prevents exceptions in EF Core query filter evaluation
+            return Guid.Empty;
         }
     }
 

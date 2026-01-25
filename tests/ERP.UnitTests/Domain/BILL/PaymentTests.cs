@@ -14,7 +14,8 @@ public class PaymentTests
     {
         // Arrange
         var tenantId = Guid.NewGuid();
-        var invoiceId = 1L;
+        var paymentNumber = "PAY-2024-001";
+        var clientId = 1L;
         var amount = new Money(1000.00m, "USD");
         var paymentDate = DateTime.UtcNow;
         var paymentMethod = PaymentMethod.Check;
@@ -22,35 +23,43 @@ public class PaymentTests
         // Act
         var payment = Payment.Create(
             tenantId,
-            invoiceId,
+            paymentNumber,
+            clientId,
             amount,
-            paymentDate,
-            paymentMethod);
+            paymentMethod,
+            paymentDate);
 
         // Assert
         Assert.NotNull(payment);
         Assert.Equal(tenantId, payment.TenantId);
-        Assert.Equal(invoiceId, payment.InvoiceId);
-        Assert.Equal(amount, payment.Amount);
-        Assert.Equal(paymentDate.Date, payment.PaymentDate);
-        Assert.Equal(paymentMethod, payment.PaymentMethod);
+        Assert.Equal(paymentNumber, payment.PaymentNumber);
+        Assert.Equal(clientId, payment.ClientId);
+        Assert.Equal(amount.Amount, payment.Amount.Amount);
+        Assert.Equal(paymentDate.Date, payment.PaymentDate.Date);
+        Assert.Equal(paymentMethod, payment.Method);
+        Assert.Equal(PaymentStatus.Pending, payment.Status);
     }
 
     [Fact]
-    public void Create_WithNegativeAmount_ThrowsArgumentException()
+    public void Create_WithInvoiceId_LinksToInvoice()
     {
         // Arrange
-        var amount = new Money(-100.00m, "USD");
+        var tenantId = Guid.NewGuid();
+        var invoiceId = 42L;
+        var amount = new Money(500.00m, "USD");
 
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(
-            () => Payment.Create(
-                Guid.NewGuid(),
-                1L,
-                amount,
-                DateTime.UtcNow,
-                PaymentMethod.Cash));
-        Assert.Contains("Payment amount must be positive", exception.Message);
+        // Act
+        var payment = Payment.Create(
+            tenantId,
+            "PAY-2024-002",
+            1L,
+            amount,
+            PaymentMethod.ACH,
+            DateTime.UtcNow,
+            invoiceId: invoiceId);
+
+        // Assert
+        Assert.Equal(invoiceId, payment.InvoiceId);
     }
 
     [Fact]
@@ -63,11 +72,12 @@ public class PaymentTests
         var exception = Assert.Throws<ArgumentException>(
             () => Payment.Create(
                 Guid.NewGuid(),
+                "PAY-2024-003",
                 1L,
                 amount,
-                DateTime.UtcNow,
-                PaymentMethod.Cash));
-        Assert.Contains("Payment amount must be positive", exception.Message);
+                PaymentMethod.Cash,
+                DateTime.UtcNow));
+        Assert.Contains("greater than zero", exception.Message);
     }
 
     [Theory]
@@ -81,12 +91,64 @@ public class PaymentTests
         // Act
         var payment = Payment.Create(
             Guid.NewGuid(),
+            "PAY-2024-004",
             1L,
             new Money(500.00m, "USD"),
-            DateTime.UtcNow,
-            method);
+            method,
+            DateTime.UtcNow);
 
         // Assert
-        Assert.Equal(method, payment.PaymentMethod);
+        Assert.Equal(method, payment.Method);
+    }
+
+    [Fact]
+    public void Clear_WhenPending_SetsStatusToCleared()
+    {
+        // Arrange
+        var payment = CreateTestPayment();
+
+        // Act
+        payment.Clear();
+
+        // Assert
+        Assert.Equal(PaymentStatus.Cleared, payment.Status);
+        Assert.NotNull(payment.ClearedDate);
+    }
+
+    [Fact]
+    public void Clear_WhenAlreadyCleared_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var payment = CreateTestPayment();
+        payment.Clear();
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(() => payment.Clear());
+    }
+
+    [Fact]
+    public void MarkFailed_WhenPending_SetsStatusToFailed()
+    {
+        // Arrange
+        var payment = CreateTestPayment();
+        var reason = "Insufficient funds";
+
+        // Act
+        payment.MarkFailed(reason);
+
+        // Assert
+        Assert.Equal(PaymentStatus.Failed, payment.Status);
+        Assert.Contains(reason, payment.Notes!);
+    }
+
+    private Payment CreateTestPayment()
+    {
+        return Payment.Create(
+            Guid.NewGuid(),
+            "PAY-TEST-001",
+            1L,
+            new Money(1000.00m, "USD"),
+            PaymentMethod.Check,
+            DateTime.UtcNow);
     }
 }

@@ -9,7 +9,7 @@ namespace ERP.IntegrationTests.Infrastructure;
 public static class TestAuthenticationHelper
 {
     public static readonly Guid TestTenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-    public static readonly Guid TestUserId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+    public static readonly long TestUserId = 1L;
     public static readonly string TestUserName = "testuser@example.com";
     public static readonly string TestTenantName = "Test Tenant";
 
@@ -17,14 +17,14 @@ public static class TestAuthenticationHelper
     /// Creates a mock ICurrentUserService for testing.
     /// </summary>
     public static ICurrentUserService CreateMockCurrentUser(
-        Guid? userId = null,
+        long? userId = null,
         string? userName = null,
         bool isAuthenticated = true)
     {
         var mock = new Mock<ICurrentUserService>();
 
         mock.Setup(x => x.UserId).Returns(userId ?? TestUserId);
-        mock.Setup(x => x.UserName).Returns(userName ?? TestUserName);
+        mock.Setup(x => x.Username).Returns(userName ?? TestUserName);
         mock.Setup(x => x.IsAuthenticated).Returns(isAuthenticated);
 
         return mock.Object;

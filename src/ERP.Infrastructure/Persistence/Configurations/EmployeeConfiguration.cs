@@ -26,6 +26,10 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
                 .HasColumnName("EmployeeNumber")
                 .IsRequired()
                 .HasMaxLength(50);
+
+            en.HasIndex(n => n.Value)
+                .IsUnique()
+                .HasDatabaseName("IX_Employees_EmployeeNumber");
         });
 
         // Email value object
@@ -35,6 +39,10 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
                 .HasColumnName("Email")
                 .IsRequired()
                 .HasMaxLength(256);
+
+            email.HasIndex(em => em.Value)
+                .IsUnique()
+                .HasDatabaseName("IX_Employees_Email");
         });
 
         // Personal information
@@ -125,15 +133,7 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             .HasForeignKey(r => r.EmployeeId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Indexes
-        builder.HasIndex(e => new { e.TenantId, e.EmployeeNumber.Value })
-            .IsUnique()
-            .HasDatabaseName("IX_Employees_TenantId_EmployeeNumber");
-
-        builder.HasIndex(e => new { e.TenantId, e.Email.Value })
-            .IsUnique()
-            .HasDatabaseName("IX_Employees_TenantId_Email");
-
+        // Indexes (Email and EmployeeNumber indexes are configured in their respective OwnsOne blocks)
         builder.HasIndex(e => e.UserId);
         builder.HasIndex(e => e.ResourceTypeId);
         builder.HasIndex(e => e.Status);

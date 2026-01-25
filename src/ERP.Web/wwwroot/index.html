@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP SaaS Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#1E40AF',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center">
+                        <svg class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        <span class="ml-2 text-xl font-bold text-gray-800">ERP SaaS</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="user-info" class="text-sm text-gray-600 hidden"></span>
+                    <button id="login-btn" onclick="showLoginModal()" class="bg-primary text-white px-4 py-2 rounded-md hover:bg-secondary transition">
+                        Login
+                    </button>
+                    <button id="logout-btn" onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition hidden">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-white shadow-lg min-h-screen hidden">
+            <div class="p-4">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Navigation</h2>
+                <nav class="space-y-2">
+                    <!-- Dashboard -->
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Dashboard</h3>
+                        <a href="#" onclick="loadContent('dashboard/executive')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Executive Dashboard</a>
+                        <a href="#" onclick="loadContent('dashboard/financial')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Financial Dashboard</a>
+                        <a href="#" onclick="loadContent('dashboard/projects')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Project Dashboard</a>
+                    </div>
+
+                    <!-- CRM -->
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">CRM</h3>
+                        <a href="#" onclick="loadContent('clients')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Clients</a>
+                        <a href="#" onclick="loadContent('contacts')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Contacts</a>
+                    </div>
+
+                    <!-- Project Management -->
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Projects</h3>
+                        <a href="#" onclick="loadContent('projects')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Projects</a>
+                        <a href="#" onclick="loadContent('contracts')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Contracts</a>
+                    </div>
+
+                    <!-- HR -->
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Human Resources</h3>
+                        <a href="#" onclick="loadContent('employees')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Employees</a>
+                        <a href="#" onclick="loadContent('resourcetypes')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Resource Types</a>
+                    </div>
+
+                    <!-- Time & Expense -->
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Time & Expense</h3>
+                        <a href="#" onclick="loadContent('timesheets')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Timesheets</a>
+                        <a href="#" onclick="loadContent('expensereports')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Expense Reports</a>
+                    </div>
+
+                    <!-- Finance -->
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Finance</h3>
+                        <a href="#" onclick="loadContent('accounts')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Chart of Accounts</a>
+                        <a href="#" onclick="loadContent('journalentries')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Journal Entries</a>
+                    </div>
+
+                    <!-- Billing -->
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Billing</h3>
+                        <a href="#" onclick="loadContent('invoices')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Invoices</a>
+                    </div>
+
+                    <!-- Vendors -->
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Vendors</h3>
+                        <a href="#" onclick="loadContent('vendors')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Vendors</a>
+                    </div>
+
+                    <!-- Reports -->
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Reports</h3>
+                        <a href="#" onclick="loadContent('reports/income-statement')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Income Statement</a>
+                        <a href="#" onclick="loadContent('reports/balance-sheet')" class="block px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-md">Balance Sheet</a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <!-- Welcome Section (shown when not logged in) -->
+            <div id="welcome-section">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-4">Welcome to ERP SaaS Application</h1>
+                        <p class="text-gray-600 mb-6">
+                            A comprehensive Enterprise Resource Planning system designed for project-based businesses.
+                            Manage projects, employees, clients, timesheets, expenses, financial accounting, and billing.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-primary mb-2">Project Management</h3>
+                                <p class="text-sm text-gray-600">Track projects, WBS, resources, and contracts</p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-green-600 mb-2">Financial Management</h3>
+                                <p class="text-sm text-gray-600">Chart of accounts, journal entries, and reporting</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-purple-600 mb-2">Time & Billing</h3>
+                                <p class="text-sm text-gray-600">Timesheets, expenses, and invoicing</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Login Card -->
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Login to Get Started</h2>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                            <p class="text-sm text-yellow-800">
+                                <strong>Default Admin Credentials:</strong><br>
+                                Username: <code class="bg-yellow-100 px-1 rounded">admin</code><br>
+                                Password: <code class="bg-yellow-100 px-1 rounded">Admin@123!</code>
+                            </p>
+                        </div>
+                        <button onclick="showLoginModal()" class="bg-primary text-white px-6 py-3 rounded-md hover:bg-secondary transition">
+                            Login Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Section (shown when logged in) -->
+            <div id="content-section" class="hidden">
+                <div id="content-area">
+                    <!-- Dynamic content loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Login</h2>
+                <button onclick="hideLoginModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                        Username or Email
+                    </label>
+                    <input type="text" id="username" name="username" value="admin"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                        Password
+                    </label>
+                    <input type="password" id="password" name="password" value="Admin@123!"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        required>
+                </div>
+                <div id="login-error" class="mb-4 text-red-500 text-sm hidden"></div>
+                <button type="submit" id="login-submit"
+                    class="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-secondary transition">
+                    Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden z-40">
+        <div class="bg-white p-4 rounded-lg shadow-lg">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

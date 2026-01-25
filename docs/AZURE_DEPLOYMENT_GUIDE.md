@@ -1,3 +1,8 @@
+  Default Admin Credentials:
+  - Username: admin
+  - Email: admin@erp.local
+  - Password: Admin@123!
+
 # Azure Deployment Guide - ERP SaaS Application
 
 This guide provides detailed step-by-step instructions for deploying the ERP SaaS application to Microsoft Azure.
@@ -331,7 +336,8 @@ dotnet ef migrations bundle \
 ```
 
 **Option B: Using EF Core Tools**
-
+"Data Source=localhost;Initial Catalog=ERP_1;User ID=sa;Password=porkins;MultipleActiveResultSets=True"
+   
 ```bash
 # Apply migrations directly
 dotnet ef database update \

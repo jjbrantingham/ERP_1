@@ -1,4 +1,5 @@
 ---
+name: agents/ui-review-expert
 description: Senior UI design review agent for accessibility, responsiveness, and UX quality
 ---
 

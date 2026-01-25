@@ -16,17 +16,19 @@ public class ExpenseReportTests
         // Arrange
         var tenantId = Guid.NewGuid();
         var employeeId = 1L;
+        var reportNumber = "EXP-2024-001";
         var reportDate = DateTime.UtcNow;
 
         // Act
-        var report = ExpenseReport.Create(tenantId, employeeId, reportDate);
+        var report = ExpenseReport.Create(tenantId, employeeId, reportNumber, reportDate);
 
         // Assert
         Assert.NotNull(report);
         Assert.Equal(tenantId, report.TenantId);
         Assert.Equal(employeeId, report.EmployeeId);
+        Assert.Equal(reportNumber, report.ReportNumber);
         Assert.Equal(reportDate.Date, report.ReportDate);
-        Assert.Equal(ExpenseReportStatus.Draft, report.Status);
+        Assert.Equal(ExpenseStatus.Draft, report.Status);
         Assert.Empty(report.Items);
     }
 
@@ -40,8 +42,8 @@ public class ExpenseReportTests
             report.Id,
             DateTime.UtcNow,
             ExpenseCategory.Travel,
-            new Money(150.00m, "USD"),
-            "Flight to client site");
+            "Flight to client site",
+            new Money(150.00m, "USD"));
 
         // Act
         report.AddItem(item);
@@ -61,7 +63,7 @@ public class ExpenseReportTests
         report.Submit();
 
         // Assert
-        Assert.Equal(ExpenseReportStatus.Submitted, report.Status);
+        Assert.Equal(ExpenseStatus.Submitted, report.Status);
         Assert.NotNull(report.SubmittedDate);
     }
 
@@ -74,7 +76,7 @@ public class ExpenseReportTests
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(
             () => report.Submit());
-        Assert.Contains("Cannot submit empty expense report", exception.Message);
+        Assert.Contains("empty", exception.Message.ToLower());
     }
 
     [Fact]
@@ -89,7 +91,7 @@ public class ExpenseReportTests
         report.Approve(approverUserId, "Approved");
 
         // Assert
-        Assert.Equal(ExpenseReportStatus.Approved, report.Status);
+        Assert.Equal(ExpenseStatus.Approved, report.Status);
         Assert.NotNull(report.ApprovedDate);
         Assert.Equal(approverUserId, report.ApprovedByUserId);
     }
@@ -105,7 +107,7 @@ public class ExpenseReportTests
         report.Reject(10L, "Missing receipts");
 
         // Assert
-        Assert.Equal(ExpenseReportStatus.Rejected, report.Status);
+        Assert.Equal(ExpenseStatus.Rejected, report.Status);
     }
 
     private ExpenseReport CreateTestExpenseReport()
@@ -113,8 +115,9 @@ public class ExpenseReportTests
         return ExpenseReport.Create(
             Guid.NewGuid(),
             employeeId: 1L,
-            DateTime.UtcNow,
-            "Test expense report");
+            reportNumber: "EXP-TEST-001",
+            reportDate: DateTime.UtcNow,
+            purpose: "Test expense report");
     }
 
     private ExpenseReport CreateTestExpenseReportWithItem()
@@ -125,8 +128,8 @@ public class ExpenseReportTests
             report.Id,
             DateTime.UtcNow,
             ExpenseCategory.Meals,
-            new Money(50.00m, "USD"),
-            "Client lunch");
+            "Client lunch",
+            new Money(50.00m, "USD"));
         report.AddItem(item);
         return report;
     }

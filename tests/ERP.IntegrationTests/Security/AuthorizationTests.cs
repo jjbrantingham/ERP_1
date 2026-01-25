@@ -2,12 +2,12 @@ using ERP.Application.Common.Exceptions;
 using ERP.Application.Common.Interfaces;
 using ERP.Application.PM.Commands;
 using ERP.Domain.CRM.Entities;
+using ERP.Domain.CRM.Enums;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.PM.Enums;
 using ERP.IntegrationTests.Infrastructure;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 
 namespace ERP.IntegrationTests.Security;
 
@@ -45,10 +45,12 @@ public class AuthorizationTests : IntegrationTestBase
 
         var command = new CreateProjectCommand
         {
+            ClientId = client.Id,
             Name = "Test Project",
             Description = "Test Description",
-            Type = ProjectType.Billable,
-            ClientId = client.Id
+            ProjectType = ProjectType.Billable,
+            BillingMode = BillingMode.TimeAndMaterials,
+            StartDate = DateTime.UtcNow
         };
 
         // Act & Assert
@@ -83,10 +85,12 @@ public class AuthorizationTests : IntegrationTestBase
 
         var command = new CreateProjectCommand
         {
+            ClientId = client.Id,
             Name = "Test Project",
             Description = "Test Description",
-            Type = ProjectType.Billable,
-            ClientId = client.Id
+            ProjectType = ProjectType.Billable,
+            BillingMode = BillingMode.TimeAndMaterials,
+            StartDate = DateTime.UtcNow
         };
 
         // Act & Assert
@@ -103,15 +107,13 @@ public class AuthorizationTests : IntegrationTestBase
     /// </summary>
     private async Task<Client> CreateTestClientAsync()
     {
+        var clientNumber = Client.GenerateClientNumber();
         var client = Client.Create(
             TestAuthenticationHelper.TestTenantId,
+            clientNumber,
             "Test Client",
             ClientType.Corporate,
-            null,
-            null,
-            Email.Create("client@example.com"),
-            null,
-            null
+            primaryEmail: new Email("client@example.com")
         );
 
         DbContext.Set<Client>().Add(client);

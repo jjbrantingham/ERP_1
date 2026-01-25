@@ -13,6 +13,7 @@ using ERP.Infrastructure.Persistence;
 using ERP.Infrastructure.Persistence.Repositories;
 using ERP.Infrastructure.Services;
 using ERP.Infrastructure.HealthChecks;
+using ERP.Web.Extensions;
 using ERP.Web.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
@@ -169,6 +170,9 @@ builder.Services.AddDbContext<ERPDbContext>((serviceProvider, options) =>
     }
 });
 
+// Register IDbContext as the ERPDbContext for query handlers
+builder.Services.AddScoped<IDbContext>(sp => sp.GetRequiredService<ERPDbContext>());
+
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -314,6 +318,10 @@ app.UseRateLimiter();
 // Use CORS with secure policy
 app.UseCors("AllowedOrigins");
 
+// Serve static files from wwwroot
+app.UseDefaultFiles(); // Serves index.html as default
+app.UseStaticFiles();
+
 // Use tenant resolution middleware
 app.UseTenantResolution();
 
@@ -380,13 +388,14 @@ static async Task WriteHealthCheckResponse(HttpContext context, HealthReport rep
     }));
 }
 
-// Default route for testing
-app.MapGet("/", () => Results.Ok(new
+// API status endpoint (for health checks and debugging)
+app.MapGet("/api/status", () => Results.Ok(new
 {
     Application = "ERP SaaS Application",
     Version = "1.0.0",
     Status = "Running",
-    Environment = app.Environment.EnvironmentName
+    Environment = app.Environment.EnvironmentName,
+    Timestamp = DateTime.UtcNow
 }));
 
 // Initialize database (run migrations and seed data)

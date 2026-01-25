@@ -50,6 +50,9 @@ public class ContactConfiguration : IEntityTypeConfiguration<Contact>
                 .HasColumnName("Email")
                 .IsRequired()
                 .HasMaxLength(256);
+
+            email.HasIndex(e => e.Value)
+                .HasDatabaseName("IX_Contacts_Email");
         });
 
         builder.Property(c => c.PhoneNumber)
@@ -77,10 +80,6 @@ public class ContactConfiguration : IEntityTypeConfiguration<Contact>
 
         // Indexes
         builder.HasIndex(c => c.ClientId);
-
-        builder.HasIndex(c => new { c.TenantId, c.Email.Value })
-            .HasDatabaseName("IX_Contacts_TenantId_Email");
-
         builder.HasIndex(c => c.ContactType);
         builder.HasIndex(c => c.IsPrimary);
         builder.HasIndex(c => c.IsActive);

@@ -172,7 +172,7 @@ public class InvoiceTests
     private Invoice CreateTestInvoice(decimal taxRate = 0m, string currency = "USD")
     {
         var tenantId = Guid.NewGuid();
-        var invoiceNumber = InvoiceNumber.Create("INV-2024-001");
+        var invoiceNumber = new InvoiceNumber("INV-2024-001");
         return Invoice.Create(
             tenantId,
             invoiceNumber,

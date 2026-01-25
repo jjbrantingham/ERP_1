@@ -2253,6 +2253,8 @@
           "ERP.Domain": "1.0.0",
           "Microsoft.EntityFrameworkCore": "9.0.0",
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.0",
+          "Microsoft.Extensions.Configuration.EnvironmentVariables": "9.0.0",
+          "Microsoft.Extensions.Configuration.Json": "9.0.0",
           "Microsoft.Extensions.Diagnostics.HealthChecks": "9.0.0"
         },
         "compile": {

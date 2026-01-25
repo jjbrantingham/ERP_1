@@ -30,6 +30,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                 .HasColumnName("Email")
                 .IsRequired()
                 .HasMaxLength(256);
+
+            email.HasIndex(e => e.Value)
+                .IsUnique()
+                .HasDatabaseName("IX_Users_Email");
         });
 
         builder.Property(u => u.PasswordHash)
@@ -104,12 +108,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey(ur => ur.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Indexes
+        // Indexes (Email index is configured in the OwnsOne block)
         builder.HasIndex(u => new { u.TenantId, u.UserName })
-            .IsUnique();
-
-        builder.HasIndex(u => new { u.TenantId, u.Email.Value })
-            .HasDatabaseName("IX_Users_TenantId_Email")
             .IsUnique();
 
         builder.HasIndex(u => u.IsActive);

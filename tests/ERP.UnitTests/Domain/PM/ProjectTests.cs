@@ -198,7 +198,7 @@ public class ProjectTests
         // Arrange
         var project = CreateTestProject();
         project.ChangeStatus(ProjectStatus.Active);
-        project.DomainEvents.Clear(); // Clear previous events
+        project.ClearDomainEvents(); // Clear previous events
         Assert.Null(project.ActualEndDate);
 
         // Act

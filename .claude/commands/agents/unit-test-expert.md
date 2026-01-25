@@ -1,4 +1,5 @@
 ---
+name: agents/unit-test-expert
 description: Unit testing expert agent for domain logic and business rules
 ---
 

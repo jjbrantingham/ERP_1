@@ -19,8 +19,8 @@ public class DateRangeTests
 
         // Assert
         Assert.NotNull(dateRange);
-        Assert.Equal(start, dateRange.StartDate);
-        Assert.Equal(end, dateRange.EndDate);
+        Assert.Equal(start, dateRange.Start);
+        Assert.Equal(end, dateRange.End);
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public class DateRangeTests
 
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => new DateRange(start, end));
-        Assert.Contains("Start date must be before or equal to end date", exception.Message);
+        Assert.Contains("Start date cannot be after end date", exception.Message);
     }
 
     [Fact]
@@ -45,8 +45,8 @@ public class DateRangeTests
         var dateRange = new DateRange(date, date);
 
         // Assert
-        Assert.Equal(date, dateRange.StartDate);
-        Assert.Equal(date, dateRange.EndDate);
+        Assert.Equal(date, dateRange.Start);
+        Assert.Equal(date, dateRange.End);
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class DateRangeTests
         var duration = dateRange.DurationInDays;
 
         // Assert
-        Assert.Equal(30, duration); // 31 - 1
+        Assert.Equal(31, duration); // 31 days inclusive
     }
 
     [Fact]

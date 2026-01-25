@@ -27,6 +27,10 @@ public class VendorConfiguration : IEntityTypeConfiguration<Vendor>
                 .HasColumnName("VendorNumber")
                 .IsRequired()
                 .HasMaxLength(50);
+
+            vn.HasIndex(n => n.Value)
+                .IsUnique()
+                .HasDatabaseName("IX_Vendors_VendorNumber");
         });
 
         builder.Property(v => v.Name)
@@ -116,11 +120,7 @@ public class VendorConfiguration : IEntityTypeConfiguration<Vendor>
         builder.Property(v => v.RowVersion)
             .IsRowVersion();
 
-        // Indexes
-        builder.HasIndex(v => new { v.TenantId, v.VendorNumber })
-            .IsUnique()
-            .HasDatabaseName("IX_Vendors_TenantId_VendorNumber");
-
+        // Indexes (VendorNumber index is configured in the OwnsOne block)
         builder.HasIndex(v => v.Status)
             .HasDatabaseName("IX_Vendors_Status");
 

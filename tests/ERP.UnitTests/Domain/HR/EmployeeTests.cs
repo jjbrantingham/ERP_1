@@ -1,5 +1,7 @@
+using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.HR.Entities;
 using ERP.Domain.HR.Enums;
+using ERP.Domain.HR.ValueObjects;
 
 namespace ERP.UnitTests.Domain.HR;
 
@@ -13,95 +15,152 @@ public class EmployeeTests
     {
         // Arrange
         var tenantId = Guid.NewGuid();
+        var employeeNumber = new EmployeeNumber("EMP-001");
+        var resourceTypeId = 1L;
         var firstName = "John";
         var lastName = "Doe";
-        var email = "john.doe@example.com";
+        var email = new Email("john.doe@example.com");
+        var employmentType = EmploymentType.FullTime;
+        var hireDate = DateTime.UtcNow;
 
         // Act
-        var employee = Employee.Create(tenantId, firstName, lastName, email);
+        var employee = Employee.Create(
+            tenantId,
+            employeeNumber,
+            resourceTypeId,
+            firstName,
+            lastName,
+            email,
+            employmentType,
+            hireDate);
 
         // Assert
         Assert.NotNull(employee);
         Assert.Equal(tenantId, employee.TenantId);
         Assert.Equal(firstName, employee.FirstName);
         Assert.Equal(lastName, employee.LastName);
-        Assert.Equal(email, employee.Email);
+        Assert.Equal(email.Value, employee.Email.Value);
         Assert.Equal(EmployeeStatus.Active, employee.Status);
-        Assert.True(employee.IsActive);
+        Assert.True(employee.IsAvailableForProjects);
     }
 
     [Fact]
     public void Create_WithNullFirstName_ThrowsArgumentException()
     {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var employeeNumber = new EmployeeNumber("EMP-001");
+        var resourceTypeId = 1L;
+        var email = new Email("test@example.com");
+
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(
-            () => Employee.Create(Guid.NewGuid(), null!, "Doe", "test@example.com"));
-        Assert.Contains("First name is required", exception.Message);
+            () => Employee.Create(
+                tenantId,
+                employeeNumber,
+                resourceTypeId,
+                null!,
+                "Doe",
+                email,
+                EmploymentType.FullTime,
+                DateTime.UtcNow));
+        Assert.Contains("First name", exception.Message);
     }
 
     [Fact]
     public void Create_WithNullLastName_ThrowsArgumentException()
     {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var employeeNumber = new EmployeeNumber("EMP-001");
+        var resourceTypeId = 1L;
+        var email = new Email("test@example.com");
+
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(
-            () => Employee.Create(Guid.NewGuid(), "John", null!, "test@example.com"));
-        Assert.Contains("Last name is required", exception.Message);
+            () => Employee.Create(
+                tenantId,
+                employeeNumber,
+                resourceTypeId,
+                "John",
+                null!,
+                email,
+                EmploymentType.FullTime,
+                DateTime.UtcNow));
+        Assert.Contains("Last name", exception.Message);
     }
 
     [Fact]
-    public void UpdateContactInfo_UpdatesEmailAndPhone()
+    public void UpdatePersonalInfo_UpdatesNames()
     {
         // Arrange
         var employee = CreateTestEmployee();
-        var newEmail = "newemail@example.com";
-        var newPhone = "+1-555-0123";
+        var newFirstName = "Jane";
+        var newLastName = "Smith";
+        var newEmail = new Email("jane.smith@example.com");
 
         // Act
-        employee.UpdateContactInfo(newEmail, newPhone);
+        employee.UpdatePersonalInfo(newFirstName, newLastName, newEmail);
 
         // Assert
-        Assert.Equal(newEmail, employee.Email);
-        Assert.Equal(newPhone, employee.Phone);
-        Assert.NotNull(employee.ModifiedDate);
+        Assert.Equal(newFirstName, employee.FirstName);
+        Assert.Equal(newLastName, employee.LastName);
+        Assert.Equal(newEmail.Value, employee.Email.Value);
     }
 
     [Fact]
-    public void Deactivate_SetsStatusAndIsActive()
+    public void ChangeStatus_ToTerminated_SetsStatusAndTerminationDate()
     {
         // Arrange
         var employee = CreateTestEmployee();
 
         // Act
-        employee.Deactivate();
+        employee.ChangeStatus(EmployeeStatus.Terminated, "Contract ended");
 
         // Assert
         Assert.Equal(EmployeeStatus.Terminated, employee.Status);
-        Assert.False(employee.IsActive);
+        Assert.NotNull(employee.TerminationDate);
+        Assert.False(employee.IsAvailableForProjects);
     }
 
     [Fact]
-    public void Reactivate_SetsStatusAndIsActive()
+    public void ChangeStatus_ToActive_SetsStatusToActive()
     {
         // Arrange
         var employee = CreateTestEmployee();
-        employee.Deactivate();
+        employee.ChangeStatus(EmployeeStatus.OnLeave);
 
         // Act
-        employee.Reactivate();
+        employee.ChangeStatus(EmployeeStatus.Active);
 
         // Assert
         Assert.Equal(EmployeeStatus.Active, employee.Status);
-        Assert.True(employee.IsActive);
+    }
+
+    [Fact]
+    public void FullName_ReturnsCorrectCombination()
+    {
+        // Arrange
+        var employee = CreateTestEmployee();
+
+        // Act
+        var fullName = employee.FullName;
+
+        // Assert
+        Assert.Equal("John Doe", fullName);
     }
 
     private Employee CreateTestEmployee()
     {
         return Employee.Create(
             Guid.NewGuid(),
+            new EmployeeNumber("EMP-TEST-001"),
+            1L,
             "John",
             "Doe",
-            "john.doe@example.com",
-            "Software Engineer",
-            DateTime.UtcNow);
+            new Email("john.doe@example.com"),
+            EmploymentType.FullTime,
+            DateTime.UtcNow,
+            jobTitle: "Software Engineer");
     }
 }

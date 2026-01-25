@@ -1,25 +1,33 @@
 using ERP.Application.Common.Interfaces;
+using ERP.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Web.Middleware;
 
 /// <summary>
 /// Middleware for resolving the current tenant from the request.
-/// Supports multiple resolution strategies: subdomain, header, and claim.
+/// Supports multiple resolution strategies: subdomain, header, claim, and default for development.
 /// </summary>
 public class TenantResolutionMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<TenantResolutionMiddleware> _logger;
+    private readonly IConfiguration _configuration;
+    private readonly IWebHostEnvironment _environment;
 
     public TenantResolutionMiddleware(
         RequestDelegate next,
-        ILogger<TenantResolutionMiddleware> logger)
+        ILogger<TenantResolutionMiddleware> logger,
+        IConfiguration configuration,
+        IWebHostEnvironment environment)
     {
         _next = next;
         _logger = logger;
+        _configuration = configuration;
+        _environment = environment;
     }
 
-    public async Task InvokeAsync(HttpContext context, ICurrentTenantService tenantService)
+    public async Task InvokeAsync(HttpContext context, ICurrentTenantService tenantService, ERPDbContext dbContext)
     {
         Guid? tenantId = null;
         string? tenantName = null;
@@ -60,6 +68,33 @@ public class TenantResolutionMiddleware
             }
         }
 
+        // Strategy 4: Use default tenant for development/testing
+        if (!tenantId.HasValue)
+        {
+            // Check for configured default tenant
+            var defaultTenantId = _configuration["DefaultTenantId"];
+            if (!string.IsNullOrEmpty(defaultTenantId) && Guid.TryParse(defaultTenantId, out var configuredTenantId))
+            {
+                tenantId = configuredTenantId;
+                tenantName = _configuration["DefaultTenantName"] ?? "Default Company";
+                _logger.LogDebug("Tenant resolved from configuration: {TenantId}", tenantId);
+            }
+            // In Development environment, auto-resolve to the first tenant in the database
+            else if (_environment.IsDevelopment())
+            {
+                var defaultTenant = await dbContext.Tenants
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync();
+
+                if (defaultTenant != null)
+                {
+                    tenantId = defaultTenant.TenantGuid;
+                    tenantName = defaultTenant.CompanyName;
+                    _logger.LogDebug("Tenant auto-resolved for development: {TenantId} ({TenantName})", tenantId, tenantName);
+                }
+            }
+        }
+
         // Set the tenant in the service if found
         if (tenantId.HasValue)
         {
@@ -67,9 +102,7 @@ public class TenantResolutionMiddleware
         }
         else
         {
-            // For development/testing, you might want to set a default tenant
-            // Or require tenant for all requests
-            _logger.LogWarning("No tenant ID found in request");
+            _logger.LogWarning("No tenant ID found in request. Multi-tenant queries will fail.");
         }
 
         await _next(context);

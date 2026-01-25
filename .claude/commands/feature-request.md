@@ -1,4 +1,5 @@
 ---
+name: feature-request
 description: Process a feature request through the full agent workflow with 5-pass review
 ---
 

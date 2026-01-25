@@ -15,14 +15,13 @@ public class JournalEntryTests
     {
         // Arrange
         var tenantId = Guid.NewGuid();
-        var entryNumber = JournalEntryNumber.Create("JE-2024-001");
+        var entryNumber = new JournalEntryNumber("JE-2024-001");
         var journalEntry = JournalEntry.Create(
             tenantId,
             entryNumber,
             DateTime.UtcNow,
-            JournalEntryType.General,
             "Test Entry",
-            "2024-01");
+            JournalEntryType.General);
 
         // Add balanced lines: $1000 debit, $1000 credit
         journalEntry.AddLine(1, 1000m, 0m, "Debit line");
@@ -40,14 +39,13 @@ public class JournalEntryTests
     {
         // Arrange
         var tenantId = Guid.NewGuid();
-        var entryNumber = JournalEntryNumber.Create("JE-2024-002");
+        var entryNumber = new JournalEntryNumber("JE-2024-002");
         var journalEntry = JournalEntry.Create(
             tenantId,
             entryNumber,
             DateTime.UtcNow,
-            JournalEntryType.General,
             "Unbalanced Entry",
-            "2024-01");
+            JournalEntryType.General);
 
         // Add unbalanced lines: $1000 debit, $500 credit
         journalEntry.AddLine(1, 1000m, 0m, "Debit line");
@@ -65,14 +63,13 @@ public class JournalEntryTests
     {
         // Arrange
         var tenantId = Guid.NewGuid();
-        var entryNumber = JournalEntryNumber.Create("JE-2024-003");
+        var entryNumber = new JournalEntryNumber("JE-2024-003");
         var journalEntry = JournalEntry.Create(
             tenantId,
             entryNumber,
             DateTime.UtcNow,
-            JournalEntryType.General,
             "Test Entry",
-            "2024-01");
+            JournalEntryType.General);
 
         journalEntry.AddLine(1, 1000m, 0m, "Debit");
         journalEntry.AddLine(2, 0m, 1000m, "Credit");
@@ -91,14 +88,13 @@ public class JournalEntryTests
     {
         // Arrange
         var tenantId = Guid.NewGuid();
-        var entryNumber = JournalEntryNumber.Create("JE-2024-004");
+        var entryNumber = new JournalEntryNumber("JE-2024-004");
         var journalEntry = JournalEntry.Create(
             tenantId,
             entryNumber,
             DateTime.UtcNow,
-            JournalEntryType.General,
             "Unbalanced Entry",
-            "2024-01");
+            JournalEntryType.General);
 
         journalEntry.AddLine(1, 1000m, 0m, "Debit");
         journalEntry.AddLine(2, 0m, 500m, "Credit");
@@ -113,14 +109,13 @@ public class JournalEntryTests
     {
         // Arrange
         var tenantId = Guid.NewGuid();
-        var entryNumber = JournalEntryNumber.Create("JE-2024-005");
+        var entryNumber = new JournalEntryNumber("JE-2024-005");
         var journalEntry = JournalEntry.Create(
             tenantId,
             entryNumber,
             DateTime.UtcNow,
-            JournalEntryType.General,
             "Test Entry",
-            "2024-01");
+            JournalEntryType.General);
 
         journalEntry.AddLine(1, 500m, 0m, "Debit 1");
         journalEntry.AddLine(2, 750m, 0m, "Debit 2");
@@ -138,14 +133,13 @@ public class JournalEntryTests
     {
         // Arrange
         var tenantId = Guid.NewGuid();
-        var entryNumber = JournalEntryNumber.Create("JE-2024-006");
+        var entryNumber = new JournalEntryNumber("JE-2024-006");
         var journalEntry = JournalEntry.Create(
             tenantId,
             entryNumber,
             DateTime.UtcNow,
-            JournalEntryType.General,
             "Test Entry",
-            "2024-01");
+            JournalEntryType.General);
 
         journalEntry.AddLine(1, 1250m, 0m, "Debit");
         journalEntry.AddLine(2, 0m, 500m, "Credit 1");
@@ -163,14 +157,13 @@ public class JournalEntryTests
     {
         // Arrange - Test that rounding is handled correctly
         var tenantId = Guid.NewGuid();
-        var entryNumber = JournalEntryNumber.Create("JE-2024-007");
+        var entryNumber = new JournalEntryNumber("JE-2024-007");
         var journalEntry = JournalEntry.Create(
             tenantId,
             entryNumber,
             DateTime.UtcNow,
-            JournalEntryType.General,
             "Rounding Test",
-            "2024-01");
+            JournalEntryType.General);
 
         // Add lines that should balance after rounding to 2 decimals
         journalEntry.AddLine(1, 100.005m, 0m, "Debit");  // Rounds to 100.01

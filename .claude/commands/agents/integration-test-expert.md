@@ -1,4 +1,5 @@
 ---
+name: agents/integration-test-expert
 description: Integration testing expert agent for API and database testing
 ---
 

@@ -1,8 +1,10 @@
 using ERP.Domain.CRM.Entities;
+using ERP.Domain.CRM.Enums;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.PM.Entities;
 using ERP.Domain.PM.Enums;
 using ERP.Domain.PM.Repositories;
+using ERP.Domain.PM.ValueObjects;
 using ERP.IntegrationTests.Infrastructure;
 using FluentAssertions;
 
@@ -35,23 +37,29 @@ public class MultiTenancyIsolationTests : IntegrationTestBase
         var client2 = await CreateTestClientAsync(tenant2Id, "Tenant 2 Client");
 
         // Create projects for tenant 1
+        var projectNumber1 = ProjectNumber.Generate();
         var project1 = Project.Create(
             tenant1Id,
-            "PRJ-001",
+            projectNumber1,
+            client1.Id,
             "Tenant 1 Project",
-            "Description",
             ProjectType.Billable,
-            client1.Id
+            BillingMode.TimeAndMaterials,
+            DateTime.UtcNow,
+            "Description"
         );
 
         // Create projects for tenant 2
+        var projectNumber2 = ProjectNumber.Generate();
         var project2 = Project.Create(
             tenant2Id,
-            "PRJ-002",
+            projectNumber2,
+            client2.Id,
             "Tenant 2 Project",
-            "Description",
             ProjectType.Billable,
-            client2.Id
+            BillingMode.TimeAndMaterials,
+            DateTime.UtcNow,
+            "Description"
         );
 
         DbContext.Set<Project>().Add(project1);
@@ -88,13 +96,16 @@ public class MultiTenancyIsolationTests : IntegrationTestBase
         var tenantId = TestAuthenticationHelper.TestTenantId;
         var client = await CreateTestClientAsync(tenantId, "Test Client");
 
+        var projectNumber = ProjectNumber.Generate();
         var project = Project.Create(
             tenantId,
-            "PRJ-TEST",
+            projectNumber,
+            client.Id,
             "Test Project",
-            "Description",
             ProjectType.Billable,
-            client.Id
+            BillingMode.TimeAndMaterials,
+            DateTime.UtcNow,
+            "Description"
         );
 
         DbContext.Set<Project>().Add(project);
@@ -121,22 +132,28 @@ public class MultiTenancyIsolationTests : IntegrationTestBase
         var currentTenantClient = await CreateTestClientAsync(currentTenantId, "Current Tenant Client");
         var otherTenantClient = await CreateTestClientAsync(otherTenantId, "Other Tenant Client");
 
+        var currentProjectNumber = ProjectNumber.Generate();
         var currentTenantProject = Project.Create(
             currentTenantId,
-            "PRJ-CURRENT",
+            currentProjectNumber,
+            currentTenantClient.Id,
             "Current Tenant Project",
-            "Description",
             ProjectType.Billable,
-            currentTenantClient.Id
+            BillingMode.TimeAndMaterials,
+            DateTime.UtcNow,
+            "Description"
         );
 
+        var otherProjectNumber = ProjectNumber.Generate();
         var otherTenantProject = Project.Create(
             otherTenantId,
-            "PRJ-OTHER",
+            otherProjectNumber,
+            otherTenantClient.Id,
             "Other Tenant Project",
-            "Description",
             ProjectType.Billable,
-            otherTenantClient.Id
+            BillingMode.TimeAndMaterials,
+            DateTime.UtcNow,
+            "Description"
         );
 
         DbContext.Set<Project>().Add(currentTenantProject);
@@ -157,15 +174,13 @@ public class MultiTenancyIsolationTests : IntegrationTestBase
     /// </summary>
     private async Task<Client> CreateTestClientAsync(Guid tenantId, string clientName)
     {
+        var clientNumber = Client.GenerateClientNumber();
         var client = Client.Create(
             tenantId,
+            clientNumber,
             clientName,
             ClientType.Corporate,
-            null,
-            null,
-            Email.Create($"{clientName.Replace(" ", "").ToLower()}@example.com"),
-            null,
-            null
+            primaryEmail: new Email($"{clientName.Replace(" ", "").ToLower()}@example.com")
         );
 
         DbContext.Set<Client>().Add(client);
