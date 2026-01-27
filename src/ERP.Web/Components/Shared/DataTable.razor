@@ -1,0 +1,179 @@
+@typeparam TItem
+
+@*
+    Reusable Data Table Component with Sorting and Pagination
+    Usage:
+    <DataTable Items="employees" TItem="Employee">
+        <Columns>
+            <Column Title="Name" Field="@(e => e.FullName)" Sortable="true" />
+            <Column Title="Email" Field="@(e => e.Email)" />
+            <Column Title="Actions">
+                <Template Context="employee">
+                    <Button Size="sm" OnClick="() => Edit(employee)">Edit</Button>
+                </Template>
+            </Column>
+        </Columns>
+    </DataTable>
+*@
+
+<div class="@ContainerClass">
+    @if (!string.IsNullOrEmpty(Title))
+    {
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">@Title</h3>
+        </div>
+    }
+
+    <div class="overflow-x-auto">
+        <table class="table">
+            <thead>
+                <tr>
+                    @Columns
+                </tr>
+            </thead>
+            <tbody>
+                @if (IsLoading)
+                {
+                    <tr>
+                        <td colspan="100" class="text-center py-8">
+                            <LoadingSpinner Text="Loading data..." />
+                        </td>
+                    </tr>
+                }
+                else if (Items == null || !Items.Any())
+                {
+                    <tr>
+                        <td colspan="100" class="text-center py-8 text-gray-500">
+                            @EmptyMessage
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @Rows
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (ShowPagination && TotalPages > 1)
+    {
+        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+            <div class="text-sm text-gray-600">
+                Showing @((CurrentPage - 1) * PageSize + 1) to @Math.Min(CurrentPage * PageSize, TotalItems) of @TotalItems results
+            </div>
+            <div class="flex space-x-2">
+                <button
+                    @onclick="() => GoToPage(CurrentPage - 1)"
+                    disabled="@(CurrentPage <= 1)"
+                    class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Previous
+                </button>
+
+                @for (int i = Math.Max(1, CurrentPage - 2); i <= Math.Min(TotalPages, CurrentPage + 2); i++)
+                {
+                    var pageNum = i; // Capture for lambda
+                    <button
+                        @onclick="() => GoToPage(pageNum)"
+                        class="@(pageNum == CurrentPage ? "px-3 py-1 bg-blue-600 text-white rounded" : "px-3 py-1 border border-gray-300 rounded hover:bg-gray-50")">
+                        @pageNum
+                    </button>
+                }
+
+                <button
+                    @onclick="() => GoToPage(CurrentPage + 1)"
+                    disabled="@(CurrentPage >= TotalPages)"
+                    class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Table title
+    /// </summary>
+    [Parameter]
+    public string? Title { get; set; }
+
+    /// <summary>
+    /// Data items to display
+    /// </summary>
+    [Parameter]
+    public IEnumerable<TItem>? Items { get; set; }
+
+    /// <summary>
+    /// Column definitions
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Columns { get; set; }
+
+    /// <summary>
+    /// Row template
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Rows { get; set; }
+
+    /// <summary>
+    /// Whether data is loading
+    /// </summary>
+    [Parameter]
+    public bool IsLoading { get; set; }
+
+    /// <summary>
+    /// Message to show when table is empty
+    /// </summary>
+    [Parameter]
+    public string EmptyMessage { get; set; } = "No data available";
+
+    /// <summary>
+    /// Whether to show pagination
+    /// </summary>
+    [Parameter]
+    public bool ShowPagination { get; set; } = true;
+
+    /// <summary>
+    /// Current page number (1-based)
+    /// </summary>
+    [Parameter]
+    public int CurrentPage { get; set; } = 1;
+
+    /// <summary>
+    /// Event callback when page changes
+    /// </summary>
+    [Parameter]
+    public EventCallback<int> CurrentPageChanged { get; set; }
+
+    /// <summary>
+    /// Items per page
+    /// </summary>
+    [Parameter]
+    public int PageSize { get; set; } = 10;
+
+    /// <summary>
+    /// Total number of items (for pagination)
+    /// </summary>
+    [Parameter]
+    public int TotalItems { get; set; }
+
+    /// <summary>
+    /// Additional CSS classes
+    /// </summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    private int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize);
+
+    private string ContainerClass => $"bg-white rounded-lg shadow overflow-hidden {Class}".Trim();
+
+    private async Task GoToPage(int page)
+    {
+        if (page >= 1 && page <= TotalPages && page != CurrentPage)
+        {
+            CurrentPage = page;
+            await CurrentPageChanged.InvokeAsync(CurrentPage);
+        }
+    }
+}

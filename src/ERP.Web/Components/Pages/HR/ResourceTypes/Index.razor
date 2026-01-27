@@ -1,0 +1,253 @@
+@page "/hr/resource-types"
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-blue-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/hr/employees" class="hover:text-blue-600">Human Resources</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Resource Types</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Resource Types</h1>
+            <p class="mt-1 text-sm text-gray-600">Define resource categories for employees</p>
+        </div>
+        <Button Variant="primary" OnClick="OpenAddModal">
+            <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Add Resource Type
+        </Button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="flex justify-center py-12">
+            <LoadingSpinner />
+        </div>
+    }
+    else
+    {
+        <Card>
+            <Body>
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Default Rate</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach (var rt in resourceTypes)
+                        {
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm font-mono text-blue-600">@rt.Code</td>
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900">@rt.Name</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">@(rt.Description ?? "-")</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">@rt.DefaultRate.ToString("C0")/hr</td>
+                                <td class="px-6 py-4">
+                                    <span class="@(rt.IsActive ? "px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800" : "px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800")">
+                                        @(rt.IsActive ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end space-x-2">
+                                        <Button Variant="outline" Size="sm" OnClick="() => EditResourceType(rt)">Edit</Button>
+                                        <Button Variant="danger" Size="sm" OnClick="() => ConfirmDelete(rt)">Delete</Button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </Body>
+        </Card>
+    }
+</div>
+
+<!-- Add/Edit Modal -->
+<Modal @bind-IsOpen="showModal" Title="@(editingResourceType == null ? "Add Resource Type" : "Edit Resource Type")" Size="md">
+    <Body>
+        <EditForm Model="@formModel" OnValidSubmit="SaveResourceType">
+            <DataAnnotationsValidator />
+            <div class="space-y-4">
+                <FormField Label="Code" Required="true">
+                    <InputText @bind-Value="formModel.Code" class="form-input" placeholder="e.g., SR-DEV" />
+                    <ValidationMessage For="@(() => formModel.Code)" class="text-sm text-red-600" />
+                </FormField>
+
+                <FormField Label="Name" Required="true">
+                    <InputText @bind-Value="formModel.Name" class="form-input" placeholder="e.g., Senior Developer" />
+                    <ValidationMessage For="@(() => formModel.Name)" class="text-sm text-red-600" />
+                </FormField>
+
+                <FormField Label="Description">
+                    <InputTextArea @bind-Value="formModel.Description" class="form-input" rows="2" />
+                </FormField>
+
+                <FormField Label="Default Bill Rate">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                        <InputNumber @bind-Value="formModel.DefaultRate" class="form-input pl-7" />
+                    </div>
+                </FormField>
+
+                <FormField>
+                    <label class="flex items-center space-x-3">
+                        <InputCheckbox @bind-Value="formModel.IsActive" class="form-checkbox h-5 w-5 text-blue-600 rounded" />
+                        <span class="text-gray-700">Active</span>
+                    </label>
+                </FormField>
+            </div>
+        </EditForm>
+    </Body>
+    <Footer>
+        <Button Variant="secondary" OnClick="CloseModal">Cancel</Button>
+        <Button Variant="primary" OnClick="SaveResourceType" IsLoading="@isSaving">
+            @(isSaving ? "Saving..." : "Save")
+        </Button>
+    </Footer>
+</Modal>
+
+<!-- Delete Confirmation Modal -->
+<Modal @bind-IsOpen="showDeleteModal" Title="Delete Resource Type" Size="md">
+    <Body>
+        <div class="text-center py-4">
+            <p class="text-sm text-gray-600">
+                Are you sure you want to delete <strong>@resourceTypeToDelete?.Name</strong>?
+            </p>
+        </div>
+    </Body>
+    <Footer>
+        <Button Variant="secondary" OnClick="CancelDelete">Cancel</Button>
+        <Button Variant="danger" OnClick="DeleteResourceType" IsLoading="@isDeleting">Delete</Button>
+    </Footer>
+</Modal>
+
+@code {
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool isDeleting = false;
+    private bool showModal = false;
+    private bool showDeleteModal = false;
+    private ResourceTypeItem? editingResourceType;
+    private ResourceTypeItem? resourceTypeToDelete;
+    private ResourceTypeFormModel formModel = new();
+    private List<ResourceTypeItem> resourceTypes = new();
+
+    private class ResourceTypeItem
+    {
+        public long Id { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public decimal DefaultRate { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    private class ResourceTypeFormModel
+    {
+        [Required] public string Code { get; set; } = string.Empty;
+        [Required] public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public decimal DefaultRate { get; set; } = 100;
+        public bool IsActive { get; set; } = true;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        try
+        {
+            await Task.Delay(500);
+            resourceTypes = new List<ResourceTypeItem>
+            {
+                new() { Id = 1, Code = "SR-DEV", Name = "Senior Developer", Description = "Senior software developers", DefaultRate = 200, IsActive = true },
+                new() { Id = 2, Code = "DEV", Name = "Developer", Description = "Software developers", DefaultRate = 150, IsActive = true },
+                new() { Id = 3, Code = "JR-DEV", Name = "Junior Developer", DefaultRate = 100, IsActive = true },
+                new() { Id = 4, Code = "PM", Name = "Project Manager", DefaultRate = 175, IsActive = true },
+                new() { Id = 5, Code = "BA", Name = "Business Analyst", DefaultRate = 150, IsActive = true },
+                new() { Id = 6, Code = "QA", Name = "QA Engineer", DefaultRate = 125, IsActive = true },
+            };
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OpenAddModal() { editingResourceType = null; formModel = new ResourceTypeFormModel(); showModal = true; }
+    private void EditResourceType(ResourceTypeItem rt)
+    {
+        editingResourceType = rt;
+        formModel = new ResourceTypeFormModel { Code = rt.Code, Name = rt.Name, Description = rt.Description, DefaultRate = rt.DefaultRate, IsActive = rt.IsActive };
+        showModal = true;
+    }
+    private void CloseModal() { showModal = false; }
+
+    private async Task SaveResourceType()
+    {
+        isSaving = true;
+        try
+        {
+            await Task.Delay(1000);
+            if (editingResourceType != null)
+            {
+                editingResourceType.Code = formModel.Code;
+                editingResourceType.Name = formModel.Name;
+                editingResourceType.Description = formModel.Description;
+                editingResourceType.DefaultRate = formModel.DefaultRate;
+                editingResourceType.IsActive = formModel.IsActive;
+            }
+            else
+            {
+                resourceTypes.Add(new ResourceTypeItem
+                {
+                    Id = resourceTypes.Count + 1,
+                    Code = formModel.Code,
+                    Name = formModel.Name,
+                    Description = formModel.Description,
+                    DefaultRate = formModel.DefaultRate,
+                    IsActive = formModel.IsActive
+                });
+            }
+            showModal = false;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void ConfirmDelete(ResourceTypeItem rt) { resourceTypeToDelete = rt; showDeleteModal = true; }
+    private void CancelDelete() { showDeleteModal = false; }
+
+    private async Task DeleteResourceType()
+    {
+        isDeleting = true;
+        try
+        {
+            await Task.Delay(1000);
+            if (resourceTypeToDelete != null)
+                resourceTypes.Remove(resourceTypeToDelete);
+            showDeleteModal = false;
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+}

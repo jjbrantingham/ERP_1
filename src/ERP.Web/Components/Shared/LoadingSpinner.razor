@@ -1,0 +1,111 @@
+@*
+    Reusable Loading Spinner Component
+    Usage: <LoadingSpinner Size="lg" Text="Loading..." />
+*@
+
+<div class="@ContainerClass">
+    <div class="@SpinnerClass"></div>
+    @if (!string.IsNullOrEmpty(Text))
+    {
+        <p class="@TextClass">@Text</p>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Spinner size (sm, md, lg, xl)
+    /// </summary>
+    [Parameter]
+    public string Size { get; set; } = "md";
+
+    /// <summary>
+    /// Loading text to display
+    /// </summary>
+    [Parameter]
+    public string? Text { get; set; }
+
+    /// <summary>
+    /// Spinner color variant
+    /// </summary>
+    [Parameter]
+    public string Color { get; set; } = "blue";
+
+    /// <summary>
+    /// Whether to center the spinner
+    /// </summary>
+    [Parameter]
+    public bool Centered { get; set; } = true;
+
+    /// <summary>
+    /// Whether to show as overlay
+    /// </summary>
+    [Parameter]
+    public bool Overlay { get; set; }
+
+    /// <summary>
+    /// Additional CSS classes
+    /// </summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string ContainerClass
+    {
+        get
+        {
+            var baseClass = "flex flex-col items-center justify-center";
+            var centerClass = Centered ? "text-center" : "";
+            var overlayClass = Overlay ? "fixed inset-0 bg-white bg-opacity-75 z-50" : "";
+
+            return $"{baseClass} {centerClass} {overlayClass} {Class}".Trim();
+        }
+    }
+
+    private string SpinnerClass
+    {
+        get
+        {
+            var baseClass = "spinner border-4 rounded-full animate-spin";
+
+            var sizeClass = Size switch
+            {
+                "sm" => "w-4 h-4 border-2",
+                "md" => "w-8 h-8 border-3",
+                "lg" => "w-12 h-12 border-4",
+                "xl" => "w-16 h-16 border-4",
+                _ => "w-8 h-8 border-3"
+            };
+
+            var colorClass = Color switch
+            {
+                "blue" => "border-gray-200 border-t-blue-600",
+                "green" => "border-gray-200 border-t-green-600",
+                "red" => "border-gray-200 border-t-red-600",
+                "yellow" => "border-gray-200 border-t-yellow-600",
+                "purple" => "border-gray-200 border-t-purple-600",
+                "gray" => "border-gray-200 border-t-gray-600",
+                _ => "border-gray-200 border-t-blue-600"
+            };
+
+            return $"{baseClass} {sizeClass} {colorClass}".Trim();
+        }
+    }
+
+    private string TextClass
+    {
+        get
+        {
+            var baseClass = "mt-3 text-gray-600";
+
+            var textSizeClass = Size switch
+            {
+                "sm" => "text-xs",
+                "md" => "text-sm",
+                "lg" => "text-base",
+                "xl" => "text-lg",
+                _ => "text-sm"
+            };
+
+            return $"{baseClass} {textSizeClass}".Trim();
+        }
+    }
+}

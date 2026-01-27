@@ -129,6 +129,10 @@ builder.Services.AddOutputCache(options =>
         builder.Expire(TimeSpan.FromMinutes(10)));
 });
 
+// Add Blazor Server services
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
 // Add controllers and API explorer
 builder.Services.AddControllers(options =>
 {
@@ -319,8 +323,8 @@ app.UseRateLimiter();
 app.UseCors("AllowedOrigins");
 
 // Serve static files from wwwroot
-app.UseDefaultFiles(); // Serves index.html as default
 app.UseStaticFiles();
+app.UseAntiforgery();
 
 // Use tenant resolution middleware
 app.UseTenantResolution();
@@ -328,6 +332,10 @@ app.UseTenantResolution();
 // Use authentication and authorization (will configure later)
 // app.UseAuthentication();
 // app.UseAuthorization();
+
+// Map Blazor components
+app.MapRazorComponents<ERP.Web.Components.App>()
+    .AddInteractiveServerRenderMode();
 
 // Map controllers
 app.MapControllers();

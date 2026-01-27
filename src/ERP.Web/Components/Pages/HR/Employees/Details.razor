@@ -1,0 +1,267 @@
+@page "/hr/employees/{Id:int}/details"
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-blue-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/hr/employees" class="hover:text-blue-600">Employees</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Details</span>
+    </nav>
+
+    @if (isLoading)
+    {
+        <div class="flex justify-center py-12">
+            <LoadingSpinner />
+        </div>
+    }
+    else if (employee == null)
+    {
+        <Alert Type="error">Employee not found</Alert>
+    }
+    else
+    {
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between mb-6">
+            <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 h-16 w-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl font-bold">
+                    @GetInitials(employee.FullName)
+                </div>
+                <div>
+                    <div class="flex items-center space-x-3">
+                        <h1 class="text-2xl font-bold text-gray-900">@employee.FullName</h1>
+                        <span class="@GetStatusBadgeClass(employee.Status)">@employee.Status</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">
+                        <span class="font-mono text-blue-600 font-medium">@employee.EmployeeNumber</span>
+                        <span class="mx-2">•</span>
+                        <span>@employee.JobTitle</span>
+                    </p>
+                </div>
+            </div>
+            <div class="mt-4 md:mt-0 flex space-x-3">
+                <Button Variant="secondary" OnClick="GoBack">Back</Button>
+                <Button Variant="primary" OnClick="EditEmployee">Edit</Button>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-gray-200 mb-6">
+            <nav class="-mb-px flex space-x-8">
+                <button @onclick="() => SetActiveTab(0)" class="@GetTabClass(0)">Overview</button>
+                <button @onclick="() => SetActiveTab(1)" class="@GetTabClass(1)">Rates</button>
+                <button @onclick="() => SetActiveTab(2)" class="@GetTabClass(2)">History</button>
+            </nav>
+        </div>
+
+        @if (activeTab == 0)
+        {
+            <!-- Overview Tab -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-6">
+                    <Card>
+                        <Header><h3 class="font-semibold text-gray-900">Employment Information</h3></Header>
+                        <Body>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><p class="text-xs text-gray-500">Department</p><p class="font-medium">@employee.Department</p></div>
+                                <div><p class="text-xs text-gray-500">Job Title</p><p class="font-medium">@employee.JobTitle</p></div>
+                                <div><p class="text-xs text-gray-500">Hire Date</p><p class="font-medium">@employee.HireDate.ToString("MMMM dd, yyyy")</p></div>
+                                <div><p class="text-xs text-gray-500">Employment Type</p><p class="font-medium">@employee.EmploymentType</p></div>
+                                <div><p class="text-xs text-gray-500">Manager</p><p class="font-medium">@(employee.ManagerName ?? "No manager")</p></div>
+                                <div><p class="text-xs text-gray-500">Resource Type</p><p class="font-medium">@(employee.ResourceType ?? "Not assigned")</p></div>
+                            </div>
+                        </Body>
+                    </Card>
+
+                    <Card>
+                        <Header><h3 class="font-semibold text-gray-900">Contact Information</h3></Header>
+                        <Body>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-500">Email</p>
+                                    <a href="mailto:@employee.Email" class="font-medium text-blue-600 hover:text-blue-800">@employee.Email</a>
+                                </div>
+                                <div><p class="text-xs text-gray-500">Phone</p><p class="font-medium">@(employee.Phone ?? "N/A")</p></div>
+                            </div>
+                        </Body>
+                    </Card>
+                </div>
+
+                <div class="space-y-6">
+                    <Card>
+                        <Header><h3 class="font-semibold text-gray-900">Quick Stats</h3></Header>
+                        <Body>
+                            <div class="space-y-3">
+                                <div class="flex justify-between"><span class="text-sm text-gray-500">Tenure</span><span class="font-medium">@GetTenure()</span></div>
+                                <div class="flex justify-between"><span class="text-sm text-gray-500">Projects</span><span class="font-medium">5</span></div>
+                                <div class="flex justify-between"><span class="text-sm text-gray-500">Hours (YTD)</span><span class="font-medium">1,456</span></div>
+                                <div class="flex justify-between"><span class="text-sm text-gray-500">Billable %</span><span class="font-medium">82%</span></div>
+                            </div>
+                        </Body>
+                    </Card>
+                </div>
+            </div>
+        }
+        else if (activeTab == 1)
+        {
+            <!-- Rates Tab -->
+            <Card>
+                <Header>
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-gray-900">Rate History</h3>
+                        <Button Variant="primary" Size="sm">Add Rate</Button>
+                    </div>
+                </Header>
+                <Body>
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Effective Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cost Rate</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bill Rate</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 text-sm">Jan 1, 2024</td>
+                                <td class="px-6 py-4 text-sm">$75.00/hr</td>
+                                <td class="px-6 py-4 text-sm">$150.00/hr</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Current</span></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 text-sm">Jan 1, 2023</td>
+                                <td class="px-6 py-4 text-sm">$65.00/hr</td>
+                                <td class="px-6 py-4 text-sm">$130.00/hr</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Historical</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </Body>
+            </Card>
+        }
+        else if (activeTab == 2)
+        {
+            <!-- History Tab -->
+            <Card>
+                <Header><h3 class="font-semibold text-gray-900">Employment History</h3></Header>
+                <Body>
+                    <div class="space-y-4">
+                        @foreach (var entry in GetHistoryEntries())
+                        {
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-900">@entry.Action</p>
+                                    <p class="text-xs text-gray-500">@entry.Time</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </Body>
+            </Card>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private EmployeeDetail? employee;
+    private bool isLoading = true;
+    private int activeTab = 0;
+
+    private class EmployeeDetail
+    {
+        public long Id { get; set; }
+        public string EmployeeNumber { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string? Phone { get; set; }
+        public string Department { get; set; } = string.Empty;
+        public string JobTitle { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime HireDate { get; set; }
+        public string EmploymentType { get; set; } = string.Empty;
+        public string? ManagerName { get; set; }
+        public string? ResourceType { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEmployee();
+    }
+
+    private async Task LoadEmployee()
+    {
+        isLoading = true;
+        try
+        {
+            await Task.Delay(500);
+            employee = new EmployeeDetail
+            {
+                Id = Id,
+                EmployeeNumber = "EMP-001",
+                FullName = "John Smith",
+                Email = "john.smith@company.com",
+                Phone = "+1 (555) 123-4567",
+                Department = "Engineering",
+                JobTitle = "Senior Developer",
+                Status = "Active",
+                HireDate = DateTime.Now.AddYears(-3),
+                EmploymentType = "Full-Time",
+                ManagerName = "Michael Chen",
+                ResourceType = "Senior Developer"
+            };
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SetActiveTab(int tab) => activeTab = tab;
+    private void GoBack() => NavigationManager?.NavigateTo("/hr/employees");
+    private void EditEmployee() => NavigationManager?.NavigateTo($"/hr/employees/{Id}");
+
+    private string GetInitials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2) return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+        return parts.Length == 1 ? parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper() : "??";
+    }
+
+    private string GetTenure()
+    {
+        if (employee == null) return "N/A";
+        var years = (DateTime.Now - employee.HireDate).Days / 365;
+        return years == 1 ? "1 year" : $"{years} years";
+    }
+
+    private string GetTabClass(int index) => activeTab == index
+        ? "border-b-2 border-blue-500 text-blue-600 py-4 px-1 text-sm font-medium"
+        : "border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium";
+
+    private string GetStatusBadgeClass(string status) => status switch
+    {
+        "Active" => "px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800",
+        "OnLeave" => "px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800",
+        "Terminated" => "px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800",
+        _ => "px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+    };
+
+    private List<(string Action, string Time)> GetHistoryEntries() => new()
+    {
+        ("Promoted to Senior Developer", "Jan 15, 2024"),
+        ("Rate updated: $130/hr → $150/hr", "Jan 1, 2024"),
+        ("Completed annual review", "Dec 15, 2023"),
+        ("Department changed: Sales → Engineering", "Jun 1, 2022"),
+        ("Employee hired", employee?.HireDate.ToString("MMM dd, yyyy") ?? "N/A")
+    };
+}

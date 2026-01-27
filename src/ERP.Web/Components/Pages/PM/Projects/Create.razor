@@ -1,0 +1,412 @@
+@page "/pm/projects/create"
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-teal-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/projects" class="hover:text-teal-600">Projects</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">New Project</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Create New Project</h1>
+        <p class="mt-1 text-sm text-gray-600">Set up a new project with client, budget, and schedule details</p>
+    </div>
+
+    @if (showSuccessMessage)
+    {
+        <Alert Type="success" Dismissible="true" OnDismiss="() => showSuccessMessage = false" Class="mb-4">
+            Project created successfully!
+        </Alert>
+    }
+
+    @if (showErrorMessage)
+    {
+        <Alert Type="error" Dismissible="true" OnDismiss="() => showErrorMessage = false" Class="mb-4">
+            @errorMessage
+        </Alert>
+    }
+
+    <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+
+        <!-- Basic Information -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Basic Information</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Project Number" Description="Auto-generated, can be modified">
+                        <input type="text" @bind="model.ProjectNumber" class="form-input" placeholder="PRJ-YYYY-XXX" />
+                        <ValidationMessage For="@(() => model.ProjectNumber)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Project Name" Required="true">
+                        <input type="text" @bind="model.Name" class="form-input" placeholder="Enter project name" />
+                        <ValidationMessage For="@(() => model.Name)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <div class="md:col-span-2">
+                        <FormField Label="Description">
+                            <textarea @bind="model.Description" class="form-input" rows="3" placeholder="Describe the project scope and objectives..."></textarea>
+                            <ValidationMessage For="@(() => model.Description)" class="text-sm text-red-600" />
+                        </FormField>
+                    </div>
+
+                    <FormField Label="Project Type" Required="true">
+                        <select @bind="model.Type" class="form-input">
+                            <option value="">Select type...</option>
+                            <option value="Billable">Billable</option>
+                            <option value="Overhead">Overhead (Internal)</option>
+                            <option value="Proposal">Proposal</option>
+                        </select>
+                        <ValidationMessage For="@(() => model.Type)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Status" Required="true">
+                        <select @bind="model.Status" class="form-input">
+                            <option value="Draft">Draft</option>
+                            <option value="Active">Active</option>
+                            <option value="OnHold">On Hold</option>
+                        </select>
+                        <ValidationMessage For="@(() => model.Status)" class="text-sm text-red-600" />
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Client & Contract -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Client & Contract</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Client" Required="@(model.Type == "Billable")" Description="Required for billable projects">
+                        <select @bind="model.ClientId" class="form-input">
+                            <option value="">Select client...</option>
+                            @foreach (var client in clients)
+                            {
+                                <option value="@client.Id">@client.Name</option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => model.ClientId)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Contract" Description="Optional - link to existing contract">
+                        <select @bind="model.ContractId" class="form-input">
+                            <option value="">No contract selected</option>
+                            @foreach (var contract in contracts)
+                            {
+                                <option value="@contract.Id">@contract.Number - @contract.Name</option>
+                            }
+                        </select>
+                    </FormField>
+
+                    <FormField Label="Project Manager">
+                        <select @bind="model.ProjectManagerId" class="form-input">
+                            <option value="">Select project manager...</option>
+                            @foreach (var pm in projectManagers)
+                            {
+                                <option value="@pm.Id">@pm.Name</option>
+                            }
+                        </select>
+                    </FormField>
+
+                    <FormField Label="Priority">
+                        <select @bind="model.Priority" class="form-input">
+                            <option value="Normal">Normal</option>
+                            <option value="Low">Low</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Schedule -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Schedule</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Start Date" Required="true">
+                        <input type="date" @bind="model.StartDate" class="form-input" />
+                        <ValidationMessage For="@(() => model.StartDate)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="End Date">
+                        <input type="date" @bind="model.EndDate" class="form-input" />
+                        <ValidationMessage For="@(() => model.EndDate)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Budgeted Hours">
+                        <input type="number" @bind="model.BudgetedHours" class="form-input" min="0" step="1" />
+                        <ValidationMessage For="@(() => model.BudgetedHours)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Estimated Completion Date">
+                        <input type="date" @bind="model.EstimatedCompletionDate" class="form-input" />
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Budget & Billing -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Budget & Billing</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Billing Mode" Required="@(model.Type == "Billable")">
+                        <select @bind="model.BillingMode" class="form-input">
+                            <option value="">Select billing mode...</option>
+                            <option value="TimeAndMaterial">Time & Material (T&M)</option>
+                            <option value="FixedPrice">Fixed Price</option>
+                            <option value="Milestone">Milestone-Based</option>
+                            <option value="PercentComplete">% Complete</option>
+                            <option value="NotBillable">Not Billable</option>
+                        </select>
+                        <ValidationMessage For="@(() => model.BillingMode)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Budget Amount">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                            <input type="number" @bind="model.BudgetAmount" class="form-input pl-7" min="0" step="0.01" placeholder="0.00" />
+                        </div>
+                        <ValidationMessage For="@(() => model.BudgetAmount)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Revenue Amount" Description="Expected revenue for this project">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                            <input type="number" @bind="model.RevenueAmount" class="form-input pl-7" min="0" step="0.01" placeholder="0.00" />
+                        </div>
+                    </FormField>
+
+                    <FormField Label="Cost Cap" Description="Maximum allowable cost">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                            <input type="number" @bind="model.CostCap" class="form-input pl-7" min="0" step="0.01" placeholder="0.00" />
+                        </div>
+                    </FormField>
+                </div>
+
+                @if (model.BillingMode == "FixedPrice" || model.BillingMode == "Milestone")
+                {
+                    <div class="mt-6 p-4 bg-teal-50 rounded-lg border border-teal-200">
+                        <h3 class="text-sm font-medium text-teal-800 mb-2">Fixed Price / Milestone Notice</h3>
+                        <p class="text-sm text-teal-700">
+                            You can define milestones and payment schedules in the project details after creation.
+                        </p>
+                    </div>
+                }
+            </Body>
+        </Card>
+
+        <!-- Additional Settings -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Additional Settings</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" @bind="model.AllowExpenses" class="form-checkbox h-5 w-5 text-teal-600 rounded" />
+                            <span class="text-gray-700">Allow Expense Reporting</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1 ml-8">Team members can submit expenses against this project</p>
+                    </div>
+
+                    <div>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" @bind="model.AllowTimeEntry" class="form-checkbox h-5 w-5 text-teal-600 rounded" />
+                            <span class="text-gray-700">Allow Time Entry</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1 ml-8">Team members can log time against this project</p>
+                    </div>
+
+                    <div>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" @bind="model.RequireApproval" class="form-checkbox h-5 w-5 text-teal-600 rounded" />
+                            <span class="text-gray-700">Require Time/Expense Approval</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1 ml-8">Project manager must approve time and expenses</p>
+                    </div>
+
+                    <div>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" @bind="model.TrackBudget" class="form-checkbox h-5 w-5 text-teal-600 rounded" />
+                            <span class="text-gray-700">Track Budget</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1 ml-8">Monitor budget vs actual costs</p>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <FormField Label="Notes">
+                        <textarea @bind="model.Notes" class="form-input" rows="3" placeholder="Internal notes about this project..."></textarea>
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end space-x-4">
+            <Button Variant="secondary" OnClick="Cancel" Type="button">Cancel</Button>
+            <Button Variant="primary" Type="submit" IsLoading="@isSaving" Disabled="@isSaving">
+                @(isSaving ? "Creating..." : "Create Project")
+            </Button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private ProjectFormModel model = new();
+    private bool isSaving = false;
+    private bool showSuccessMessage = false;
+    private bool showErrorMessage = false;
+    private string errorMessage = string.Empty;
+
+    private List<ClientOption> clients = new();
+    private List<ContractOption> contracts = new();
+    private List<EmployeeOption> projectManagers = new();
+
+    private class ProjectFormModel
+    {
+        public string ProjectNumber { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Project name is required")]
+        [MaxLength(200, ErrorMessage = "Name cannot exceed 200 characters")]
+        public string Name { get; set; } = string.Empty;
+
+        [MaxLength(4000, ErrorMessage = "Description cannot exceed 4000 characters")]
+        public string? Description { get; set; }
+
+        [Required(ErrorMessage = "Project type is required")]
+        public string Type { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Status is required")]
+        public string Status { get; set; } = "Draft";
+
+        public long? ClientId { get; set; }
+        public long? ContractId { get; set; }
+        public long? ProjectManagerId { get; set; }
+        public string Priority { get; set; } = "Normal";
+
+        [Required(ErrorMessage = "Start date is required")]
+        public DateTime StartDate { get; set; } = DateTime.Today;
+        public DateTime? EndDate { get; set; }
+        public DateTime? EstimatedCompletionDate { get; set; }
+
+        [Range(0, 100000, ErrorMessage = "Budgeted hours must be between 0 and 100,000")]
+        public decimal BudgetedHours { get; set; }
+
+        public string BillingMode { get; set; } = string.Empty;
+
+        [Range(0, 100000000, ErrorMessage = "Budget must be positive")]
+        public decimal BudgetAmount { get; set; }
+        public decimal RevenueAmount { get; set; }
+        public decimal CostCap { get; set; }
+
+        public bool AllowExpenses { get; set; } = true;
+        public bool AllowTimeEntry { get; set; } = true;
+        public bool RequireApproval { get; set; } = true;
+        public bool TrackBudget { get; set; } = true;
+        public string? Notes { get; set; }
+    }
+
+    private class ClientOption { public long Id { get; set; } public string Name { get; set; } = string.Empty; }
+    private class ContractOption { public long Id { get; set; } public string Number { get; set; } = string.Empty; public string Name { get; set; } = string.Empty; }
+    private class EmployeeOption { public long Id { get; set; } public string Name { get; set; } = string.Empty; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadReferenceData();
+        GenerateProjectNumber();
+    }
+
+    private async Task LoadReferenceData()
+    {
+        await Task.Delay(100);
+
+        clients = new List<ClientOption>
+        {
+            new() { Id = 1, Name = "Acme Corporation" },
+            new() { Id = 2, Name = "Global Industries" },
+            new() { Id = 3, Name = "Tech Solutions Inc" },
+            new() { Id = 4, Name = "Healthcare Plus" },
+            new() { Id = 5, Name = "Finance Pro" },
+        };
+
+        contracts = new List<ContractOption>
+        {
+            new() { Id = 1, Number = "MSA-2024-001", Name = "Master Services Agreement - Acme" },
+            new() { Id = 2, Number = "SOW-2024-001", Name = "Cloud Migration SOW" },
+            new() { Id = 3, Number = "SOW-2024-002", Name = "ERP Implementation SOW" },
+        };
+
+        projectManagers = new List<EmployeeOption>
+        {
+            new() { Id = 1, Name = "Alice Johnson" },
+            new() { Id = 2, Name = "Bob Smith" },
+            new() { Id = 3, Name = "Carol Williams" },
+        };
+    }
+
+    private void GenerateProjectNumber()
+    {
+        var year = DateTime.Now.Year;
+        var sequence = new Random().Next(1, 999);
+        model.ProjectNumber = $"PRJ-{year}-{sequence:D3}";
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSaving = true;
+        showSuccessMessage = false;
+        showErrorMessage = false;
+
+        try
+        {
+            // Validate billable projects have a client
+            if (model.Type == "Billable" && !model.ClientId.HasValue)
+            {
+                errorMessage = "Client is required for billable projects";
+                showErrorMessage = true;
+                return;
+            }
+
+            await Task.Delay(1500);
+
+            showSuccessMessage = true;
+            await Task.Delay(1000);
+            NavigationManager?.NavigateTo("/pm/projects");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to create project: {ex.Message}";
+            showErrorMessage = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager?.NavigateTo("/pm/projects");
+    }
+}

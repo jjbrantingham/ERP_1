@@ -1,0 +1,276 @@
+@page "/hr/employees/{Id:int}"
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-blue-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/hr/employees" class="hover:text-blue-600">Employees</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Edit Employee</span>
+    </nav>
+
+    @if (isLoading)
+    {
+        <div class="flex justify-center py-12">
+            <LoadingSpinner />
+        </div>
+    }
+    else if (model == null)
+    {
+        <Alert Type="error">Employee not found</Alert>
+    }
+    else
+    {
+        <!-- Page Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Edit Employee</h1>
+                <p class="mt-1 text-sm text-gray-600">
+                    <span class="font-mono text-blue-600">@model.EmployeeNumber</span> - @model.FirstName @model.LastName
+                </p>
+            </div>
+            <Button Variant="danger" OnClick="ConfirmDelete">Delete</Button>
+        </div>
+
+        @if (showSuccessMessage)
+        {
+            <Alert Type="success" Dismissible="true" OnDismiss="() => showSuccessMessage = false" Class="mb-4">
+                Employee updated successfully!
+            </Alert>
+        }
+
+        @if (showErrorMessage)
+        {
+            <Alert Type="error" Dismissible="true" OnDismiss="() => showErrorMessage = false" Class="mb-4">
+                @errorMessage
+            </Alert>
+        }
+
+        <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <!-- Personal Information -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Personal Information</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField Label="First Name" Required="true">
+                            <InputText @bind-Value="model.FirstName" class="form-input" />
+                            <ValidationMessage For="@(() => model.FirstName)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <FormField Label="Last Name" Required="true">
+                            <InputText @bind-Value="model.LastName" class="form-input" />
+                            <ValidationMessage For="@(() => model.LastName)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <FormField Label="Email" Required="true">
+                            <InputText @bind-Value="model.Email" class="form-input" />
+                            <ValidationMessage For="@(() => model.Email)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <FormField Label="Phone">
+                            <InputText @bind-Value="model.Phone" class="form-input" />
+                        </FormField>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Employment Information -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Employment Information</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField Label="Employee Number">
+                            <InputText Value="@model.EmployeeNumber" class="form-input bg-gray-100" readonly />
+                        </FormField>
+
+                        <FormField Label="Hire Date">
+                            <InputDate @bind-Value="model.HireDate" class="form-input" />
+                        </FormField>
+
+                        <FormField Label="Department" Required="true">
+                            <InputSelect @bind-Value="model.Department" class="form-input">
+                                <option value="">Select department...</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Finance">Finance</option>
+                                <option value="HR">Human Resources</option>
+                                <option value="Operations">Operations</option>
+                            </InputSelect>
+                        </FormField>
+
+                        <FormField Label="Job Title" Required="true">
+                            <InputText @bind-Value="model.JobTitle" class="form-input" />
+                        </FormField>
+
+                        <FormField Label="Status">
+                            <InputSelect @bind-Value="model.Status" class="form-input">
+                                <option value="Active">Active</option>
+                                <option value="OnLeave">On Leave</option>
+                                <option value="Terminated">Terminated</option>
+                            </InputSelect>
+                        </FormField>
+
+                        <FormField Label="Manager">
+                            <InputSelect @bind-Value="model.ManagerId" class="form-input">
+                                <option value="">No manager selected</option>
+                                @foreach (var mgr in managers)
+                                {
+                                    <option value="@mgr.Id">@mgr.Name</option>
+                                }
+                            </InputSelect>
+                        </FormField>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between">
+                <Button Variant="outline" OnClick="ViewDetails" Type="button">View Details</Button>
+                <div class="flex space-x-4">
+                    <Button Variant="secondary" OnClick="Cancel" Type="button">Cancel</Button>
+                    <Button Variant="primary" Type="submit" IsLoading="@isSaving" Disabled="@isSaving">
+                        @(isSaving ? "Saving..." : "Save Changes")
+                    </Button>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+<!-- Delete Confirmation Modal -->
+<Modal @bind-IsOpen="showDeleteModal" Title="Delete Employee" Size="md">
+    <Body>
+        <div class="text-center py-4">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete Employee</h3>
+            <p class="text-sm text-gray-600">
+                Are you sure you want to delete <strong>@model?.FirstName @model?.LastName</strong>?
+            </p>
+        </div>
+    </Body>
+    <Footer>
+        <Button Variant="secondary" OnClick="CancelDelete">Cancel</Button>
+        <Button Variant="danger" OnClick="DeleteEmployee" IsLoading="@isDeleting">Delete</Button>
+    </Footer>
+</Modal>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private EmployeeFormModel? model;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool isDeleting = false;
+    private bool showDeleteModal = false;
+    private bool showSuccessMessage = false;
+    private bool showErrorMessage = false;
+    private string errorMessage = string.Empty;
+
+    private List<ManagerOption> managers = new();
+
+    private class EmployeeFormModel
+    {
+        public string EmployeeNumber { get; set; } = string.Empty;
+        [Required] [MaxLength(100)] public string FirstName { get; set; } = string.Empty;
+        [Required] [MaxLength(100)] public string LastName { get; set; } = string.Empty;
+        [Required] [EmailAddress] public string Email { get; set; } = string.Empty;
+        public string? Phone { get; set; }
+        public DateTime HireDate { get; set; }
+        [Required] public string Department { get; set; } = string.Empty;
+        [Required] public string JobTitle { get; set; } = string.Empty;
+        public string Status { get; set; } = "Active";
+        public long? ManagerId { get; set; }
+    }
+
+    private class ManagerOption { public long Id { get; set; } public string Name { get; set; } = string.Empty; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        managers = new List<ManagerOption>
+        {
+            new() { Id = 1, Name = "John Smith" },
+            new() { Id = 3, Name = "Michael Chen" },
+            new() { Id = 6, Name = "Lisa Anderson" },
+        };
+
+        await LoadEmployee();
+    }
+
+    private async Task LoadEmployee()
+    {
+        isLoading = true;
+        try
+        {
+            await Task.Delay(500);
+            model = new EmployeeFormModel
+            {
+                EmployeeNumber = "EMP-001",
+                FirstName = "John",
+                LastName = "Smith",
+                Email = "john.smith@company.com",
+                Phone = "+1 (555) 123-4567",
+                HireDate = DateTime.Now.AddYears(-3),
+                Department = "Engineering",
+                JobTitle = "Senior Developer",
+                Status = "Active",
+                ManagerId = 3
+            };
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSaving = true;
+        try
+        {
+            await Task.Delay(1000);
+            showSuccessMessage = true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to save: {ex.Message}";
+            showErrorMessage = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void ConfirmDelete() => showDeleteModal = true;
+    private void CancelDelete() => showDeleteModal = false;
+
+    private async Task DeleteEmployee()
+    {
+        isDeleting = true;
+        try
+        {
+            await Task.Delay(1500);
+            NavigationManager?.NavigateTo("/hr/employees");
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    private void Cancel() => NavigationManager?.NavigateTo("/hr/employees");
+    private void ViewDetails() => NavigationManager?.NavigateTo($"/hr/employees/{Id}/details");
+}

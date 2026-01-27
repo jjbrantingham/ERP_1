@@ -1,0 +1,324 @@
+@page "/auth/profile"
+@using ERP.Web.Components.Shared
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Profile Settings</h1>
+            <p class="mt-2 text-sm text-gray-600">Manage your account information and preferences</p>
+        </div>
+
+        <div class="space-y-6">
+            <!-- Profile Information Card -->
+            <Card>
+                <Header>
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-semibold text-gray-900">Profile Information</h2>
+                        @if (!isEditingProfile)
+                        {
+                            <Button Variant="outline" Size="sm" OnClick="() => isEditingProfile = true">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Edit
+                            </Button>
+                        }
+                    </div>
+                </Header>
+                <Body>
+                    @if (profileUpdateSuccess)
+                    {
+                        <Alert Type="success" Message="Profile updated successfully!" Dismissible="true" OnDismiss="() => profileUpdateSuccess = false" />
+                    }
+
+                    @if (isEditingProfile)
+                    {
+                        <EditForm Model="@profileModel" OnValidSubmit="HandleUpdateProfile">
+                            <DataAnnotationsValidator />
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <FormField Label="First Name" Required="true">
+                                    <InputText @bind-Value="profileModel.FirstName" class="form-input" disabled="@isLoading" />
+                                </FormField>
+
+                                <FormField Label="Last Name" Required="true">
+                                    <InputText @bind-Value="profileModel.LastName" class="form-input" disabled="@isLoading" />
+                                </FormField>
+
+                                <FormField Label="Email Address" Required="true">
+                                    <InputText type="email" @bind-Value="profileModel.Email" class="form-input" disabled="@isLoading" />
+                                </FormField>
+
+                                <FormField Label="Phone Number">
+                                    <InputText @bind-Value="profileModel.PhoneNumber" class="form-input" placeholder="(555) 123-4567" disabled="@isLoading" />
+                                </FormField>
+                            </div>
+
+                            <FormField Label="Job Title">
+                                <InputText @bind-Value="profileModel.JobTitle" class="form-input" placeholder="e.g. Project Manager" disabled="@isLoading" />
+                            </FormField>
+
+                            <div class="flex space-x-3 mt-4">
+                                <Button Type="submit" Variant="primary" IsLoading="@isLoading" Disabled="@isLoading">
+                                    Save Changes
+                                </Button>
+                                <Button Type="button" Variant="secondary" OnClick="CancelProfileEdit" Disabled="@isLoading">
+                                    Cancel
+                                </Button>
+                            </div>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-500 uppercase">First Name</label>
+                                    <p class="text-base text-gray-900">@profileModel.FirstName</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-500 uppercase">Last Name</label>
+                                    <p class="text-base text-gray-900">@profileModel.LastName</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-500 uppercase">Email</label>
+                                    <p class="text-base text-gray-900">@profileModel.Email</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-500 uppercase">Phone</label>
+                                    <p class="text-base text-gray-900">@(string.IsNullOrEmpty(profileModel.PhoneNumber) ? "Not provided" : profileModel.PhoneNumber)</p>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="text-xs font-semibold text-gray-500 uppercase">Job Title</label>
+                                    <p class="text-base text-gray-900">@(string.IsNullOrEmpty(profileModel.JobTitle) ? "Not provided" : profileModel.JobTitle)</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </Body>
+            </Card>
+
+            <!-- Change Password Card -->
+            <Card>
+                <Header>
+                    <h2 class="text-xl font-semibold text-gray-900">Change Password</h2>
+                </Header>
+                <Body>
+                    @if (passwordUpdateSuccess)
+                    {
+                        <Alert Type="success" Message="Password changed successfully!" Dismissible="true" OnDismiss="() => passwordUpdateSuccess = false" />
+                    }
+
+                    @if (!string.IsNullOrEmpty(passwordErrorMessage))
+                    {
+                        <Alert Type="error" Message="@passwordErrorMessage" Dismissible="true" OnDismiss="() => passwordErrorMessage = string.Empty" />
+                    }
+
+                    <EditForm Model="@passwordModel" OnValidSubmit="HandleChangePassword">
+                        <DataAnnotationsValidator />
+
+                        <FormField Label="Current Password" Required="true">
+                            <InputText type="password" @bind-Value="passwordModel.CurrentPassword" class="form-input" disabled="@isChangingPassword" />
+                        </FormField>
+
+                        <FormField Label="New Password" Required="true">
+                            <InputText type="password" @bind-Value="passwordModel.NewPassword" class="form-input" disabled="@isChangingPassword" />
+                        </FormField>
+
+                        <FormField Label="Confirm New Password" Required="true">
+                            <InputText type="password" @bind-Value="passwordModel.ConfirmNewPassword" class="form-input" disabled="@isChangingPassword" />
+                        </FormField>
+
+                        <div class="mt-4">
+                            <Button Type="submit" Variant="primary" IsLoading="@isChangingPassword" Disabled="@isChangingPassword">
+                                Change Password
+                            </Button>
+                        </div>
+                    </EditForm>
+                </Body>
+            </Card>
+
+            <!-- Account Settings Card -->
+            <Card>
+                <Header>
+                    <h2 class="text-xl font-semibold text-gray-900">Account Settings</h2>
+                </Header>
+                <Body>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between py-3 border-b border-gray-200">
+                            <div>
+                                <h3 class="text-base font-medium text-gray-900">Email Notifications</h3>
+                                <p class="text-sm text-gray-500">Receive email updates about your account</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" @bind="emailNotificationsEnabled" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between py-3 border-b border-gray-200">
+                            <div>
+                                <h3 class="text-base font-medium text-gray-900">Two-Factor Authentication</h3>
+                                <p class="text-sm text-gray-500">Add an extra layer of security to your account</p>
+                            </div>
+                            <Button Variant="outline" Size="sm">
+                                Configure
+                            </Button>
+                        </div>
+
+                        <div class="flex items-center justify-between py-3">
+                            <div>
+                                <h3 class="text-base font-medium text-gray-900">Account Status</h3>
+                                <p class="text-sm text-gray-500">Member since @memberSince</p>
+                            </div>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                                Active
+                            </span>
+                        </div>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Danger Zone Card -->
+            <Card Class="border-2 border-red-200">
+                <Header>
+                    <h2 class="text-xl font-semibold text-red-600">Danger Zone</h2>
+                </Header>
+                <Body>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-base font-medium text-gray-900">Deactivate Account</h3>
+                                <p class="text-sm text-gray-500">Temporarily disable your account</p>
+                            </div>
+                            <Button Variant="outline" Size="sm">
+                                Deactivate
+                            </Button>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                            <div>
+                                <h3 class="text-base font-medium text-gray-900">Delete Account</h3>
+                                <p class="text-sm text-gray-500">Permanently delete your account and all data</p>
+                            </div>
+                            <Button Variant="danger" Size="sm">
+                                Delete Account
+                            </Button>
+                        </div>
+                    </div>
+                </Body>
+            </Card>
+        </div>
+    </div>
+</div>
+
+@code {
+    private ProfileModel profileModel = new()
+    {
+        FirstName = "John",
+        LastName = "Doe",
+        Email = "john.doe@company.com",
+        PhoneNumber = "(555) 123-4567",
+        JobTitle = "Project Manager"
+    };
+
+    private PasswordModel passwordModel = new();
+
+    private bool isEditingProfile = false;
+    private bool isLoading = false;
+    private bool isChangingPassword = false;
+    private bool profileUpdateSuccess = false;
+    private bool passwordUpdateSuccess = false;
+    private string? passwordErrorMessage;
+    private bool emailNotificationsEnabled = true;
+    private string memberSince = "January 2024";
+
+    private class ProfileModel
+    {
+        [Required(ErrorMessage = "First name is required")]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Last name is required")]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        public string Email { get; set; } = string.Empty;
+
+        public string? PhoneNumber { get; set; }
+        public string? JobTitle { get; set; }
+    }
+
+    private class PasswordModel
+    {
+        [Required(ErrorMessage = "Current password is required")]
+        public string CurrentPassword { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "New password is required")]
+        [MinLength(8, ErrorMessage = "Password must be at least 8 characters")]
+        public string NewPassword { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Please confirm your new password")]
+        [Compare(nameof(NewPassword), ErrorMessage = "Passwords do not match")]
+        public string ConfirmNewPassword { get; set; } = string.Empty;
+    }
+
+    private async Task HandleUpdateProfile()
+    {
+        isLoading = true;
+        profileUpdateSuccess = false;
+
+        try
+        {
+            // Simulate API call
+            await Task.Delay(1000);
+
+            // TODO: Call profile update API
+            // await UserService.UpdateProfileAsync(profileModel);
+
+            profileUpdateSuccess = true;
+            isEditingProfile = false;
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void CancelProfileEdit()
+    {
+        isEditingProfile = false;
+        // TODO: Reset profileModel to original values
+    }
+
+    private async Task HandleChangePassword()
+    {
+        isChangingPassword = true;
+        passwordUpdateSuccess = false;
+        passwordErrorMessage = null;
+
+        try
+        {
+            // Simulate API call
+            await Task.Delay(1000);
+
+            // TODO: Call change password API
+            // await AuthService.ChangePasswordAsync(passwordModel.CurrentPassword, passwordModel.NewPassword);
+
+            passwordUpdateSuccess = true;
+            passwordModel = new PasswordModel();
+        }
+        catch (Exception ex)
+        {
+            passwordErrorMessage = "Failed to change password. Please check your current password and try again.";
+        }
+        finally
+        {
+            isChangingPassword = false;
+        }
+    }
+}

@@ -1,0 +1,164 @@
+@*
+    Reusable Modal Component
+    Usage:
+    <Modal @bind-IsOpen="showModal" Title="Modal Title">
+        <Body>Modal content goes here</Body>
+        <Footer>
+            <Button Variant="secondary" OnClick="() => showModal = false">Cancel</Button>
+            <Button Variant="primary" OnClick="HandleSave">Save</Button>
+        </Footer>
+    </Modal>
+*@
+
+@if (IsOpen)
+{
+    <div class="fixed inset-0 z-50 overflow-y-auto" @onclick="HandleBackdropClick">
+        <!-- Backdrop -->
+        <div class="modal-backdrop"></div>
+
+        <!-- Modal -->
+        <div class="modal-wrapper flex items-center justify-center min-h-screen p-4">
+            <div class="@ModalClass" @onclick:stopPropagation="true">
+                <!-- Header -->
+                @if (!string.IsNullOrEmpty(Title) || ShowCloseButton)
+                {
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                        @if (!string.IsNullOrEmpty(Title))
+                        {
+                            <h3 class="text-lg font-semibold text-gray-900">@Title</h3>
+                        }
+                        else
+                        {
+                            <div></div>
+                        }
+
+                        @if (ShowCloseButton)
+                        {
+                            <button @onclick="Close" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        }
+                    </div>
+                }
+
+                <!-- Body -->
+                <div class="px-6 py-4">
+                    @if (Body != null)
+                    {
+                        @Body
+                    }
+                    else if (ChildContent != null)
+                    {
+                        @ChildContent
+                    }
+                </div>
+
+                <!-- Footer -->
+                @if (Footer != null)
+                {
+                    <div class="flex items-center justify-end space-x-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                        @Footer
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// Whether the modal is open
+    /// </summary>
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    /// <summary>
+    /// Event callback when IsOpen changes
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    /// <summary>
+    /// Modal title
+    /// </summary>
+    [Parameter]
+    public string? Title { get; set; }
+
+    /// <summary>
+    /// Modal body content
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Body { get; set; }
+
+    /// <summary>
+    /// Modal footer content
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Footer { get; set; }
+
+    /// <summary>
+    /// Default content
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Modal size (sm, md, lg, xl)
+    /// </summary>
+    [Parameter]
+    public string Size { get; set; } = "md";
+
+    /// <summary>
+    /// Whether to show close button
+    /// </summary>
+    [Parameter]
+    public bool ShowCloseButton { get; set; } = true;
+
+    /// <summary>
+    /// Whether clicking the backdrop closes the modal
+    /// </summary>
+    [Parameter]
+    public bool CloseOnBackdropClick { get; set; } = true;
+
+    /// <summary>
+    /// Additional CSS classes
+    /// </summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string ModalClass
+    {
+        get
+        {
+            var baseClass = "relative bg-white rounded-lg shadow-lg";
+
+            var sizeClass = Size switch
+            {
+                "sm" => "max-w-md w-full",
+                "md" => "max-w-lg w-full",
+                "lg" => "max-w-2xl w-full",
+                "xl" => "max-w-4xl w-full",
+                "full" => "max-w-7xl w-full",
+                _ => "max-w-lg w-full"
+            };
+
+            return $"{baseClass} {sizeClass} {Class}".Trim();
+        }
+    }
+
+    private async Task Close()
+    {
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+    }
+
+    private async Task HandleBackdropClick()
+    {
+        if (CloseOnBackdropClick)
+        {
+            await Close();
+        }
+    }
+}

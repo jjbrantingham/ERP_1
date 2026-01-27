@@ -1,0 +1,82 @@
+@*
+    Reusable Form Field Component
+    Usage:
+    <FormField Label="Email" Required="true" Error="@emailError">
+        <input type="email" @bind="email" class="form-input" />
+    </FormField>
+*@
+
+<div class="@ContainerClass">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <label class="form-label">
+            @Label
+            @if (Required)
+            {
+                <span class="text-red-600 ml-1">*</span>
+            }
+            @if (!string.IsNullOrEmpty(HelpText))
+            {
+                <span class="text-gray-400 text-xs ml-2">(@HelpText)</span>
+            }
+        </label>
+    }
+
+    @ChildContent
+
+    @if (!string.IsNullOrEmpty(Error))
+    {
+        <p class="form-error">@Error</p>
+    }
+
+    @if (!string.IsNullOrEmpty(Description) && string.IsNullOrEmpty(Error))
+    {
+        <p class="text-xs text-gray-500 mt-1">@Description</p>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Field label
+    /// </summary>
+    [Parameter]
+    public string? Label { get; set; }
+
+    /// <summary>
+    /// Whether the field is required
+    /// </summary>
+    [Parameter]
+    public bool Required { get; set; }
+
+    /// <summary>
+    /// Help text to display next to label
+    /// </summary>
+    [Parameter]
+    public string? HelpText { get; set; }
+
+    /// <summary>
+    /// Field description (shown below input)
+    /// </summary>
+    [Parameter]
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// Error message
+    /// </summary>
+    [Parameter]
+    public string? Error { get; set; }
+
+    /// <summary>
+    /// Field content (input, select, etc.)
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Additional CSS classes
+    /// </summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string ContainerClass => $"form-field {Class}".Trim();
+}

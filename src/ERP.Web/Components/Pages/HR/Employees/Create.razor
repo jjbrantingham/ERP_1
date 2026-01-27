@@ -1,0 +1,313 @@
+@page "/hr/employees/create"
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-blue-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/hr/employees" class="hover:text-blue-600">Employees</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">New Employee</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Add New Employee</h1>
+        <p class="mt-1 text-sm text-gray-600">Create a new employee record</p>
+    </div>
+
+    @if (showSuccessMessage)
+    {
+        <Alert Type="success" Dismissible="true" OnDismiss="() => showSuccessMessage = false" Class="mb-4">
+            Employee created successfully!
+        </Alert>
+    }
+
+    @if (showErrorMessage)
+    {
+        <Alert Type="error" Dismissible="true" OnDismiss="() => showErrorMessage = false" Class="mb-4">
+            @errorMessage
+        </Alert>
+    }
+
+    <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+
+        <!-- Personal Information -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Personal Information</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="First Name" Required="true">
+                        <InputText @bind-Value="model.FirstName" class="form-input" placeholder="Enter first name" />
+                        <ValidationMessage For="@(() => model.FirstName)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Last Name" Required="true">
+                        <InputText @bind-Value="model.LastName" class="form-input" placeholder="Enter last name" />
+                        <ValidationMessage For="@(() => model.LastName)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Email" Required="true">
+                        <InputText @bind-Value="model.Email" class="form-input" placeholder="employee@company.com" />
+                        <ValidationMessage For="@(() => model.Email)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Phone">
+                        <InputText @bind-Value="model.Phone" class="form-input" placeholder="+1 (555) 123-4567" />
+                    </FormField>
+
+                    <FormField Label="Date of Birth">
+                        <InputDate @bind-Value="model.DateOfBirth" class="form-input" />
+                    </FormField>
+
+                    <FormField Label="Gender">
+                        <InputSelect @bind-Value="model.Gender" class="form-input">
+                            <option value="">Select gender...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                            <option value="PreferNotToSay">Prefer not to say</option>
+                        </InputSelect>
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Employment Information -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Employment Information</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Employee Number" Description="Auto-generated if left blank">
+                        <InputText @bind-Value="model.EmployeeNumber" class="form-input" placeholder="EMP-XXX" />
+                    </FormField>
+
+                    <FormField Label="Hire Date" Required="true">
+                        <InputDate @bind-Value="model.HireDate" class="form-input" />
+                        <ValidationMessage For="@(() => model.HireDate)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Department" Required="true">
+                        <InputSelect @bind-Value="model.Department" class="form-input">
+                            <option value="">Select department...</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Finance">Finance</option>
+                            <option value="HR">Human Resources</option>
+                            <option value="Operations">Operations</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => model.Department)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Job Title" Required="true">
+                        <InputText @bind-Value="model.JobTitle" class="form-input" placeholder="Enter job title" />
+                        <ValidationMessage For="@(() => model.JobTitle)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Employment Type">
+                        <InputSelect @bind-Value="model.EmploymentType" class="form-input">
+                            <option value="FullTime">Full-Time</option>
+                            <option value="PartTime">Part-Time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Intern">Intern</option>
+                        </InputSelect>
+                    </FormField>
+
+                    <FormField Label="Manager">
+                        <InputSelect @bind-Value="model.ManagerId" class="form-input">
+                            <option value="">No manager selected</option>
+                            @foreach (var mgr in managers)
+                            {
+                                <option value="@mgr.Id">@mgr.Name</option>
+                            }
+                        </InputSelect>
+                    </FormField>
+
+                    <FormField Label="Status">
+                        <InputSelect @bind-Value="model.Status" class="form-input">
+                            <option value="Active">Active</option>
+                            <option value="OnLeave">On Leave</option>
+                        </InputSelect>
+                    </FormField>
+
+                    <FormField Label="Resource Type">
+                        <InputSelect @bind-Value="model.ResourceTypeId" class="form-input">
+                            <option value="">Select resource type...</option>
+                            @foreach (var rt in resourceTypes)
+                            {
+                                <option value="@rt.Id">@rt.Name</option>
+                            }
+                        </InputSelect>
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Address -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Address</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 gap-6">
+                    <FormField Label="Street Address">
+                        <InputText @bind-Value="model.Street" class="form-input" placeholder="Enter street address" />
+                    </FormField>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <FormField Label="City">
+                            <InputText @bind-Value="model.City" class="form-input" placeholder="City" />
+                        </FormField>
+
+                        <FormField Label="State/Province">
+                            <InputText @bind-Value="model.State" class="form-input" placeholder="State" />
+                        </FormField>
+
+                        <FormField Label="Postal Code">
+                            <InputText @bind-Value="model.PostalCode" class="form-input" placeholder="Postal Code" />
+                        </FormField>
+                    </div>
+
+                    <FormField Label="Country">
+                        <InputText @bind-Value="model.Country" class="form-input" placeholder="Country" />
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Notes -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Notes</h2>
+            </Header>
+            <Body>
+                <FormField>
+                    <InputTextArea @bind-Value="model.Notes" class="form-input" rows="4" placeholder="Additional notes about this employee..." />
+                </FormField>
+            </Body>
+        </Card>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end space-x-4">
+            <Button Variant="secondary" OnClick="Cancel" Type="button">Cancel</Button>
+            <Button Variant="primary" Type="submit" IsLoading="@isSaving" Disabled="@isSaving">
+                @(isSaving ? "Creating..." : "Create Employee")
+            </Button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private EmployeeFormModel model = new();
+    private bool isSaving = false;
+    private bool showSuccessMessage = false;
+    private bool showErrorMessage = false;
+    private string errorMessage = string.Empty;
+
+    private List<ManagerOption> managers = new();
+    private List<ResourceTypeOption> resourceTypes = new();
+
+    private class EmployeeFormModel
+    {
+        [Required(ErrorMessage = "First name is required")]
+        [MaxLength(100)]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Last name is required")]
+        [MaxLength(100)]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string Email { get; set; } = string.Empty;
+
+        public string? Phone { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string? Gender { get; set; }
+        public string? EmployeeNumber { get; set; }
+
+        [Required(ErrorMessage = "Hire date is required")]
+        public DateTime HireDate { get; set; } = DateTime.Today;
+
+        [Required(ErrorMessage = "Department is required")]
+        public string Department { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Job title is required")]
+        public string JobTitle { get; set; } = string.Empty;
+
+        public string EmploymentType { get; set; } = "FullTime";
+        public long? ManagerId { get; set; }
+        public string Status { get; set; } = "Active";
+        public long? ResourceTypeId { get; set; }
+        public string? Street { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? PostalCode { get; set; }
+        public string? Country { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    private class ManagerOption { public long Id { get; set; } public string Name { get; set; } = string.Empty; }
+    private class ResourceTypeOption { public long Id { get; set; } public string Name { get; set; } = string.Empty; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadReferenceData();
+    }
+
+    private async Task LoadReferenceData()
+    {
+        await Task.Delay(100);
+
+        managers = new List<ManagerOption>
+        {
+            new() { Id = 1, Name = "John Smith" },
+            new() { Id = 3, Name = "Michael Chen" },
+            new() { Id = 6, Name = "Lisa Anderson" },
+        };
+
+        resourceTypes = new List<ResourceTypeOption>
+        {
+            new() { Id = 1, Name = "Senior Developer" },
+            new() { Id = 2, Name = "Developer" },
+            new() { Id = 3, Name = "Junior Developer" },
+            new() { Id = 4, Name = "Project Manager" },
+            new() { Id = 5, Name = "Business Analyst" },
+            new() { Id = 6, Name = "QA Engineer" },
+        };
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSaving = true;
+        showSuccessMessage = false;
+        showErrorMessage = false;
+
+        try
+        {
+            await Task.Delay(1500);
+            showSuccessMessage = true;
+            await Task.Delay(1000);
+            NavigationManager?.NavigateTo("/hr/employees");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to create employee: {ex.Message}";
+            showErrorMessage = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void Cancel() => NavigationManager?.NavigateTo("/hr/employees");
+}

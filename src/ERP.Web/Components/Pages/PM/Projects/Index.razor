@@ -1,0 +1,420 @@
+@page "/pm/projects"
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-teal-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/projects" class="hover:text-teal-600">Project Management</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Projects</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Projects</h1>
+            <p class="mt-1 text-sm text-gray-600">Manage project lifecycle, budgets, and deliverables</p>
+        </div>
+        <Button Variant="primary" OnClick="NavigateToCreate">
+            <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            New Project
+        </Button>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <Card Class="mb-6">
+        <Body>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <FormField Label="Search">
+                    <input type="text"
+                           @bind="searchTerm"
+                           @bind:event="oninput"
+                           @onkeyup="HandleSearch"
+                           class="form-input"
+                           placeholder="Search by name or number..." />
+                </FormField>
+
+                <FormField Label="Type">
+                    <select @bind="filterType" @bind:after="HandleFilter" class="form-input">
+                        <option value="">All Types</option>
+                        <option value="Billable">Billable</option>
+                        <option value="Overhead">Overhead</option>
+                        <option value="Proposal">Proposal</option>
+                    </select>
+                </FormField>
+
+                <FormField Label="Status">
+                    <select @bind="filterStatus" @bind:after="HandleFilter" class="form-input">
+                        <option value="">All Status</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Active">Active</option>
+                        <option value="OnHold">On Hold</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </FormField>
+
+                <FormField Label="Client">
+                    <select @bind="filterClient" @bind:after="HandleFilter" class="form-input">
+                        <option value="">All Clients</option>
+                        @foreach (var client in clients)
+                        {
+                            <option value="@client.Id">@client.Name</option>
+                        }
+                    </select>
+                </FormField>
+
+                <FormField Label="&nbsp;">
+                    <Button Variant="outline" OnClick="ClearFilters" Class="w-full">
+                        Clear Filters
+                    </Button>
+                </FormField>
+            </div>
+        </Body>
+    </Card>
+
+    <!-- Projects Table -->
+    <DataTable Items="@filteredProjects"
+               TItem="ProjectListItem"
+               IsLoading="@isLoading"
+               EmptyMessage="No projects found"
+               ShowPagination="true"
+               CurrentPage="@currentPage"
+               CurrentPageChanged="@HandlePageChange"
+               PageSize="10"
+               TotalItems="@totalItems">
+        <Columns>
+            <tr>
+                <th class="table-header">Project #</th>
+                <th class="table-header">Name</th>
+                <th class="table-header">Client</th>
+                <th class="table-header">Type</th>
+                <th class="table-header">Status</th>
+                <th class="table-header">Progress</th>
+                <th class="table-header">Budget</th>
+                <th class="table-header">Dates</th>
+                <th class="table-header text-right">Actions</th>
+            </tr>
+        </Columns>
+        <Rows>
+            @foreach (var project in filteredProjects ?? Enumerable.Empty<ProjectListItem>())
+            {
+                <tr class="table-row">
+                    <td class="table-cell">
+                        <span class="font-mono text-sm text-teal-600 font-medium">@project.ProjectNumber</span>
+                    </td>
+                    <td class="table-cell">
+                        <div>
+                            <div class="font-medium text-gray-900">@project.Name</div>
+                            @if (!string.IsNullOrEmpty(project.Description))
+                            {
+                                <div class="text-sm text-gray-500 truncate max-w-xs">@project.Description</div>
+                            }
+                        </div>
+                    </td>
+                    <td class="table-cell">
+                        <a href="/crm/clients/@project.ClientId/details" class="text-teal-600 hover:text-teal-800 hover:underline">
+                            @project.ClientName
+                        </a>
+                    </td>
+                    <td class="table-cell">
+                        <span class="@GetTypeBadgeClass(project.Type)">
+                            @project.Type
+                        </span>
+                    </td>
+                    <td class="table-cell">
+                        <span class="@GetStatusBadgeClass(project.Status)">
+                            @GetStatusDisplay(project.Status)
+                        </span>
+                    </td>
+                    <td class="table-cell" style="min-width: 120px;">
+                        <div class="flex items-center space-x-2">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                <div class="@GetProgressBarClass(project.PercentComplete) h-2 rounded-full"
+                                     style="width: @(project.PercentComplete)%"></div>
+                            </div>
+                            <span class="text-xs text-gray-600 w-10 text-right">@project.PercentComplete%</span>
+                        </div>
+                    </td>
+                    <td class="table-cell">
+                        <div class="text-sm">
+                            <div class="font-medium text-gray-900">@FormatCurrency(project.Budget)</div>
+                            <div class="text-xs text-gray-500">@project.BillingMode</div>
+                        </div>
+                    </td>
+                    <td class="table-cell">
+                        <div class="text-sm text-gray-600">
+                            <div>@project.StartDate.ToString("MMM dd, yyyy")</div>
+                            @if (project.EndDate.HasValue)
+                            {
+                                <div class="text-xs">to @project.EndDate.Value.ToString("MMM dd, yyyy")</div>
+                            }
+                        </div>
+                    </td>
+                    <td class="table-cell text-right">
+                        <div class="flex items-center justify-end space-x-2">
+                            <Button Variant="outline" Size="sm" OnClick="() => ViewDetails(project.Id)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </Button>
+                            <Button Variant="outline" Size="sm" OnClick="() => EditProject(project.Id)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </Button>
+                            <Button Variant="danger" Size="sm" OnClick="() => ConfirmDelete(project.Id, project.Name)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </Button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </Rows>
+    </DataTable>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<Modal @bind-IsOpen="showDeleteModal" Title="Confirm Delete" Size="md">
+    <Body>
+        <div class="text-center py-4">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete Project</h3>
+            <p class="text-sm text-gray-600">
+                Are you sure you want to delete <strong>@projectToDelete</strong>?
+                This will remove all associated data including WBS, timesheets, and expenses.
+            </p>
+        </div>
+    </Body>
+    <Footer>
+        <Button Variant="secondary" OnClick="CancelDelete">Cancel</Button>
+        <Button Variant="danger" OnClick="DeleteProject" IsLoading="@isDeleting">
+            @(isDeleting ? "Deleting..." : "Delete")
+        </Button>
+    </Footer>
+</Modal>
+
+@code {
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private bool isLoading = false;
+    private bool isDeleting = false;
+    private bool showDeleteModal = false;
+    private string searchTerm = string.Empty;
+    private string filterType = string.Empty;
+    private string filterStatus = string.Empty;
+    private string filterClient = string.Empty;
+    private int currentPage = 1;
+    private int totalItems = 0;
+    private long deleteProjectId = 0;
+    private string projectToDelete = string.Empty;
+
+    private List<ProjectListItem>? allProjects;
+    private List<ProjectListItem>? filteredProjects;
+    private List<ClientOption> clients = new();
+
+    private class ProjectListItem
+    {
+        public long Id { get; set; }
+        public string ProjectNumber { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public long ClientId { get; set; }
+        public string ClientName { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public decimal Budget { get; set; }
+        public string BillingMode { get; set; } = string.Empty;
+        public int PercentComplete { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+    }
+
+    private class ClientOption
+    {
+        public long Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        try
+        {
+            await Task.Delay(500);
+
+            // Mock clients for filter
+            clients = new List<ClientOption>
+            {
+                new() { Id = 1, Name = "Acme Corporation" },
+                new() { Id = 2, Name = "Global Industries" },
+                new() { Id = 3, Name = "Tech Solutions Inc" },
+                new() { Id = 4, Name = "Healthcare Plus" },
+                new() { Id = 5, Name = "Finance Pro" },
+            };
+
+            // Mock projects
+            allProjects = new List<ProjectListItem>
+            {
+                new() { Id = 1, ProjectNumber = "PRJ-2024-001", Name = "ERP Implementation", Description = "Full ERP system implementation for client", ClientId = 1, ClientName = "Acme Corporation", Type = "Billable", Status = "Active", Budget = 250000, BillingMode = "T&M", PercentComplete = 45, StartDate = DateTime.Now.AddMonths(-3), EndDate = DateTime.Now.AddMonths(6) },
+                new() { Id = 2, ProjectNumber = "PRJ-2024-002", Name = "Cloud Migration", Description = "Migrate on-premise infrastructure to Azure", ClientId = 2, ClientName = "Global Industries", Type = "Billable", Status = "Active", Budget = 150000, BillingMode = "Fixed Price", PercentComplete = 72, StartDate = DateTime.Now.AddMonths(-4), EndDate = DateTime.Now.AddMonths(2) },
+                new() { Id = 3, ProjectNumber = "PRJ-2024-003", Name = "Mobile App Development", Description = "iOS and Android app development", ClientId = 3, ClientName = "Tech Solutions Inc", Type = "Billable", Status = "OnHold", Budget = 180000, BillingMode = "Milestone", PercentComplete = 30, StartDate = DateTime.Now.AddMonths(-2), EndDate = DateTime.Now.AddMonths(8) },
+                new() { Id = 4, ProjectNumber = "PRJ-2024-004", Name = "Security Audit", Description = "Comprehensive security assessment", ClientId = 4, ClientName = "Healthcare Plus", Type = "Billable", Status = "Completed", Budget = 45000, BillingMode = "Fixed Price", PercentComplete = 100, StartDate = DateTime.Now.AddMonths(-6), EndDate = DateTime.Now.AddMonths(-1) },
+                new() { Id = 5, ProjectNumber = "PRJ-2024-005", Name = "Digital Transformation Proposal", Description = "Proposal for digital transformation initiative", ClientId = 5, ClientName = "Finance Pro", Type = "Proposal", Status = "Draft", Budget = 0, BillingMode = "TBD", PercentComplete = 0, StartDate = DateTime.Now, EndDate = null },
+                new() { Id = 6, ProjectNumber = "PRJ-2024-006", Name = "Internal Training Program", Description = "Staff development and training initiative", ClientId = 0, ClientName = "Internal", Type = "Overhead", Status = "Active", Budget = 25000, BillingMode = "N/A", PercentComplete = 60, StartDate = DateTime.Now.AddMonths(-1), EndDate = DateTime.Now.AddMonths(2) },
+                new() { Id = 7, ProjectNumber = "PRJ-2024-007", Name = "Data Analytics Platform", Description = "Build analytics and reporting platform", ClientId = 1, ClientName = "Acme Corporation", Type = "Billable", Status = "Active", Budget = 320000, BillingMode = "% Complete", PercentComplete = 25, StartDate = DateTime.Now.AddMonths(-1), EndDate = DateTime.Now.AddMonths(12) },
+                new() { Id = 8, ProjectNumber = "PRJ-2024-008", Name = "Legacy System Modernization", Description = "Modernize legacy COBOL systems", ClientId = 2, ClientName = "Global Industries", Type = "Billable", Status = "Draft", Budget = 500000, BillingMode = "T&M", PercentComplete = 5, StartDate = DateTime.Now.AddMonths(1), EndDate = DateTime.Now.AddMonths(18) },
+                new() { Id = 9, ProjectNumber = "PRJ-2024-009", Name = "Website Redesign", Description = "Corporate website refresh", ClientId = 3, ClientName = "Tech Solutions Inc", Type = "Billable", Status = "Cancelled", Budget = 35000, BillingMode = "Fixed Price", PercentComplete = 15, StartDate = DateTime.Now.AddMonths(-2), EndDate = null },
+                new() { Id = 10, ProjectNumber = "PRJ-2024-010", Name = "API Integration Hub", Description = "Enterprise API management platform", ClientId = 4, ClientName = "Healthcare Plus", Type = "Billable", Status = "Active", Budget = 175000, BillingMode = "Milestone", PercentComplete = 55, StartDate = DateTime.Now.AddMonths(-2), EndDate = DateTime.Now.AddMonths(4) },
+            };
+
+            ApplyFilters();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        filteredProjects = allProjects;
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var search = searchTerm.ToLower();
+            filteredProjects = filteredProjects?
+                .Where(p => p.Name.ToLower().Contains(search) ||
+                           p.ProjectNumber.ToLower().Contains(search) ||
+                           p.ClientName.ToLower().Contains(search))
+                .ToList();
+        }
+
+        if (!string.IsNullOrWhiteSpace(filterType))
+        {
+            filteredProjects = filteredProjects?
+                .Where(p => p.Type == filterType)
+                .ToList();
+        }
+
+        if (!string.IsNullOrWhiteSpace(filterStatus))
+        {
+            filteredProjects = filteredProjects?
+                .Where(p => p.Status == filterStatus)
+                .ToList();
+        }
+
+        if (!string.IsNullOrWhiteSpace(filterClient) && long.TryParse(filterClient, out var clientId))
+        {
+            filteredProjects = filteredProjects?
+                .Where(p => p.ClientId == clientId)
+                .ToList();
+        }
+
+        totalItems = filteredProjects?.Count ?? 0;
+
+        filteredProjects = filteredProjects?
+            .Skip((currentPage - 1) * 10)
+            .Take(10)
+            .ToList();
+    }
+
+    private void HandleSearch() { currentPage = 1; ApplyFilters(); }
+    private void HandleFilter() { currentPage = 1; ApplyFilters(); }
+
+    private void ClearFilters()
+    {
+        searchTerm = string.Empty;
+        filterType = string.Empty;
+        filterStatus = string.Empty;
+        filterClient = string.Empty;
+        currentPage = 1;
+        ApplyFilters();
+    }
+
+    private async Task HandlePageChange(int page) { currentPage = page; ApplyFilters(); await Task.CompletedTask; }
+
+    private void NavigateToCreate() => NavigationManager?.NavigateTo("/pm/projects/create");
+    private void ViewDetails(long id) => NavigationManager?.NavigateTo($"/pm/projects/{id}/details");
+    private void EditProject(long id) => NavigationManager?.NavigateTo($"/pm/projects/{id}");
+
+    private void ConfirmDelete(long id, string name)
+    {
+        deleteProjectId = id;
+        projectToDelete = name;
+        showDeleteModal = true;
+    }
+
+    private void CancelDelete()
+    {
+        showDeleteModal = false;
+        deleteProjectId = 0;
+        projectToDelete = string.Empty;
+    }
+
+    private async Task DeleteProject()
+    {
+        isDeleting = true;
+        try
+        {
+            await Task.Delay(1000);
+            allProjects?.RemoveAll(p => p.Id == deleteProjectId);
+            ApplyFilters();
+            showDeleteModal = false;
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    private string FormatCurrency(decimal amount) => amount.ToString("C0");
+
+    private string GetTypeBadgeClass(string type) => type switch
+    {
+        "Billable" => "px-3 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-800",
+        "Overhead" => "px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800",
+        "Proposal" => "px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800",
+        _ => "px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+    };
+
+    private string GetStatusBadgeClass(string status) => status switch
+    {
+        "Active" => "px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800",
+        "Draft" => "px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800",
+        "OnHold" => "px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800",
+        "Completed" => "px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800",
+        "Cancelled" => "px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800",
+        _ => "px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+    };
+
+    private string GetStatusDisplay(string status) => status switch
+    {
+        "OnHold" => "On Hold",
+        _ => status
+    };
+
+    private string GetProgressBarClass(int percent) => percent switch
+    {
+        100 => "bg-green-500",
+        >= 75 => "bg-teal-500",
+        >= 50 => "bg-blue-500",
+        >= 25 => "bg-yellow-500",
+        _ => "bg-gray-400"
+    };
+}

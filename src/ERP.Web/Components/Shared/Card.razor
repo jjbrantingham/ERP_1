@@ -1,0 +1,95 @@
+@*
+    Reusable Card Component
+    Usage:
+    <Card>
+        <Header>Card Title</Header>
+        <Body>Card content goes here</Body>
+        <Footer>Card footer content</Footer>
+    </Card>
+*@
+
+<div class="@CardClass">
+    @if (Header != null)
+    {
+        <div class="card-header">
+            @Header
+        </div>
+    }
+
+    @if (Body != null)
+    {
+        <div class="card-body">
+            @Body
+        </div>
+    }
+
+    @if (Footer != null)
+    {
+        <div class="card-footer">
+            @Footer
+        </div>
+    }
+
+    @if (ChildContent != null && Body == null)
+    {
+        <div class="p-6">
+            @ChildContent
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Card header content
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Header { get; set; }
+
+    /// <summary>
+    /// Card body content
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Body { get; set; }
+
+    /// <summary>
+    /// Card footer content
+    /// </summary>
+    [Parameter]
+    public RenderFragment? Footer { get; set; }
+
+    /// <summary>
+    /// Default content (if Body is not specified)
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Additional CSS classes
+    /// </summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>
+    /// Whether to show shadow
+    /// </summary>
+    [Parameter]
+    public bool Shadow { get; set; } = true;
+
+    /// <summary>
+    /// Whether to add hover effect
+    /// </summary>
+    [Parameter]
+    public bool Hoverable { get; set; }
+
+    private string CardClass
+    {
+        get
+        {
+            var baseClass = "bg-white rounded-lg overflow-hidden";
+            var shadowClass = Shadow ? "shadow" : "border border-gray-200";
+            var hoverClass = Hoverable ? "hover:shadow-lg transition-shadow cursor-pointer" : "";
+
+            return $"{baseClass} {shadowClass} {hoverClass} {Class}".Trim();
+        }
+    }
+}

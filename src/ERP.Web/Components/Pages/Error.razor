@@ -1,0 +1,35 @@
+@page "/error"
+
+<PageTitle>Error - ERP System</PageTitle>
+
+<div class="flex items-center justify-center min-h-screen bg-gray-50">
+    <div class="text-center">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-6">
+            <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+        </div>
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Oops! Something went wrong</h1>
+        <p class="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+            We're sorry, but an error occurred while processing your request. Our team has been notified.
+        </p>
+        <div class="space-x-4">
+            <a href="/" class="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                Go to Home
+            </a>
+            <button @onclick="GoBack" class="inline-block px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors">
+                Go Back
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

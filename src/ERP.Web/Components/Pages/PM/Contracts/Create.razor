@@ -1,0 +1,337 @@
+@page "/pm/contracts/create"
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-teal-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/contracts" class="hover:text-teal-600">Contracts</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">New Contract</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Create New Contract</h1>
+        <p class="mt-1 text-sm text-gray-600">Define contract terms, value, and link to clients and projects</p>
+    </div>
+
+    @if (showSuccessMessage)
+    {
+        <Alert Type="success" Dismissible="true" OnDismiss="() => showSuccessMessage = false" Class="mb-4">
+            Contract created successfully!
+        </Alert>
+    }
+
+    @if (showErrorMessage)
+    {
+        <Alert Type="error" Dismissible="true" OnDismiss="() => showErrorMessage = false" Class="mb-4">
+            @errorMessage
+        </Alert>
+    }
+
+    <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+
+        <!-- Basic Information -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Contract Information</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Contract Number" Description="Auto-generated, can be modified">
+                        <input type="text" @bind="model.ContractNumber" class="form-input" />
+                        <ValidationMessage For="@(() => model.ContractNumber)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Contract Type" Required="true">
+                        <select @bind="model.Type" class="form-input">
+                            <option value="">Select type...</option>
+                            <option value="MSA">Master Service Agreement (MSA)</option>
+                            <option value="SOW">Statement of Work (SOW)</option>
+                            <option value="ChangeOrder">Change Order</option>
+                            <option value="NDA">Non-Disclosure Agreement (NDA)</option>
+                            <option value="Amendment">Amendment</option>
+                        </select>
+                        <ValidationMessage For="@(() => model.Type)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <div class="md:col-span-2">
+                        <FormField Label="Contract Name" Required="true">
+                            <input type="text" @bind="model.Name" class="form-input" placeholder="Enter contract name" />
+                            <ValidationMessage For="@(() => model.Name)" class="text-sm text-red-600" />
+                        </FormField>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <FormField Label="Description">
+                            <textarea @bind="model.Description" class="form-input" rows="3" placeholder="Contract scope and terms summary..."></textarea>
+                        </FormField>
+                    </div>
+
+                    <FormField Label="Status">
+                        <select @bind="model.Status" class="form-input">
+                            <option value="Draft">Draft</option>
+                            <option value="PendingApproval">Pending Approval</option>
+                            <option value="Active">Active</option>
+                        </select>
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Client & Project -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Client & Project Link</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Client" Required="true">
+                        <select @bind="model.ClientId" class="form-input">
+                            <option value="">Select client...</option>
+                            @foreach (var client in clients)
+                            {
+                                <option value="@client.Id">@client.Name</option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => model.ClientId)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Parent Contract" Description="For SOWs/Change Orders under an MSA">
+                        <select @bind="model.ParentContractId" class="form-input">
+                            <option value="">No parent contract</option>
+                            @foreach (var contract in parentContracts)
+                            {
+                                <option value="@contract.Id">@contract.Number - @contract.Name</option>
+                            }
+                        </select>
+                    </FormField>
+
+                    <FormField Label="Link to Project">
+                        <select @bind="model.ProjectId" class="form-input">
+                            <option value="">No project linked</option>
+                            @foreach (var project in projects)
+                            {
+                                <option value="@project.Id">@project.Number - @project.Name</option>
+                            }
+                        </select>
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Value & Terms -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Value & Terms</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Contract Value">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                            <input type="number" @bind="model.Value" class="form-input pl-7" min="0" step="0.01" placeholder="0.00" />
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Leave as $0 for MSAs and NDAs</p>
+                    </FormField>
+
+                    <FormField Label="Payment Terms">
+                        <select @bind="model.PaymentTerms" class="form-input">
+                            <option value="">Select terms...</option>
+                            <option value="Net15">Net 15</option>
+                            <option value="Net30">Net 30</option>
+                            <option value="Net45">Net 45</option>
+                            <option value="Net60">Net 60</option>
+                            <option value="DueOnReceipt">Due on Receipt</option>
+                        </select>
+                    </FormField>
+
+                    <FormField Label="Start Date" Required="true">
+                        <input type="date" @bind="model.StartDate" class="form-input" />
+                        <ValidationMessage For="@(() => model.StartDate)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="End Date">
+                        <input type="date" @bind="model.EndDate" class="form-input" />
+                        <p class="text-xs text-gray-500 mt-1">Leave blank for ongoing contracts</p>
+                    </FormField>
+
+                    <FormField Label="Auto-Renew">
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" @bind="model.AutoRenew" class="form-checkbox h-5 w-5 text-teal-600 rounded" />
+                            <span class="text-gray-700">Contract auto-renews on expiration</span>
+                        </label>
+                    </FormField>
+
+                    <FormField Label="Renewal Period">
+                        <select @bind="model.RenewalPeriod" class="form-input" disabled="@(!model.AutoRenew)">
+                            <option value="">Select period...</option>
+                            <option value="1Month">1 Month</option>
+                            <option value="3Months">3 Months</option>
+                            <option value="6Months">6 Months</option>
+                            <option value="1Year">1 Year</option>
+                        </select>
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Documents -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Documents</h2>
+            </Header>
+            <Body>
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-600">Drag and drop contract documents here</p>
+                    <p class="text-xs text-gray-500">or click to browse (PDF, Word, Excel up to 10MB)</p>
+                    <Button Variant="outline" Class="mt-4" Type="button">Browse Files</Button>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Document upload will be available after contract creation</p>
+            </Body>
+        </Card>
+
+        <!-- Notes -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Internal Notes</h2>
+            </Header>
+            <Body>
+                <FormField>
+                    <textarea @bind="model.Notes" class="form-input" rows="4" placeholder="Internal notes about this contract (not visible to client)..."></textarea>
+                </FormField>
+            </Body>
+        </Card>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end space-x-4">
+            <Button Variant="secondary" OnClick="Cancel" Type="button">Cancel</Button>
+            <Button Variant="outline" Type="button" OnClick="SaveAsDraft">Save as Draft</Button>
+            <Button Variant="primary" Type="submit" IsLoading="@isSaving" Disabled="@isSaving">
+                @(isSaving ? "Creating..." : "Create Contract")
+            </Button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private ContractFormModel model = new();
+    private bool isSaving = false;
+    private bool showSuccessMessage = false;
+    private bool showErrorMessage = false;
+    private string errorMessage = string.Empty;
+
+    private List<ClientOption> clients = new();
+    private List<ContractOption> parentContracts = new();
+    private List<ProjectOption> projects = new();
+
+    private class ContractFormModel
+    {
+        public string ContractNumber { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Contract type is required")]
+        public string Type { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Contract name is required")]
+        [MaxLength(200)]
+        public string Name { get; set; } = string.Empty;
+
+        public string? Description { get; set; }
+        public string Status { get; set; } = "Draft";
+
+        [Required(ErrorMessage = "Client is required")]
+        public long? ClientId { get; set; }
+
+        public long? ParentContractId { get; set; }
+        public long? ProjectId { get; set; }
+        public decimal Value { get; set; }
+        public string? PaymentTerms { get; set; }
+
+        [Required(ErrorMessage = "Start date is required")]
+        public DateTime StartDate { get; set; } = DateTime.Today;
+
+        public DateTime? EndDate { get; set; }
+        public bool AutoRenew { get; set; }
+        public string? RenewalPeriod { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    private class ClientOption { public long Id { get; set; } public string Name { get; set; } = string.Empty; }
+    private class ContractOption { public long Id { get; set; } public string Number { get; set; } = string.Empty; public string Name { get; set; } = string.Empty; }
+    private class ProjectOption { public long Id { get; set; } public string Number { get; set; } = string.Empty; public string Name { get; set; } = string.Empty; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadReferenceData();
+        GenerateContractNumber();
+    }
+
+    private async Task LoadReferenceData()
+    {
+        await Task.Delay(100);
+
+        clients = new List<ClientOption>
+        {
+            new() { Id = 1, Name = "Acme Corporation" },
+            new() { Id = 2, Name = "Global Industries" },
+            new() { Id = 3, Name = "Tech Solutions Inc" },
+            new() { Id = 4, Name = "Healthcare Plus" },
+        };
+
+        parentContracts = new List<ContractOption>
+        {
+            new() { Id = 1, Number = "MSA-2023-001", Name = "Master Service Agreement 2023 - Acme" },
+            new() { Id = 2, Number = "MSA-2024-001", Name = "Master Service Agreement 2024 - Global" },
+        };
+
+        projects = new List<ProjectOption>
+        {
+            new() { Id = 1, Number = "PRJ-2024-001", Name = "ERP Implementation" },
+            new() { Id = 2, Number = "PRJ-2024-002", Name = "Cloud Migration" },
+            new() { Id = 3, Number = "PRJ-2024-003", Name = "Mobile App Development" },
+        };
+    }
+
+    private void GenerateContractNumber()
+    {
+        var year = DateTime.Now.Year;
+        var sequence = new Random().Next(1, 999);
+        model.ContractNumber = $"CTR-{year}-{sequence:D3}";
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSaving = true;
+        try
+        {
+            await Task.Delay(1500);
+            showSuccessMessage = true;
+            await Task.Delay(1000);
+            NavigationManager?.NavigateTo("/pm/contracts");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to create contract: {ex.Message}";
+            showErrorMessage = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task SaveAsDraft()
+    {
+        model.Status = "Draft";
+        await HandleSubmit();
+    }
+
+    private void Cancel() => NavigationManager?.NavigateTo("/pm/contracts");
+}

@@ -1,0 +1,284 @@
+@page "/crm/clients/create"
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-blue-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/crm/clients" class="hover:text-blue-600">Clients</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">New Client</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Add New Client</h1>
+        <p class="mt-1 text-sm text-gray-600">Create a new client record</p>
+    </div>
+
+    @if (showSuccessMessage)
+    {
+        <Alert Type="success" Dismissible="true" OnDismiss="() => showSuccessMessage = false" Class="mb-4">
+            Client created successfully!
+        </Alert>
+    }
+
+    @if (showErrorMessage)
+    {
+        <Alert Type="error" Dismissible="true" OnDismiss="() => showErrorMessage = false" Class="mb-4">
+            @errorMessage
+        </Alert>
+    }
+
+    <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+
+        <!-- Basic Information -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Basic Information</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Client Code" Description="Auto-generated if left blank">
+                        <InputText @bind-Value="model.Code" class="form-input" placeholder="CLI-XXX" />
+                    </FormField>
+
+                    <FormField Label="Client Name" Required="true">
+                        <InputText @bind-Value="model.Name" class="form-input" placeholder="Enter client name" />
+                        <ValidationMessage For="@(() => model.Name)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Legal Name">
+                        <InputText @bind-Value="model.LegalName" class="form-input" placeholder="Legal entity name" />
+                    </FormField>
+
+                    <FormField Label="Industry" Required="true">
+                        <InputSelect @bind-Value="model.Industry" class="form-input">
+                            <option value="">Select industry...</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Manufacturing">Manufacturing</option>
+                            <option value="Retail">Retail</option>
+                            <option value="Construction">Construction</option>
+                            <option value="Education">Education</option>
+                            <option value="Government">Government</option>
+                            <option value="Other">Other</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() => model.Industry)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Website">
+                        <InputText @bind-Value="model.Website" class="form-input" placeholder="https://www.example.com" />
+                    </FormField>
+
+                    <FormField Label="Status">
+                        <InputSelect @bind-Value="model.Status" class="form-input">
+                            <option value="Prospect">Prospect</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </InputSelect>
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Primary Contact -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Primary Contact</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Contact Name" Required="true">
+                        <InputText @bind-Value="model.PrimaryContactName" class="form-input" placeholder="Full name" />
+                        <ValidationMessage For="@(() => model.PrimaryContactName)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Title">
+                        <InputText @bind-Value="model.PrimaryContactTitle" class="form-input" placeholder="Job title" />
+                    </FormField>
+
+                    <FormField Label="Email" Required="true">
+                        <InputText @bind-Value="model.PrimaryContactEmail" class="form-input" placeholder="email@company.com" />
+                        <ValidationMessage For="@(() => model.PrimaryContactEmail)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Phone">
+                        <InputText @bind-Value="model.PrimaryContactPhone" class="form-input" placeholder="+1 (555) 123-4567" />
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Billing Information -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Billing Information</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 gap-6">
+                    <FormField Label="Billing Address">
+                        <InputText @bind-Value="model.BillingStreet" class="form-input" placeholder="Street address" />
+                    </FormField>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <FormField Label="City">
+                            <InputText @bind-Value="model.BillingCity" class="form-input" placeholder="City" />
+                        </FormField>
+
+                        <FormField Label="State/Province">
+                            <InputText @bind-Value="model.BillingState" class="form-input" placeholder="State" />
+                        </FormField>
+
+                        <FormField Label="Postal Code">
+                            <InputText @bind-Value="model.BillingPostalCode" class="form-input" placeholder="Postal Code" />
+                        </FormField>
+                    </div>
+
+                    <FormField Label="Country">
+                        <InputText @bind-Value="model.BillingCountry" class="form-input" placeholder="Country" />
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Payment Terms -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Payment Terms</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Payment Terms">
+                        <InputSelect @bind-Value="model.PaymentTerms" class="form-input">
+                            <option value="Net15">Net 15</option>
+                            <option value="Net30">Net 30</option>
+                            <option value="Net45">Net 45</option>
+                            <option value="Net60">Net 60</option>
+                            <option value="DueOnReceipt">Due on Receipt</option>
+                        </InputSelect>
+                    </FormField>
+
+                    <FormField Label="Credit Limit">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                            <InputNumber @bind-Value="model.CreditLimit" class="form-input pl-7" />
+                        </div>
+                    </FormField>
+
+                    <FormField Label="Tax ID">
+                        <InputText @bind-Value="model.TaxId" class="form-input" placeholder="Tax identification number" />
+                    </FormField>
+
+                    <FormField Label="Default Billing Mode">
+                        <InputSelect @bind-Value="model.DefaultBillingMode" class="form-input">
+                            <option value="TimeAndMaterials">Time & Materials</option>
+                            <option value="FixedPrice">Fixed Price</option>
+                            <option value="Milestone">Milestone</option>
+                            <option value="PercentComplete">% Complete</option>
+                        </InputSelect>
+                    </FormField>
+                </div>
+            </Body>
+        </Card>
+
+        <!-- Notes -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Notes</h2>
+            </Header>
+            <Body>
+                <FormField>
+                    <InputTextArea @bind-Value="model.Notes" class="form-input" rows="4" placeholder="Additional notes about this client..." />
+                </FormField>
+            </Body>
+        </Card>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end space-x-4">
+            <Button Variant="secondary" OnClick="Cancel" Type="button">Cancel</Button>
+            <Button Variant="primary" Type="submit" IsLoading="@isSaving" Disabled="@isSaving">
+                @(isSaving ? "Creating..." : "Create Client")
+            </Button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private ClientFormModel model = new();
+    private bool isSaving = false;
+    private bool showSuccessMessage = false;
+    private bool showErrorMessage = false;
+    private string errorMessage = string.Empty;
+
+    private class ClientFormModel
+    {
+        public string? Code { get; set; }
+
+        [Required(ErrorMessage = "Client name is required")]
+        [MaxLength(200)]
+        public string Name { get; set; } = string.Empty;
+
+        public string? LegalName { get; set; }
+
+        [Required(ErrorMessage = "Industry is required")]
+        public string Industry { get; set; } = string.Empty;
+
+        public string? Website { get; set; }
+        public string Status { get; set; } = "Prospect";
+
+        [Required(ErrorMessage = "Contact name is required")]
+        public string PrimaryContactName { get; set; } = string.Empty;
+
+        public string? PrimaryContactTitle { get; set; }
+
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string PrimaryContactEmail { get; set; } = string.Empty;
+
+        public string? PrimaryContactPhone { get; set; }
+
+        public string? BillingStreet { get; set; }
+        public string? BillingCity { get; set; }
+        public string? BillingState { get; set; }
+        public string? BillingPostalCode { get; set; }
+        public string? BillingCountry { get; set; }
+
+        public string PaymentTerms { get; set; } = "Net30";
+        public decimal? CreditLimit { get; set; }
+        public string? TaxId { get; set; }
+        public string DefaultBillingMode { get; set; } = "TimeAndMaterials";
+
+        public string? Notes { get; set; }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSaving = true;
+        showSuccessMessage = false;
+        showErrorMessage = false;
+
+        try
+        {
+            await Task.Delay(1500);
+            showSuccessMessage = true;
+            await Task.Delay(1000);
+            NavigationManager?.NavigateTo("/crm/clients");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to create client: {ex.Message}";
+            showErrorMessage = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void Cancel() => NavigationManager?.NavigateTo("/crm/clients");
+}

@@ -1,0 +1,367 @@
+@page "/crm/clients/{Id:int}"
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-blue-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/crm/clients" class="hover:text-blue-600">Clients</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Edit Client</span>
+    </nav>
+
+    @if (isLoading)
+    {
+        <div class="flex justify-center py-12">
+            <LoadingSpinner />
+        </div>
+    }
+    else if (model == null)
+    {
+        <Alert Type="error">Client not found</Alert>
+    }
+    else
+    {
+        <!-- Page Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Edit Client</h1>
+                <p class="mt-1 text-sm text-gray-600">
+                    <span class="font-mono text-blue-600">@model.Code</span> - @model.Name
+                </p>
+            </div>
+            <Button Variant="danger" OnClick="ConfirmDelete">Delete</Button>
+        </div>
+
+        @if (showSuccessMessage)
+        {
+            <Alert Type="success" Dismissible="true" OnDismiss="() => showSuccessMessage = false" Class="mb-4">
+                Client updated successfully!
+            </Alert>
+        }
+
+        @if (showErrorMessage)
+        {
+            <Alert Type="error" Dismissible="true" OnDismiss="() => showErrorMessage = false" Class="mb-4">
+                @errorMessage
+            </Alert>
+        }
+
+        <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <!-- Basic Information -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Basic Information</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField Label="Client Code">
+                            <InputText Value="@model.Code" class="form-input bg-gray-100" readonly />
+                        </FormField>
+
+                        <FormField Label="Client Name" Required="true">
+                            <InputText @bind-Value="model.Name" class="form-input" />
+                            <ValidationMessage For="@(() => model.Name)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <FormField Label="Legal Name">
+                            <InputText @bind-Value="model.LegalName" class="form-input" />
+                        </FormField>
+
+                        <FormField Label="Industry" Required="true">
+                            <InputSelect @bind-Value="model.Industry" class="form-input">
+                                <option value="">Select industry...</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Retail">Retail</option>
+                                <option value="Construction">Construction</option>
+                                <option value="Education">Education</option>
+                                <option value="Government">Government</option>
+                                <option value="Other">Other</option>
+                            </InputSelect>
+                        </FormField>
+
+                        <FormField Label="Website">
+                            <InputText @bind-Value="model.Website" class="form-input" />
+                        </FormField>
+
+                        <FormField Label="Status">
+                            <InputSelect @bind-Value="model.Status" class="form-input">
+                                <option value="Prospect">Prospect</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </InputSelect>
+                        </FormField>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Primary Contact -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Primary Contact</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField Label="Contact Name" Required="true">
+                            <InputText @bind-Value="model.PrimaryContactName" class="form-input" />
+                            <ValidationMessage For="@(() => model.PrimaryContactName)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <FormField Label="Title">
+                            <InputText @bind-Value="model.PrimaryContactTitle" class="form-input" />
+                        </FormField>
+
+                        <FormField Label="Email" Required="true">
+                            <InputText @bind-Value="model.PrimaryContactEmail" class="form-input" />
+                            <ValidationMessage For="@(() => model.PrimaryContactEmail)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <FormField Label="Phone">
+                            <InputText @bind-Value="model.PrimaryContactPhone" class="form-input" />
+                        </FormField>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Billing Information -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Billing Information</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 gap-6">
+                        <FormField Label="Billing Address">
+                            <InputText @bind-Value="model.BillingStreet" class="form-input" />
+                        </FormField>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <FormField Label="City">
+                                <InputText @bind-Value="model.BillingCity" class="form-input" />
+                            </FormField>
+
+                            <FormField Label="State/Province">
+                                <InputText @bind-Value="model.BillingState" class="form-input" />
+                            </FormField>
+
+                            <FormField Label="Postal Code">
+                                <InputText @bind-Value="model.BillingPostalCode" class="form-input" />
+                            </FormField>
+                        </div>
+
+                        <FormField Label="Country">
+                            <InputText @bind-Value="model.BillingCountry" class="form-input" />
+                        </FormField>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Payment Terms -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Payment Terms</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField Label="Payment Terms">
+                            <InputSelect @bind-Value="model.PaymentTerms" class="form-input">
+                                <option value="Net15">Net 15</option>
+                                <option value="Net30">Net 30</option>
+                                <option value="Net45">Net 45</option>
+                                <option value="Net60">Net 60</option>
+                                <option value="DueOnReceipt">Due on Receipt</option>
+                            </InputSelect>
+                        </FormField>
+
+                        <FormField Label="Credit Limit">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <InputNumber @bind-Value="model.CreditLimit" class="form-input pl-7" />
+                            </div>
+                        </FormField>
+
+                        <FormField Label="Tax ID">
+                            <InputText @bind-Value="model.TaxId" class="form-input" />
+                        </FormField>
+
+                        <FormField Label="Default Billing Mode">
+                            <InputSelect @bind-Value="model.DefaultBillingMode" class="form-input">
+                                <option value="TimeAndMaterials">Time & Materials</option>
+                                <option value="FixedPrice">Fixed Price</option>
+                                <option value="Milestone">Milestone</option>
+                                <option value="PercentComplete">% Complete</option>
+                            </InputSelect>
+                        </FormField>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between">
+                <Button Variant="outline" OnClick="ViewDetails" Type="button">View Details</Button>
+                <div class="flex space-x-4">
+                    <Button Variant="secondary" OnClick="Cancel" Type="button">Cancel</Button>
+                    <Button Variant="primary" Type="submit" IsLoading="@isSaving" Disabled="@isSaving">
+                        @(isSaving ? "Saving..." : "Save Changes")
+                    </Button>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+<!-- Delete Confirmation Modal -->
+<Modal @bind-IsOpen="showDeleteModal" Title="Delete Client" Size="md">
+    <Body>
+        <div class="text-center py-4">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete Client</h3>
+            <p class="text-sm text-gray-600">
+                Are you sure you want to delete <strong>@model?.Name</strong>?
+                This will also remove all associated contacts, projects, and notes.
+            </p>
+        </div>
+    </Body>
+    <Footer>
+        <Button Variant="secondary" OnClick="CancelDelete">Cancel</Button>
+        <Button Variant="danger" OnClick="DeleteClient" IsLoading="@isDeleting">Delete</Button>
+    </Footer>
+</Modal>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private ClientFormModel? model;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool isDeleting = false;
+    private bool showDeleteModal = false;
+    private bool showSuccessMessage = false;
+    private bool showErrorMessage = false;
+    private string errorMessage = string.Empty;
+
+    private class ClientFormModel
+    {
+        public string Code { get; set; } = string.Empty;
+
+        [Required] [MaxLength(200)]
+        public string Name { get; set; } = string.Empty;
+
+        public string? LegalName { get; set; }
+
+        [Required]
+        public string Industry { get; set; } = string.Empty;
+
+        public string? Website { get; set; }
+        public string Status { get; set; } = "Active";
+
+        [Required]
+        public string PrimaryContactName { get; set; } = string.Empty;
+
+        public string? PrimaryContactTitle { get; set; }
+
+        [Required] [EmailAddress]
+        public string PrimaryContactEmail { get; set; } = string.Empty;
+
+        public string? PrimaryContactPhone { get; set; }
+
+        public string? BillingStreet { get; set; }
+        public string? BillingCity { get; set; }
+        public string? BillingState { get; set; }
+        public string? BillingPostalCode { get; set; }
+        public string? BillingCountry { get; set; }
+
+        public string PaymentTerms { get; set; } = "Net30";
+        public decimal? CreditLimit { get; set; }
+        public string? TaxId { get; set; }
+        public string DefaultBillingMode { get; set; } = "TimeAndMaterials";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadClient();
+    }
+
+    private async Task LoadClient()
+    {
+        isLoading = true;
+        try
+        {
+            await Task.Delay(500);
+            model = new ClientFormModel
+            {
+                Code = "CLI-001",
+                Name = "Acme Corporation",
+                LegalName = "Acme Corporation Inc.",
+                Industry = "Technology",
+                Website = "https://www.acme.com",
+                Status = "Active",
+                PrimaryContactName = "John Davis",
+                PrimaryContactTitle = "VP of Engineering",
+                PrimaryContactEmail = "john.davis@acme.com",
+                PrimaryContactPhone = "+1 (555) 123-4567",
+                BillingStreet = "123 Tech Park Drive",
+                BillingCity = "San Francisco",
+                BillingState = "CA",
+                BillingPostalCode = "94105",
+                BillingCountry = "United States",
+                PaymentTerms = "Net30",
+                CreditLimit = 100000,
+                TaxId = "12-3456789",
+                DefaultBillingMode = "TimeAndMaterials"
+            };
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSaving = true;
+        try
+        {
+            await Task.Delay(1000);
+            showSuccessMessage = true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to save: {ex.Message}";
+            showErrorMessage = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void ConfirmDelete() => showDeleteModal = true;
+    private void CancelDelete() => showDeleteModal = false;
+
+    private async Task DeleteClient()
+    {
+        isDeleting = true;
+        try
+        {
+            await Task.Delay(1500);
+            NavigationManager?.NavigateTo("/crm/clients");
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    private void Cancel() => NavigationManager?.NavigateTo("/crm/clients");
+    private void ViewDetails() => NavigationManager?.NavigateTo($"/crm/clients/{Id}/details");
+}

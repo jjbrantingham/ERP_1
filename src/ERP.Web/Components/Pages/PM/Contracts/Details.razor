@@ -1,0 +1,588 @@
+@page "/pm/contracts/{Id:int}/details"
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-teal-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/contracts" class="hover:text-teal-600">Contracts</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Contract Details</span>
+    </nav>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner />
+    }
+    else if (contract == null)
+    {
+        <Alert Type="error">Contract not found</Alert>
+    }
+    else
+    {
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between mb-6">
+            <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 h-14 w-14 rounded-lg @GetTypeColorClass(contract.Type) flex items-center justify-center text-white text-lg font-bold">
+                    @GetTypeIcon(contract.Type)
+                </div>
+                <div>
+                    <div class="flex items-center space-x-3">
+                        <h1 class="text-2xl font-bold text-gray-900">@contract.Name</h1>
+                        <span class="@GetStatusBadgeClass(contract.Status)">@GetStatusDisplay(contract.Status)</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">
+                        <span class="font-mono text-teal-600 font-medium">@contract.ContractNumber</span>
+                        <span class="mx-2">•</span>
+                        <span class="@GetTypeBadgeClass(contract.Type)">@GetTypeDisplay(contract.Type)</span>
+                    </p>
+                </div>
+            </div>
+            <div class="mt-4 md:mt-0 flex space-x-3">
+                <Button Variant="secondary" OnClick="GoBack">
+                    <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back
+                </Button>
+                <Button Variant="primary" OnClick="EditContract">
+                    <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Edit
+                </Button>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <Card>
+                <Body>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-500">Contract Value</p>
+                        <p class="text-2xl font-bold text-gray-900">@contract.Value.ToString("C0")</p>
+                    </div>
+                </Body>
+            </Card>
+            <Card>
+                <Body>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-500">Billed to Date</p>
+                        <p class="text-2xl font-bold text-green-600">@billedToDate.ToString("C0")</p>
+                    </div>
+                </Body>
+            </Card>
+            <Card>
+                <Body>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-500">Remaining</p>
+                        <p class="text-2xl font-bold text-teal-600">@((contract.Value - billedToDate).ToString("C0"))</p>
+                    </div>
+                </Body>
+            </Card>
+            <Card>
+                <Body>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-500">Days Remaining</p>
+                        <p class="text-2xl font-bold @(daysRemaining < 30 ? "text-orange-600" : "text-gray-900")">
+                            @(daysRemaining > 0 ? daysRemaining.ToString() : "Expired")
+                        </p>
+                    </div>
+                </Body>
+            </Card>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-gray-200 mb-6">
+            <nav class="-mb-px flex space-x-8">
+                <button @onclick="() => activeTab = 0" class="@GetTabClass(0)">Overview</button>
+                <button @onclick="() => activeTab = 1" class="@GetTabClass(1)">Linked Projects</button>
+                <button @onclick="() => activeTab = 2" class="@GetTabClass(2)">Amendments</button>
+                <button @onclick="() => activeTab = 3" class="@GetTabClass(3)">Documents</button>
+                <button @onclick="() => activeTab = 4" class="@GetTabClass(4)">History</button>
+            </nav>
+        </div>
+
+        @switch (activeTab)
+        {
+            case 0:
+                @RenderOverviewTab()
+                break;
+            case 1:
+                @RenderProjectsTab()
+                break;
+            case 2:
+                @RenderAmendmentsTab()
+                break;
+            case 3:
+                @RenderDocumentsTab()
+                break;
+            case 4:
+                @RenderHistoryTab()
+                break;
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private ContractDetail? contract;
+    private bool isLoading = true;
+    private int activeTab = 0;
+    private decimal billedToDate = 112500;
+    private int daysRemaining = 180;
+
+    private class ContractDetail
+    {
+        public long Id { get; set; }
+        public string ContractNumber { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Type { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public long ClientId { get; set; }
+        public string ClientName { get; set; } = string.Empty;
+        public decimal Value { get; set; }
+        public string? PaymentTerms { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public bool AutoRenew { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    private class LinkedProject
+    {
+        public long Id { get; set; }
+        public string ProjectNumber { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public decimal Budget { get; set; }
+        public int PercentComplete { get; set; }
+    }
+
+    private class Amendment
+    {
+        public long Id { get; set; }
+        public string Number { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public decimal ValueChange { get; set; }
+        public DateTime Date { get; set; }
+        public string Status { get; set; } = string.Empty;
+    }
+
+    private List<LinkedProject> linkedProjects = new();
+    private List<Amendment> amendments = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadContract();
+    }
+
+    private async Task LoadContract()
+    {
+        isLoading = true;
+        try
+        {
+            await Task.Delay(500);
+
+            contract = new ContractDetail
+            {
+                Id = Id,
+                ContractNumber = "SOW-2024-001",
+                Name = "ERP Implementation Phase 1",
+                Description = "Complete implementation of HR, CRM, and Financial modules including customization, data migration, and training.",
+                Type = "SOW",
+                Status = "Active",
+                ClientId = 1,
+                ClientName = "Acme Corporation",
+                Value = 250000,
+                PaymentTerms = "Net 30",
+                StartDate = DateTime.Now.AddMonths(-3),
+                EndDate = DateTime.Now.AddMonths(6),
+                AutoRenew = false,
+                Notes = "Key strategic engagement with Acme. PM: Alice Johnson."
+            };
+
+            linkedProjects = new List<LinkedProject>
+            {
+                new() { Id = 1, ProjectNumber = "PRJ-2024-001", Name = "ERP Implementation", Status = "Active", Budget = 250000, PercentComplete = 45 },
+            };
+
+            amendments = new List<Amendment>
+            {
+                new() { Id = 1, Number = "AMD-001", Description = "Added custom reporting module", ValueChange = 25000, Date = DateTime.Now.AddMonths(-1), Status = "Approved" },
+                new() { Id = 2, Number = "AMD-002", Description = "Extended timeline by 2 months", ValueChange = 0, Date = DateTime.Now.AddDays(-14), Status = "Pending" },
+            };
+
+            daysRemaining = contract.EndDate.HasValue ? (int)(contract.EndDate.Value - DateTime.Today).TotalDays : 0;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private RenderFragment RenderOverviewTab() => __builder =>
+    {
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-6">
+                <Card>
+                    <Header><h3 class="font-semibold text-gray-900">Contract Details</h3></Header>
+                    <Body>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-xs text-gray-500">Client</p>
+                                <a href="/crm/clients/@contract!.ClientId/details" class="font-medium text-teal-600 hover:text-teal-800">@contract.ClientName</a>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Contract Type</p>
+                                <p class="font-medium">@GetTypeDisplay(contract.Type)</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Start Date</p>
+                                <p class="font-medium">@contract.StartDate.ToString("MMMM dd, yyyy")</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">End Date</p>
+                                <p class="font-medium">@(contract.EndDate?.ToString("MMMM dd, yyyy") ?? "Ongoing")</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Payment Terms</p>
+                                <p class="font-medium">@(contract.PaymentTerms ?? "Not specified")</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Auto-Renew</p>
+                                <p class="font-medium">@(contract.AutoRenew ? "Yes" : "No")</p>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(contract.Description))
+                        {
+                            <div class="mt-4 pt-4 border-t">
+                                <p class="text-xs text-gray-500 mb-1">Description</p>
+                                <p class="text-sm text-gray-700">@contract.Description</p>
+                            </div>
+                        }
+                    </Body>
+                </Card>
+
+                <Card>
+                    <Header><h3 class="font-semibold text-gray-900">Billing Summary</h3></Header>
+                    <Body>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Billed</span>
+                                    <span class="font-medium">@billedToDate.ToString("C0") / @contract!.Value.ToString("C0")</span>
+                                </div>
+                                <div class="bg-gray-200 rounded-full h-3">
+                                    <div class="bg-teal-500 h-3 rounded-full" style="width: @((billedToDate / contract.Value * 100).ToString("F0"))%"></div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 text-center pt-4 border-t">
+                                <div>
+                                    <p class="text-xs text-gray-500">Invoiced</p>
+                                    <p class="text-lg font-semibold text-gray-900">@billedToDate.ToString("C0")</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Collected</p>
+                                    <p class="text-lg font-semibold text-green-600">$95,000</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Outstanding</p>
+                                    <p class="text-lg font-semibold text-orange-600">$17,500</p>
+                                </div>
+                            </div>
+                        </div>
+                    </Body>
+                </Card>
+            </div>
+
+            <div class="space-y-6">
+                <Card>
+                    <Header><h3 class="font-semibold text-gray-900">Quick Actions</h3></Header>
+                    <Body>
+                        <div class="space-y-2">
+                            <Button Variant="outline" Class="w-full justify-start">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Create Amendment
+                            </Button>
+                            <Button Variant="outline" Class="w-full justify-start">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Link Project
+                            </Button>
+                            <Button Variant="outline" Class="w-full justify-start">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                </svg>
+                                Upload Document
+                            </Button>
+                            <Button Variant="outline" Class="w-full justify-start">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                </svg>
+                                Print Contract
+                            </Button>
+                        </div>
+                    </Body>
+                </Card>
+
+                @if (!string.IsNullOrEmpty(contract!.Notes))
+                {
+                    <Card>
+                        <Header><h3 class="font-semibold text-gray-900">Internal Notes</h3></Header>
+                        <Body>
+                            <p class="text-sm text-gray-700">@contract.Notes</p>
+                        </Body>
+                    </Card>
+                }
+            </div>
+        </div>
+    };
+
+    private RenderFragment RenderProjectsTab() => __builder =>
+    {
+        <Card>
+            <Header>
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-gray-900">Linked Projects (@linkedProjects.Count)</h3>
+                    <Button Variant="primary" Size="sm">Link Project</Button>
+                </div>
+            </Header>
+            <Body>
+                @if (linkedProjects.Any())
+                {
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="table-header">Project</th>
+                                <th class="table-header">Status</th>
+                                <th class="table-header text-right">Budget</th>
+                                <th class="table-header">Progress</th>
+                                <th class="table-header text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var project in linkedProjects)
+                            {
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="table-cell">
+                                        <a href="/pm/projects/@project.Id/details" class="text-teal-600 hover:text-teal-800">
+                                            <span class="font-mono text-sm">@project.ProjectNumber</span>
+                                            <span class="ml-2 font-medium">@project.Name</span>
+                                        </a>
+                                    </td>
+                                    <td class="table-cell">
+                                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">@project.Status</span>
+                                    </td>
+                                    <td class="table-cell text-right font-medium">@project.Budget.ToString("C0")</td>
+                                    <td class="table-cell">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="flex-1 bg-gray-200 rounded-full h-2 w-24">
+                                                <div class="bg-teal-500 h-2 rounded-full" style="width: @(project.PercentComplete)%"></div>
+                                            </div>
+                                            <span class="text-xs text-gray-600">@project.PercentComplete%</span>
+                                        </div>
+                                    </td>
+                                    <td class="table-cell text-right">
+                                        <Button Variant="outline" Size="sm">Unlink</Button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="text-center py-8 text-gray-500">
+                        <p>No projects linked to this contract</p>
+                        <Button Variant="primary" Class="mt-4">Link a Project</Button>
+                    </div>
+                }
+            </Body>
+        </Card>
+    };
+
+    private RenderFragment RenderAmendmentsTab() => __builder =>
+    {
+        <Card>
+            <Header>
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-gray-900">Contract Amendments</h3>
+                    <Button Variant="primary" Size="sm">New Amendment</Button>
+                </div>
+            </Header>
+            <Body>
+                <div class="space-y-4">
+                    @foreach (var amendment in amendments)
+                    {
+                        <div class="p-4 border rounded-lg hover:bg-gray-50">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-mono text-sm text-teal-600">@amendment.Number</span>
+                                        <span class="@(amendment.Status == "Approved" ? "px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" : "px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800")">
+                                            @amendment.Status
+                                        </span>
+                                    </div>
+                                    <p class="text-gray-700 mt-1">@amendment.Description</p>
+                                    <p class="text-xs text-gray-500 mt-1">@amendment.Date.ToString("MMMM dd, yyyy")</p>
+                                </div>
+                                <div class="text-right">
+                                    @if (amendment.ValueChange != 0)
+                                    {
+                                        <p class="font-semibold @(amendment.ValueChange > 0 ? "text-green-600" : "text-red-600")">
+                                            @(amendment.ValueChange > 0 ? "+" : "")@amendment.ValueChange.ToString("C0")
+                                        </p>
+                                    }
+                                    <Button Variant="outline" Size="sm" Class="mt-2">View</Button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </Body>
+        </Card>
+    };
+
+    private RenderFragment RenderDocumentsTab() => __builder =>
+    {
+        <Card>
+            <Header>
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-gray-900">Contract Documents</h3>
+                    <Button Variant="primary" Size="sm">Upload Document</Button>
+                </div>
+            </Header>
+            <Body>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path>
+                            </svg>
+                            <div>
+                                <p class="font-medium text-gray-900">SOW-2024-001_Signed.pdf</p>
+                                <p class="text-sm text-gray-500">3.2 MB • Uploaded Dec 15, 2023</p>
+                            </div>
+                        </div>
+                        <Button Variant="outline" Size="sm">Download</Button>
+                    </div>
+                    <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path>
+                            </svg>
+                            <div>
+                                <p class="font-medium text-gray-900">Rate_Card_2024.docx</p>
+                                <p class="text-sm text-gray-500">156 KB • Uploaded Dec 10, 2023</p>
+                            </div>
+                        </div>
+                        <Button Variant="outline" Size="sm">Download</Button>
+                    </div>
+                </div>
+            </Body>
+        </Card>
+    };
+
+    private RenderFragment RenderHistoryTab() => __builder =>
+    {
+        <Card>
+            <Header><h3 class="font-semibold text-gray-900">Contract History</h3></Header>
+            <Body>
+                <div class="space-y-4">
+                    @foreach (var entry in GetHistoryEntries())
+                    {
+                        <div class="flex items-start space-x-3">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-900">@entry.Action</p>
+                                <p class="text-xs text-gray-500">@entry.User • @entry.Time</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </Body>
+        </Card>
+    };
+
+    private List<(string Action, string User, string Time)> GetHistoryEntries() => new()
+    {
+        ("Contract status changed to Active", "Alice Johnson", "3 months ago"),
+        ("Contract signed by client", "System", "3 months ago"),
+        ("Contract sent for signature", "Alice Johnson", "3 months ago"),
+        ("Amendment AMD-001 approved", "Bob Smith", "1 month ago"),
+        ("Amendment AMD-002 submitted for approval", "Alice Johnson", "2 weeks ago"),
+        ("Document uploaded: Rate_Card_2024.docx", "Carol Williams", "4 months ago"),
+        ("Contract created", "Alice Johnson", "4 months ago"),
+    };
+
+    private void GoBack() => NavigationManager?.NavigateTo("/pm/contracts");
+    private void EditContract() => NavigationManager?.NavigateTo($"/pm/contracts/{Id}");
+
+    private string GetTabClass(int index) => activeTab == index
+        ? "border-b-2 border-teal-500 text-teal-600 py-4 px-1 text-sm font-medium"
+        : "border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium";
+
+    private string GetTypeColorClass(string type) => type switch
+    {
+        "MSA" => "bg-teal-500",
+        "SOW" => "bg-blue-500",
+        "ChangeOrder" => "bg-orange-500",
+        "NDA" => "bg-purple-500",
+        _ => "bg-gray-500"
+    };
+
+    private string GetTypeIcon(string type) => type switch
+    {
+        "MSA" => "MSA",
+        "SOW" => "SOW",
+        "ChangeOrder" => "CO",
+        "NDA" => "NDA",
+        "Amendment" => "AMD",
+        _ => "CTR"
+    };
+
+    private string GetTypeBadgeClass(string type) => type switch
+    {
+        "MSA" => "px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800",
+        "SOW" => "px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800",
+        "ChangeOrder" => "px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800",
+        "NDA" => "px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800",
+        _ => "px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
+    };
+
+    private string GetTypeDisplay(string type) => type switch
+    {
+        "MSA" => "Master Service Agreement",
+        "SOW" => "Statement of Work",
+        "ChangeOrder" => "Change Order",
+        "NDA" => "Non-Disclosure Agreement",
+        "Amendment" => "Amendment",
+        _ => type
+    };
+
+    private string GetStatusBadgeClass(string status) => status switch
+    {
+        "Active" => "px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800",
+        "Draft" => "px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800",
+        "PendingApproval" => "px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800",
+        "Expired" => "px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800",
+        _ => "px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+    };
+
+    private string GetStatusDisplay(string status) => status switch
+    {
+        "PendingApproval" => "Pending Approval",
+        _ => status
+    };
+}

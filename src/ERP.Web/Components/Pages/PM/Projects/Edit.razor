@@ -1,0 +1,479 @@
+@page "/pm/projects/{Id:int}"
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-teal-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/projects" class="hover:text-teal-600">Projects</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Edit Project</span>
+    </nav>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner />
+    }
+    else if (model == null)
+    {
+        <Alert Type="error">Project not found</Alert>
+    }
+    else
+    {
+        <!-- Page Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Edit Project</h1>
+                <p class="mt-1 text-sm text-gray-600">
+                    <span class="font-mono text-teal-600">@model.ProjectNumber</span> - @model.Name
+                </p>
+            </div>
+            <Button Variant="danger" OnClick="ConfirmDelete">
+                <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Delete
+            </Button>
+        </div>
+
+        @if (showSuccessMessage)
+        {
+            <Alert Type="success" Dismissible="true" OnDismiss="() => showSuccessMessage = false" Class="mb-4">
+                Project updated successfully!
+            </Alert>
+        }
+
+        @if (showErrorMessage)
+        {
+            <Alert Type="error" Dismissible="true" OnDismiss="() => showErrorMessage = false" Class="mb-4">
+                @errorMessage
+            </Alert>
+        }
+
+        <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <!-- Basic Information -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Basic Information</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField Label="Project Number">
+                            <input type="text" value="@model.ProjectNumber" class="form-input bg-gray-100" readonly />
+                            <p class="text-xs text-gray-500 mt-1">Project number cannot be changed</p>
+                        </FormField>
+
+                        <FormField Label="Project Name" Required="true">
+                            <input type="text" @bind="model.Name" class="form-input" />
+                            <ValidationMessage For="@(() => model.Name)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <div class="md:col-span-2">
+                            <FormField Label="Description">
+                                <textarea @bind="model.Description" class="form-input" rows="3"></textarea>
+                            </FormField>
+                        </div>
+
+                        <FormField Label="Project Type" Required="true">
+                            <select @bind="model.Type" class="form-input">
+                                <option value="Billable">Billable</option>
+                                <option value="Overhead">Overhead (Internal)</option>
+                                <option value="Proposal">Proposal</option>
+                            </select>
+                        </FormField>
+
+                        <FormField Label="Status" Required="true">
+                            <select @bind="model.Status" class="form-input">
+                                <option value="Draft">Draft</option>
+                                <option value="Active">Active</option>
+                                <option value="OnHold">On Hold</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </FormField>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Client & Contract -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Client & Contract</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField Label="Client">
+                            <select @bind="model.ClientId" class="form-input">
+                                <option value="">Select client...</option>
+                                @foreach (var client in clients)
+                                {
+                                    <option value="@client.Id">@client.Name</option>
+                                }
+                            </select>
+                        </FormField>
+
+                        <FormField Label="Contract">
+                            <select @bind="model.ContractId" class="form-input">
+                                <option value="">No contract selected</option>
+                                @foreach (var contract in contracts)
+                                {
+                                    <option value="@contract.Id">@contract.Number - @contract.Name</option>
+                                }
+                            </select>
+                        </FormField>
+
+                        <FormField Label="Project Manager">
+                            <select @bind="model.ProjectManagerId" class="form-input">
+                                <option value="">Select project manager...</option>
+                                @foreach (var pm in projectManagers)
+                                {
+                                    <option value="@pm.Id">@pm.Name</option>
+                                }
+                            </select>
+                        </FormField>
+
+                        <FormField Label="Priority">
+                            <select @bind="model.Priority" class="form-input">
+                                <option value="Normal">Normal</option>
+                                <option value="Low">Low</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </FormField>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Schedule -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Schedule</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField Label="Start Date" Required="true">
+                            <input type="date" @bind="model.StartDate" class="form-input" />
+                        </FormField>
+
+                        <FormField Label="End Date">
+                            <input type="date" @bind="model.EndDate" class="form-input" />
+                        </FormField>
+
+                        <FormField Label="Budgeted Hours">
+                            <input type="number" @bind="model.BudgetedHours" class="form-input" min="0" />
+                        </FormField>
+
+                        <FormField Label="Percent Complete">
+                            <div class="flex items-center space-x-4">
+                                <input type="range" @bind="model.PercentComplete" class="flex-1" min="0" max="100" step="5" />
+                                <span class="text-sm font-medium text-gray-700 w-12 text-right">@model.PercentComplete%</span>
+                            </div>
+                        </FormField>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Budget & Billing -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Budget & Billing</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField Label="Billing Mode">
+                            <select @bind="model.BillingMode" class="form-input">
+                                <option value="">Select billing mode...</option>
+                                <option value="TimeAndMaterial">Time & Material (T&M)</option>
+                                <option value="FixedPrice">Fixed Price</option>
+                                <option value="Milestone">Milestone-Based</option>
+                                <option value="PercentComplete">% Complete</option>
+                                <option value="NotBillable">Not Billable</option>
+                            </select>
+                        </FormField>
+
+                        <FormField Label="Budget Amount">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input type="number" @bind="model.BudgetAmount" class="form-input pl-7" min="0" step="0.01" />
+                            </div>
+                        </FormField>
+
+                        <FormField Label="Revenue Amount">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input type="number" @bind="model.RevenueAmount" class="form-input pl-7" min="0" step="0.01" />
+                            </div>
+                        </FormField>
+
+                        <FormField Label="Cost Cap">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input type="number" @bind="model.CostCap" class="form-input pl-7" min="0" step="0.01" />
+                            </div>
+                        </FormField>
+                    </div>
+
+                    <!-- Budget Summary -->
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">Budget Summary</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <p class="text-xs text-gray-500">Budget</p>
+                                <p class="text-lg font-semibold text-gray-900">@model.BudgetAmount.ToString("C0")</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Actual Cost</p>
+                                <p class="text-lg font-semibold text-gray-900">@actualCost.ToString("C0")</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Remaining</p>
+                                <p class="text-lg font-semibold @((model.BudgetAmount - actualCost) >= 0 ? "text-green-600" : "text-red-600")">
+                                    @((model.BudgetAmount - actualCost).ToString("C0"))
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">% Used</p>
+                                <p class="text-lg font-semibold text-gray-900">
+                                    @(model.BudgetAmount > 0 ? ((actualCost / model.BudgetAmount) * 100).ToString("F0") : "0")%
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Settings -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Settings</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" @bind="model.AllowExpenses" class="form-checkbox h-5 w-5 text-teal-600 rounded" />
+                            <span class="text-gray-700">Allow Expense Reporting</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" @bind="model.AllowTimeEntry" class="form-checkbox h-5 w-5 text-teal-600 rounded" />
+                            <span class="text-gray-700">Allow Time Entry</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" @bind="model.RequireApproval" class="form-checkbox h-5 w-5 text-teal-600 rounded" />
+                            <span class="text-gray-700">Require Approval</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" @bind="model.TrackBudget" class="form-checkbox h-5 w-5 text-teal-600 rounded" />
+                            <span class="text-gray-700">Track Budget</span>
+                        </label>
+                    </div>
+
+                    <div class="mt-6">
+                        <FormField Label="Notes">
+                            <textarea @bind="model.Notes" class="form-input" rows="3"></textarea>
+                        </FormField>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between">
+                <Button Variant="outline" OnClick="ViewDetails" Type="button">
+                    <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    View Details
+                </Button>
+                <div class="flex space-x-4">
+                    <Button Variant="secondary" OnClick="Cancel" Type="button">Cancel</Button>
+                    <Button Variant="primary" Type="submit" IsLoading="@isSaving" Disabled="@isSaving">
+                        @(isSaving ? "Saving..." : "Save Changes")
+                    </Button>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+<!-- Delete Confirmation Modal -->
+<Modal @bind-IsOpen="showDeleteModal" Title="Delete Project" Size="md">
+    <Body>
+        <div class="text-center py-4">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete Project</h3>
+            <p class="text-sm text-gray-600">
+                Are you sure you want to delete <strong>@model?.Name</strong>?
+                This will permanently remove all project data including WBS, timesheets, expenses, and invoices.
+            </p>
+            <p class="text-sm text-red-600 font-medium mt-2">This action cannot be undone.</p>
+        </div>
+    </Body>
+    <Footer>
+        <Button Variant="secondary" OnClick="CancelDelete">Cancel</Button>
+        <Button Variant="danger" OnClick="DeleteProject" IsLoading="@isDeleting">
+            @(isDeleting ? "Deleting..." : "Delete Project")
+        </Button>
+    </Footer>
+</Modal>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private ProjectFormModel? model;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool isDeleting = false;
+    private bool showDeleteModal = false;
+    private bool showSuccessMessage = false;
+    private bool showErrorMessage = false;
+    private string errorMessage = string.Empty;
+    private decimal actualCost = 85000;
+
+    private List<ClientOption> clients = new();
+    private List<ContractOption> contracts = new();
+    private List<EmployeeOption> projectManagers = new();
+
+    private class ProjectFormModel
+    {
+        public string ProjectNumber { get; set; } = string.Empty;
+        [Required] [MaxLength(200)] public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        [Required] public string Type { get; set; } = string.Empty;
+        [Required] public string Status { get; set; } = string.Empty;
+        public long? ClientId { get; set; }
+        public long? ContractId { get; set; }
+        public long? ProjectManagerId { get; set; }
+        public string Priority { get; set; } = "Normal";
+        [Required] public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public decimal BudgetedHours { get; set; }
+        public int PercentComplete { get; set; }
+        public string BillingMode { get; set; } = string.Empty;
+        public decimal BudgetAmount { get; set; }
+        public decimal RevenueAmount { get; set; }
+        public decimal CostCap { get; set; }
+        public bool AllowExpenses { get; set; }
+        public bool AllowTimeEntry { get; set; }
+        public bool RequireApproval { get; set; }
+        public bool TrackBudget { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    private class ClientOption { public long Id { get; set; } public string Name { get; set; } = string.Empty; }
+    private class ContractOption { public long Id { get; set; } public string Number { get; set; } = string.Empty; public string Name { get; set; } = string.Empty; }
+    private class EmployeeOption { public long Id { get; set; } public string Name { get; set; } = string.Empty; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadReferenceData();
+        await LoadProject();
+    }
+
+    private async Task LoadReferenceData()
+    {
+        clients = new List<ClientOption>
+        {
+            new() { Id = 1, Name = "Acme Corporation" },
+            new() { Id = 2, Name = "Global Industries" },
+            new() { Id = 3, Name = "Tech Solutions Inc" },
+        };
+        contracts = new List<ContractOption>
+        {
+            new() { Id = 1, Number = "MSA-2024-001", Name = "Master Services Agreement" },
+            new() { Id = 2, Number = "SOW-2024-001", Name = "ERP Implementation" },
+        };
+        projectManagers = new List<EmployeeOption>
+        {
+            new() { Id = 1, Name = "Alice Johnson" },
+            new() { Id = 2, Name = "Bob Smith" },
+        };
+        await Task.CompletedTask;
+    }
+
+    private async Task LoadProject()
+    {
+        isLoading = true;
+        try
+        {
+            await Task.Delay(500);
+            model = new ProjectFormModel
+            {
+                ProjectNumber = "PRJ-2024-001",
+                Name = "ERP Implementation",
+                Description = "Full ERP system implementation including all core modules",
+                Type = "Billable",
+                Status = "Active",
+                ClientId = 1,
+                ContractId = 2,
+                ProjectManagerId = 1,
+                Priority = "High",
+                StartDate = DateTime.Now.AddMonths(-3),
+                EndDate = DateTime.Now.AddMonths(6),
+                BudgetedHours = 2000,
+                PercentComplete = 45,
+                BillingMode = "TimeAndMaterial",
+                BudgetAmount = 250000,
+                RevenueAmount = 250000,
+                CostCap = 275000,
+                AllowExpenses = true,
+                AllowTimeEntry = true,
+                RequireApproval = true,
+                TrackBudget = true,
+                Notes = "High priority project for key client"
+            };
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSaving = true;
+        showSuccessMessage = false;
+        showErrorMessage = false;
+
+        try
+        {
+            await Task.Delay(1000);
+            showSuccessMessage = true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to save: {ex.Message}";
+            showErrorMessage = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void ConfirmDelete() => showDeleteModal = true;
+    private void CancelDelete() => showDeleteModal = false;
+
+    private async Task DeleteProject()
+    {
+        isDeleting = true;
+        try
+        {
+            await Task.Delay(1500);
+            NavigationManager?.NavigateTo("/pm/projects");
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    private void Cancel() => NavigationManager?.NavigateTo("/pm/projects");
+    private void ViewDetails() => NavigationManager?.NavigateTo($"/pm/projects/{Id}/details");
+}

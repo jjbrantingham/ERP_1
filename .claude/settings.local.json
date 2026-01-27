@@ -4,7 +4,8 @@
       "Bash(dotnet ef dbcontext:*)",
       "Bash(dotnet test:*)",
       "Bash(dotnet build:*)",
-      "Bash(ls -la \"C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\.claude\\commands\"\" && ls -la \"C:UsersjjsourcereposClaudeERP_1.claudecommandsagents\"\")"
+      "Bash(ls -la \"C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\.claude\\commands\"\" && ls -la \"C:UsersjjsourcereposClaudeERP_1.claudecommandsagents\"\")",
+      "Bash(dotnet clean:*)"
     ]
   }
 }
