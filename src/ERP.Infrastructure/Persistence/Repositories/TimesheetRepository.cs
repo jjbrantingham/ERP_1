@@ -11,7 +11,7 @@ public class TimesheetRepository : Repository<Timesheet>, ITimesheetRepository
 {
     public TimesheetRepository(ERPDbContext context) : base(context) { }
 
-    public async Task<Timesheet?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<Timesheet?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.Timesheets
             .Include(t => t.Entries)

@@ -2,13 +2,14 @@ using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Security;
 using ERP.Application.HR.DTOs;
 using ERP.Domain.HR.Repositories;
+using MediatR;
 
 namespace ERP.Application.HR.Queries;
 
 /// <summary>
 /// Handler for GetAllResourceTypesQuery.
 /// </summary>
-public class GetAllResourceTypesQueryHandler : IQueryHandler<GetAllResourceTypesQuery, IEnumerable<ResourceTypeDto>>
+public class GetAllResourceTypesQueryHandler : IRequestHandler<GetAllResourceTypesQuery, IEnumerable<ResourceTypeDto>>
 {
     private readonly IResourceTypeRepository _resourceTypeRepository;
     private readonly ICurrentUserService _currentUser;

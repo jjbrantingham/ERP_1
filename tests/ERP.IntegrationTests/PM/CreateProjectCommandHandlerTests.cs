@@ -48,7 +48,8 @@ public class CreateProjectCommandHandlerTests : IntegrationTestBase
         var projectId = await _mediator.Send(command);
 
         // Assert
-        ((long)projectId).Should().BeGreaterThan(0);
+        projectId.Should().NotBeNull();
+        ((long)projectId!).Should().BeGreaterThan(0);
 
         var project = await _projectRepository.GetByIdAsync((long)projectId);
         project.Should().NotBeNull();
@@ -91,8 +92,10 @@ public class CreateProjectCommandHandlerTests : IntegrationTestBase
         var projectId2 = await _mediator.Send(command2);
 
         // Assert
-        var project1 = await _projectRepository.GetByIdAsync((long)projectId1);
-        var project2 = await _projectRepository.GetByIdAsync((long)projectId2);
+        projectId1.Should().NotBeNull();
+        projectId2.Should().NotBeNull();
+        var project1 = await _projectRepository.GetByIdAsync((long)projectId1!);
+        var project2 = await _projectRepository.GetByIdAsync((long)projectId2!);
 
         project1!.ProjectNumber.Should().NotBe(project2!.ProjectNumber);
     }

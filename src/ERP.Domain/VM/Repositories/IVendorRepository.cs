@@ -14,7 +14,7 @@ public interface IVendorRepository : IRepository<Vendor>
     /// <summary>
     /// Get vendor by ID.
     /// </summary>
-    Task<Vendor?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<Vendor?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get vendor by vendor number.

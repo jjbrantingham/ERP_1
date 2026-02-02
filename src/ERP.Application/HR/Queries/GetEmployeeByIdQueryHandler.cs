@@ -3,13 +3,14 @@ using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Security;
 using ERP.Application.HR.DTOs;
 using ERP.Domain.HR.Repositories;
+using MediatR;
 
 namespace ERP.Application.HR.Queries;
 
 /// <summary>
 /// Handler for GetEmployeeByIdQuery.
 /// </summary>
-public class GetEmployeeByIdQueryHandler : IQueryHandler<GetEmployeeByIdQuery, EmployeeDto>
+public class GetEmployeeByIdQueryHandler : IRequestHandler<GetEmployeeByIdQuery, EmployeeDto>
 {
     private readonly IEmployeeRepository _employeeRepository;
     private readonly ICurrentUserService _currentUser;

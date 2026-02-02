@@ -1,4 +1,12 @@
 @page "/pm/contracts"
+@using ERP.Application.PM.DTOs
+@using ERP.Application.PM.Queries
+@using ERP.Application.PM.Commands
+@using ERP.Application.CRM.DTOs
+@using ERP.Application.CRM.Queries
+@using MediatR
+
+@inject IMediator Mediator
 
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumb -->
@@ -235,27 +243,34 @@
         isLoading = true;
         try
         {
-            await Task.Delay(500);
+            // Load contracts from backend
+            var contractsQuery = new GetAllContractsQuery();
+            var contractDtos = await Mediator.Send(contractsQuery);
 
-            clients = new List<ClientOption>
+            allContracts = contractDtos.Select(c => new ContractListItem
             {
-                new() { Id = 1, Name = "Acme Corporation" },
-                new() { Id = 2, Name = "Global Industries" },
-                new() { Id = 3, Name = "Tech Solutions Inc" },
-                new() { Id = 4, Name = "Healthcare Plus" },
-            };
+                Id = c.Id,
+                ContractNumber = c.ContractNumber,
+                Name = c.Title ?? c.ContractNumber,
+                ClientId = c.ClientId,
+                ClientName = c.ClientName,
+                Type = c.ContractType,
+                Value = c.ContractValueAmount ?? 0,
+                Status = c.IsActive ? "Active" : "Inactive",
+                StartDate = c.StartDate,
+                EndDate = c.EndDate,
+                LinkedProjects = 1 // TODO: Add linked project count to DTO
+            }).ToList();
 
-            allContracts = new List<ContractListItem>
+            // Load clients for filter dropdown
+            var clientsQuery = new GetAllClientsQuery();
+            var clientDtos = await Mediator.Send(clientsQuery);
+
+            clients = clientDtos.Select(c => new ClientOption
             {
-                new() { Id = 1, ContractNumber = "MSA-2023-001", Name = "Master Service Agreement 2023", ClientId = 1, ClientName = "Acme Corporation", Type = "MSA", Value = 0, Status = "Active", StartDate = DateTime.Now.AddYears(-1), EndDate = DateTime.Now.AddYears(2), LinkedProjects = 3 },
-                new() { Id = 2, ContractNumber = "SOW-2024-001", Name = "ERP Implementation Phase 1", ClientId = 1, ClientName = "Acme Corporation", Type = "SOW", Value = 250000, Status = "Active", StartDate = DateTime.Now.AddMonths(-3), EndDate = DateTime.Now.AddMonths(6), LinkedProjects = 1 },
-                new() { Id = 3, ContractNumber = "SOW-2024-002", Name = "Cloud Migration Services", ClientId = 2, ClientName = "Global Industries", Type = "SOW", Value = 150000, Status = "Active", StartDate = DateTime.Now.AddMonths(-4), EndDate = DateTime.Now.AddMonths(2), LinkedProjects = 1 },
-                new() { Id = 4, ContractNumber = "CO-2024-001", Name = "Additional Development Scope", ClientId = 1, ClientName = "Acme Corporation", Type = "ChangeOrder", Value = 45000, Status = "PendingApproval", StartDate = DateTime.Now, EndDate = null, LinkedProjects = 1 },
-                new() { Id = 5, ContractNumber = "NDA-2024-001", Name = "Non-Disclosure Agreement", ClientId = 3, ClientName = "Tech Solutions Inc", Type = "NDA", Value = 0, Status = "Active", StartDate = DateTime.Now.AddMonths(-6), EndDate = DateTime.Now.AddYears(2), LinkedProjects = 0 },
-                new() { Id = 6, ContractNumber = "MSA-2022-001", Name = "Master Service Agreement 2022", ClientId = 4, ClientName = "Healthcare Plus", Type = "MSA", Value = 0, Status = "Expired", StartDate = DateTime.Now.AddYears(-3), EndDate = DateTime.Now.AddMonths(-6), LinkedProjects = 2 },
-                new() { Id = 7, ContractNumber = "SOW-2024-003", Name = "Security Assessment", ClientId = 4, ClientName = "Healthcare Plus", Type = "SOW", Value = 45000, Status = "Draft", StartDate = DateTime.Now.AddMonths(1), EndDate = DateTime.Now.AddMonths(3), LinkedProjects = 0 },
-                new() { Id = 8, ContractNumber = "AMD-2024-001", Name = "MSA Amendment - Rate Update", ClientId = 1, ClientName = "Acme Corporation", Type = "Amendment", Value = 0, Status = "Active", StartDate = DateTime.Now.AddMonths(-1), EndDate = null, LinkedProjects = 0 },
-            };
+                Id = c.Id,
+                Name = c.Name
+            }).ToList();
 
             ApplyFilters();
         }
@@ -305,7 +320,7 @@
 
     private void NavigateToCreate() => NavigationManager?.NavigateTo("/pm/contracts/create");
     private void ViewDetails(long id) => NavigationManager?.NavigateTo($"/pm/contracts/{id}/details");
-    private void EditContract(long id) => NavigationManager?.NavigateTo($"/pm/contracts/{id}");
+    private void EditContract(long id) => NavigationManager?.NavigateTo($"/pm/contracts/{id}/edit");
 
     private void ConfirmDelete(long id, string name) { deleteContractId = id; contractToDelete = name; showDeleteModal = true; }
     private void CancelDelete() { showDeleteModal = false; }
@@ -315,7 +330,8 @@
         isDeleting = true;
         try
         {
-            await Task.Delay(1000);
+            var command = new DeleteContractCommand { Id = deleteContractId };
+            await Mediator.Send(command);
             allContracts?.RemoveAll(c => c.Id == deleteContractId);
             ApplyFilters();
             showDeleteModal = false;

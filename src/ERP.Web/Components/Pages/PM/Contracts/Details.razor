@@ -1,4 +1,9 @@
-@page "/pm/contracts/{Id:int}/details"
+@page "/pm/contracts/{Id:long}/details"
+@using ERP.Application.PM.DTOs
+@using ERP.Application.PM.Queries
+@using MediatR
+
+@inject IMediator Mediator
 
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumb -->
@@ -125,14 +130,14 @@
 </div>
 
 @code {
-    [Parameter] public int Id { get; set; }
+    [Parameter] public long Id { get; set; }
     [Inject] private NavigationManager? NavigationManager { get; set; }
 
     private ContractDetail? contract;
     private bool isLoading = true;
     private int activeTab = 0;
-    private decimal billedToDate = 112500;
-    private int daysRemaining = 180;
+    private decimal billedToDate = 0;
+    private int daysRemaining = 0;
 
     private class ContractDetail
     {
@@ -185,38 +190,57 @@
         isLoading = true;
         try
         {
-            await Task.Delay(500);
+            // Load contract from backend
+            var query = new GetContractByIdQuery { ContractId = Id };
+            var contractDto = await Mediator.Send(query);
 
-            contract = new ContractDetail
+            if (contractDto != null)
             {
-                Id = Id,
-                ContractNumber = "SOW-2024-001",
-                Name = "ERP Implementation Phase 1",
-                Description = "Complete implementation of HR, CRM, and Financial modules including customization, data migration, and training.",
-                Type = "SOW",
-                Status = "Active",
-                ClientId = 1,
-                ClientName = "Acme Corporation",
-                Value = 250000,
-                PaymentTerms = "Net 30",
-                StartDate = DateTime.Now.AddMonths(-3),
-                EndDate = DateTime.Now.AddMonths(6),
-                AutoRenew = false,
-                Notes = "Key strategic engagement with Acme. PM: Alice Johnson."
-            };
+                contract = new ContractDetail
+                {
+                    Id = contractDto.Id,
+                    ContractNumber = contractDto.ContractNumber,
+                    Name = contractDto.Title ?? contractDto.ContractNumber,
+                    Description = contractDto.Description,
+                    Type = contractDto.ContractType,
+                    Status = contractDto.IsActive ? "Active" : "Inactive",
+                    ClientId = contractDto.ClientId,
+                    ClientName = contractDto.ClientName,
+                    Value = contractDto.ContractValueAmount ?? 0,
+                    PaymentTerms = contractDto.Terms,
+                    StartDate = contractDto.StartDate,
+                    EndDate = contractDto.EndDate,
+                    AutoRenew = false,
+                    Notes = contractDto.Description
+                };
 
-            linkedProjects = new List<LinkedProject>
-            {
-                new() { Id = 1, ProjectNumber = "PRJ-2024-001", Name = "ERP Implementation", Status = "Active", Budget = 250000, PercentComplete = 45 },
-            };
+                // Add linked project from the contract's project
+                if (contractDto.ProjectId > 0)
+                {
+                    linkedProjects = new List<LinkedProject>
+                    {
+                        new()
+                        {
+                            Id = contractDto.ProjectId,
+                            ProjectNumber = contractDto.ProjectNumber,
+                            Name = contractDto.ProjectName,
+                            Status = contractDto.ProjectStatus,
+                            Budget = contractDto.ContractValueAmount ?? 0,
+                            PercentComplete = 0 // TODO: Add percent complete to DTO
+                        }
+                    };
+                }
 
-            amendments = new List<Amendment>
-            {
-                new() { Id = 1, Number = "AMD-001", Description = "Added custom reporting module", ValueChange = 25000, Date = DateTime.Now.AddMonths(-1), Status = "Approved" },
-                new() { Id = 2, Number = "AMD-002", Description = "Extended timeline by 2 months", ValueChange = 0, Date = DateTime.Now.AddDays(-14), Status = "Pending" },
-            };
+                daysRemaining = contract.EndDate.HasValue
+                    ? Math.Max(0, (int)(contract.EndDate.Value - DateTime.Today).TotalDays)
+                    : 0;
 
-            daysRemaining = contract.EndDate.HasValue ? (int)(contract.EndDate.Value - DateTime.Today).TotalDays : 0;
+                // TODO: Load amendments from backend when implemented
+                amendments = new List<Amendment>();
+
+                // TODO: Calculate billed amount from billing data
+                billedToDate = 0;
+            }
         }
         finally
         {
@@ -527,7 +551,7 @@
     };
 
     private void GoBack() => NavigationManager?.NavigateTo("/pm/contracts");
-    private void EditContract() => NavigationManager?.NavigateTo($"/pm/contracts/{Id}");
+    private void EditContract() => NavigationManager?.NavigateTo($"/pm/contracts/{Id}/edit");
 
     private string GetTabClass(int index) => activeTab == index
         ? "border-b-2 border-teal-500 text-teal-600 py-4 px-1 text-sm font-medium"

@@ -2,13 +2,14 @@ using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Security;
 using ERP.Application.CRM.DTOs;
 using ERP.Domain.CRM.Repositories;
+using MediatR;
 
 namespace ERP.Application.CRM.Queries;
 
 /// <summary>
 /// Handler for GetClientContactsQuery.
 /// </summary>
-public class GetClientContactsQueryHandler : IQueryHandler<GetClientContactsQuery, IEnumerable<ContactDto>>
+public class GetClientContactsQueryHandler : IRequestHandler<GetClientContactsQuery, IEnumerable<ContactDto>>
 {
     private readonly IContactRepository _contactRepository;
     private readonly ICurrentUserService _currentUser;

@@ -15,7 +15,7 @@ public class WBSItemRepository : Repository<WBSItem>, IWBSItemRepository
     {
     }
 
-    public async Task<WBSItem?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<WBSItem?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.WBSItems
             .Include(w => w.Project)

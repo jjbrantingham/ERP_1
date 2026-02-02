@@ -7,9 +7,9 @@ namespace ERP.Domain.BILL.Repositories;
 
 public interface IPaymentRepository : IRepository<Payment>
 {
-    Task<Payment?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<Payment?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
     Task<Payment?> GetByPaymentNumberAsync(string paymentNumber, CancellationToken cancellationToken = default);
-    Task<IEnumerable<Payment>> GetAllAsync(CancellationToken cancellationToken = default);
+    new Task<IEnumerable<Payment>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<Payment>> GetByClientIdAsync(long clientId, CancellationToken cancellationToken = default);
     Task<IEnumerable<Payment>> GetByInvoiceIdAsync(long invoiceId, CancellationToken cancellationToken = default);
     Task<IEnumerable<Payment>> GetByStatusAsync(PaymentStatus status, CancellationToken cancellationToken = default);

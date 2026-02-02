@@ -13,7 +13,7 @@ public interface IContractRepository : IRepository<Contract>
     /// <summary>
     /// Get contract by ID.
     /// </summary>
-    Task<Contract?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<Contract?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get contract by contract number.
@@ -44,4 +44,14 @@ public interface IContractRepository : IRepository<Contract>
     /// Check if contract number exists.
     /// </summary>
     Task<bool> ExistsAsync(string contractNumber, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Get all contracts with project and client information.
+    /// </summary>
+    Task<IEnumerable<Contract>> GetAllWithProjectAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Get contract by ID with project and client information.
+    /// </summary>
+    Task<Contract?> GetByIdWithProjectAsync(long id, CancellationToken cancellationToken = default);
 }

@@ -17,7 +17,7 @@ public class VendorRepository : Repository<Vendor>, IVendorRepository
     {
     }
 
-    public async Task<Vendor?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<Vendor?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.Vendors
             .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);

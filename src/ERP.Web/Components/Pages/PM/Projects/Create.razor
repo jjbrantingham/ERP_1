@@ -1,4 +1,9 @@
 @page "/pm/projects/create"
+@using MediatR
+@using ERP.Application.PM.Commands
+@using ERP.Application.CRM.Queries
+@using ERP.Application.HR.Queries
+@using ERP.Domain.PM.Enums
 
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumb -->
@@ -272,6 +277,7 @@
 
 @code {
     [Inject] private NavigationManager? NavigationManager { get; set; }
+    [Inject] private IMediator? Mediator { get; set; }
 
     private ProjectFormModel model = new();
     private bool isSaving = false;
@@ -334,42 +340,32 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadReferenceData();
-        GenerateProjectNumber();
     }
 
     private async Task LoadReferenceData()
     {
-        await Task.Delay(100);
-
-        clients = new List<ClientOption>
+        try
         {
-            new() { Id = 1, Name = "Acme Corporation" },
-            new() { Id = 2, Name = "Global Industries" },
-            new() { Id = 3, Name = "Tech Solutions Inc" },
-            new() { Id = 4, Name = "Healthcare Plus" },
-            new() { Id = 5, Name = "Finance Pro" },
-        };
+            // Load clients
+            var clientsResult = await Mediator!.Send(new GetAllClientsQuery { ActiveOnly = true });
+            clients = clientsResult.Select(c => new ClientOption { Id = c.Id, Name = c.Name }).ToList();
 
-        contracts = new List<ContractOption>
+            // Load employees for project manager dropdown
+            var employeesResult = await Mediator.Send(new GetAllEmployeesQuery { ActiveOnly = true });
+            projectManagers = employeesResult.Select(e => new EmployeeOption
+            {
+                Id = e.Id,
+                Name = $"{e.FirstName} {e.LastName}".Trim()
+            }).ToList();
+
+            // TODO: Load contracts when contract queries are available
+            contracts = new List<ContractOption>();
+        }
+        catch (Exception ex)
         {
-            new() { Id = 1, Number = "MSA-2024-001", Name = "Master Services Agreement - Acme" },
-            new() { Id = 2, Number = "SOW-2024-001", Name = "Cloud Migration SOW" },
-            new() { Id = 3, Number = "SOW-2024-002", Name = "ERP Implementation SOW" },
-        };
-
-        projectManagers = new List<EmployeeOption>
-        {
-            new() { Id = 1, Name = "Alice Johnson" },
-            new() { Id = 2, Name = "Bob Smith" },
-            new() { Id = 3, Name = "Carol Williams" },
-        };
-    }
-
-    private void GenerateProjectNumber()
-    {
-        var year = DateTime.Now.Year;
-        var sequence = new Random().Next(1, 999);
-        model.ProjectNumber = $"PRJ-{year}-{sequence:D3}";
+            errorMessage = $"Failed to load reference data: {ex.Message}";
+            showErrorMessage = true;
+        }
     }
 
     private async Task HandleSubmit()
@@ -388,11 +384,32 @@
                 return;
             }
 
-            await Task.Delay(1500);
+            // Parse enums
+            var projectType = Enum.Parse<ProjectType>(model.Type);
+            var billingMode = string.IsNullOrEmpty(model.BillingMode)
+                ? BillingMode.NonBillable
+                : Enum.Parse<BillingMode>(model.BillingMode);
+
+            var command = new CreateProjectCommand
+            {
+                ClientId = model.ClientId ?? 0,
+                Name = model.Name,
+                Description = model.Description,
+                ProjectType = projectType,
+                BillingMode = billingMode,
+                StartDate = model.StartDate,
+                EndDate = model.EndDate,
+                BudgetAmount = model.BudgetAmount > 0 ? model.BudgetAmount : null,
+                BudgetCurrency = "USD",
+                ProjectManagerId = model.ProjectManagerId,
+                Notes = model.Notes
+            };
+
+            var projectId = await Mediator!.Send(command);
 
             showSuccessMessage = true;
             await Task.Delay(1000);
-            NavigationManager?.NavigateTo("/pm/projects");
+            NavigationManager?.NavigateTo($"/pm/projects/{projectId}/details");
         }
         catch (Exception ex)
         {

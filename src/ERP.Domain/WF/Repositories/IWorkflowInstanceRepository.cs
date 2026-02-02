@@ -7,7 +7,7 @@ namespace ERP.Domain.WF.Repositories;
 
 public interface IWorkflowInstanceRepository : IRepository<WorkflowInstance>
 {
-    Task<WorkflowInstance?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<WorkflowInstance?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
     Task<WorkflowInstance?> GetByIdWithStepsAsync(long id, CancellationToken cancellationToken = default);
     Task<WorkflowInstance?> GetByEntityAsync(string entityType, long entityId, CancellationToken cancellationToken = default);
     Task<IEnumerable<WorkflowInstance>> GetActiveByEntityTypeAsync(string entityType, CancellationToken cancellationToken = default);

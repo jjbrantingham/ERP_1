@@ -8,9 +8,9 @@ namespace ERP.Domain.FIN.Repositories;
 
 public interface IJournalEntryRepository : IRepository<JournalEntry>
 {
-    Task<JournalEntry?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<JournalEntry?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
     Task<JournalEntry?> GetByEntryNumberAsync(JournalEntryNumber entryNumber, CancellationToken cancellationToken = default);
-    Task<IEnumerable<JournalEntry>> GetAllAsync(CancellationToken cancellationToken = default);
+    new Task<IEnumerable<JournalEntry>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<JournalEntry>> GetByStatusAsync(JournalEntryStatus status, CancellationToken cancellationToken = default);
     Task<IEnumerable<JournalEntry>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
     Task<IEnumerable<JournalEntry>> GetByFiscalPeriodAsync(string fiscalPeriod, CancellationToken cancellationToken = default);

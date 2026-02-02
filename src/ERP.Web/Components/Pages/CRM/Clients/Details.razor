@@ -1,4 +1,8 @@
-@page "/crm/clients/{Id:int}/details"
+@page "/crm/clients/{Id:long}/details"
+@using ERP.Application.CRM.DTOs
+@using ERP.Application.CRM.Queries
+@using MediatR
+@inject IMediator Mediator
 
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumb -->
@@ -319,7 +323,7 @@
 </div>
 
 @code {
-    [Parameter] public int Id { get; set; }
+    [Parameter] public long Id { get; set; }
     [Inject] private NavigationManager? NavigationManager { get; set; }
 
     private ClientDetail? client;
@@ -400,66 +404,128 @@
         isLoading = true;
         try
         {
-            await Task.Delay(500);
+            // Load client details
+            var clientDto = await Mediator!.Send(new GetClientByIdQuery { ClientId = Id });
+            if (clientDto == null)
+            {
+                client = null;
+                return;
+            }
 
             client = new ClientDetail
             {
-                Id = Id,
-                Code = "CLI-001",
-                Name = "Acme Corporation",
-                LegalName = "Acme Corporation Inc.",
-                Industry = "Technology",
-                Website = "https://www.acme.com",
-                Status = "Active",
-                ClientSince = DateTime.Now.AddYears(-3),
-                PrimaryContactName = "John Davis",
-                PrimaryContactTitle = "VP of Engineering",
-                PrimaryContactEmail = "john.davis@acme.com",
-                PrimaryContactPhone = "+1 (555) 123-4567",
-                BillingStreet = "123 Tech Park Drive",
-                BillingCity = "San Francisco",
-                BillingState = "CA",
-                BillingPostalCode = "94105",
-                BillingCountry = "United States",
-                PaymentTerms = "Net 30",
-                CreditLimit = 100000
+                Id = clientDto.Id,
+                Code = clientDto.ClientNumber,
+                Name = clientDto.Name,
+                LegalName = clientDto.LegalName,
+                Industry = clientDto.Industry ?? "N/A",
+                Website = clientDto.Website,
+                Status = clientDto.Status,
+                ClientSince = clientDto.FirstContactDate ?? clientDto.CreatedDate,
+                PrimaryContactName = "N/A", // Will be populated from contacts
+                PrimaryContactTitle = null,
+                PrimaryContactEmail = clientDto.PrimaryEmail ?? "N/A",
+                PrimaryContactPhone = clientDto.PrimaryPhone,
+                BillingStreet = clientDto.BillingStreet,
+                BillingCity = clientDto.BillingCity,
+                BillingState = clientDto.BillingStateProvince,
+                BillingPostalCode = clientDto.BillingPostalCode,
+                BillingCountry = clientDto.BillingCountry,
+                PaymentTerms = clientDto.PaymentTerms ?? "Net 30",
+                CreditLimit = string.IsNullOrEmpty(clientDto.CreditLimit) ? null : decimal.TryParse(clientDto.CreditLimit, out var cl) ? cl : null
             };
 
-            contacts = new List<ContactItem>
+            // Load contacts
+            var contactsResult = await Mediator!.Send(new GetClientContactsQuery { ClientId = Id });
+            contacts = contactsResult.Select(c => new ContactItem
             {
-                new() { Id = 1, Name = "John Davis", Title = "VP of Engineering", Email = "john.davis@acme.com", Phone = "+1 (555) 123-4567", IsPrimary = true },
-                new() { Id = 2, Name = "Sarah Miller", Title = "Project Manager", Email = "sarah.miller@acme.com", Phone = "+1 (555) 234-5678", IsPrimary = false },
-                new() { Id = 3, Name = "Mike Chen", Title = "Technical Lead", Email = "mike.chen@acme.com", IsPrimary = false },
-                new() { Id = 4, Name = "Lisa Wong", Title = "Finance Director", Email = "lisa.wong@acme.com", Phone = "+1 (555) 345-6789", IsPrimary = false },
-            };
+                Id = c.Id,
+                Name = c.FullName,
+                Title = c.JobTitle ?? "Contact",
+                Email = c.Email,
+                Phone = c.PhoneNumber,
+                IsPrimary = c.IsPrimary
+            }).ToList();
 
-            projects = new List<ProjectItem>
+            // Update primary contact info from contacts if available
+            var primaryContact = contacts.FirstOrDefault(c => c.IsPrimary);
+            if (primaryContact != null)
             {
-                new() { Id = 1, Number = "PRJ-2024-001", Name = "Platform Modernization", Type = "Billable", Status = "Active", Budget = 250000, Progress = 65 },
-                new() { Id = 2, Number = "PRJ-2024-005", Name = "API Integration", Type = "Billable", Status = "Active", Budget = 85000, Progress = 30 },
-                new() { Id = 3, Number = "PRJ-2023-012", Name = "Security Audit", Type = "Billable", Status = "Completed", Budget = 45000, Progress = 100 },
-            };
+                client.PrimaryContactName = primaryContact.Name;
+                client.PrimaryContactTitle = primaryContact.Title;
+            }
 
-            notes = new List<NoteItem>
+            // Load notes
+            var notesResult = await Mediator!.Send(new GetClientNotesQuery { ClientId = Id });
+            notes = notesResult.Select(n => new NoteItem
             {
-                new() { Id = 1, Author = "Jane Smith", Date = "Jan 20, 2024", Content = "Discussed upcoming project timeline with John. They're looking to accelerate the platform modernization effort." },
-                new() { Id = 2, Author = "Bob Wilson", Date = "Jan 15, 2024", Content = "Sent updated proposal for Q2 work. Waiting for budget approval from their finance team." },
-                new() { Id = 3, Author = "Jane Smith", Date = "Jan 10, 2024", Content = "Initial meeting went well. Very interested in our cloud migration services." },
-            };
+                Id = n.Id,
+                Author = n.AuthorName ?? "Unknown",
+                Date = n.NoteDate.ToString("MMM dd, yyyy"),
+                Content = n.Content
+            }).ToList();
 
-            activities = new List<ActivityItem>
+            // TODO: Load projects when PM integration is available
+            projects = new List<ProjectItem>();
+
+            // Build activity log from various sources
+            activities = new List<ActivityItem>();
+
+            // Add note activities
+            foreach (var note in notesResult.OrderByDescending(n => n.NoteDate).Take(5))
             {
-                new() { Description = "Invoice #INV-2024-042 paid", Time = "2 hours ago", User = "System", Icon = "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
-                new() { Description = "New project created: API Integration", Time = "Yesterday", User = "Jane Smith", Icon = "M12 6v6m0 0v6m0-6h6m-6 0H6" },
-                new() { Description = "Contact added: Lisa Wong", Time = "3 days ago", User = "Bob Wilson", Icon = "M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" },
-                new() { Description = "Status changed to Active", Time = "1 week ago", User = "Jane Smith", Icon = "M5 13l4 4L19 7" },
-                new() { Description = "Client record created", Time = "3 years ago", User = "Admin", Icon = "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
-            };
+                activities.Add(new ActivityItem
+                {
+                    Description = $"Note added: {note.Subject}",
+                    Time = GetRelativeTime(note.NoteDate),
+                    User = note.AuthorName ?? "Unknown",
+                    Icon = "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                });
+            }
+
+            // Add contact activities
+            foreach (var contact in contactsResult.OrderByDescending(c => c.CreatedDate).Take(3))
+            {
+                activities.Add(new ActivityItem
+                {
+                    Description = $"Contact added: {contact.FullName}",
+                    Time = GetRelativeTime(contact.CreatedDate),
+                    User = "System",
+                    Icon = "M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                });
+            }
+
+            // Add client creation activity
+            activities.Add(new ActivityItem
+            {
+                Description = "Client record created",
+                Time = GetRelativeTime(clientDto.CreatedDate),
+                User = "Admin",
+                Icon = "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            });
+
+            activities = activities.OrderByDescending(a => a.Time).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading client details: {ex.Message}");
+            client = null;
         }
         finally
         {
             isLoading = false;
         }
+    }
+
+    private string GetRelativeTime(DateTime date)
+    {
+        var diff = DateTime.UtcNow - date.ToUniversalTime();
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes} minutes ago";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours} hours ago";
+        if (diff.TotalDays < 7) return $"{(int)diff.TotalDays} days ago";
+        if (diff.TotalDays < 30) return $"{(int)(diff.TotalDays / 7)} weeks ago";
+        if (diff.TotalDays < 365) return $"{(int)(diff.TotalDays / 30)} months ago";
+        return $"{(int)(diff.TotalDays / 365)} years ago";
     }
 
     private void SetActiveTab(int tab) => activeTab = tab;

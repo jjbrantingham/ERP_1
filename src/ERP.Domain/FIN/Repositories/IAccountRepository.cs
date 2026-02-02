@@ -8,9 +8,9 @@ namespace ERP.Domain.FIN.Repositories;
 
 public interface IAccountRepository : IRepository<Account>
 {
-    Task<Account?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<Account?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
     Task<Account?> GetByAccountNumberAsync(AccountNumber accountNumber, CancellationToken cancellationToken = default);
-    Task<IEnumerable<Account>> GetAllAsync(CancellationToken cancellationToken = default);
+    new Task<IEnumerable<Account>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<Account>> GetByTypeAsync(AccountType type, CancellationToken cancellationToken = default);
     Task<IEnumerable<Account>> GetActiveAccountsAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<Account>> GetByParentAccountIdAsync(long? parentAccountId, CancellationToken cancellationToken = default);

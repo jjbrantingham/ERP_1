@@ -1,0 +1,323 @@
+@page "/pm/resource-allocations/{Id:long}/edit"
+@using MediatR
+@using ERP.Application.PM.Commands
+@using ERP.Application.PM.Queries
+@using ERP.Application.PM.DTOs
+@using ERP.Application.HR.Queries
+@using ERP.Application.HR.DTOs
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-teal-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/projects" class="hover:text-teal-600">Projects</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/resource-allocations" class="hover:text-teal-600">Resource Allocations</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Edit Allocation</span>
+    </nav>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner />
+    }
+    else if (model == null)
+    {
+        <Alert Type="error">Resource allocation not found</Alert>
+    }
+    else
+    {
+        <!-- Page Header -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">Edit Resource Allocation</h1>
+            <p class="mt-1 text-sm text-gray-600">
+                <span class="font-medium">@model.EmployeeName</span> on <span class="font-medium">@model.ProjectName</span>
+            </p>
+        </div>
+
+        @if (showSuccessMessage)
+        {
+            <Alert Type="success" Dismissible="true" OnDismiss="() => showSuccessMessage = false" Class="mb-4">
+                Resource allocation updated successfully!
+            </Alert>
+        }
+
+        @if (showErrorMessage)
+        {
+            <Alert Type="error" Dismissible="true" OnDismiss="() => showErrorMessage = false" Class="mb-4">
+                @errorMessage
+            </Alert>
+        }
+
+        <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <!-- Allocation Details -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Allocation Details</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Read-only Project -->
+                        <FormField Label="Project">
+                            <input type="text" value="@model.ProjectDisplay" class="form-input bg-gray-100" readonly />
+                            <p class="text-xs text-gray-500 mt-1">Project cannot be changed. Create a new allocation to assign to a different project.</p>
+                        </FormField>
+
+                        <!-- Read-only Employee -->
+                        <FormField Label="Employee">
+                            <input type="text" value="@model.EmployeeDisplay" class="form-input bg-gray-100" readonly />
+                            <p class="text-xs text-gray-500 mt-1">Employee cannot be changed. Create a new allocation to assign a different employee.</p>
+                        </FormField>
+
+                        <FormField Label="Role" Description="Employee's role in this project">
+                            <input type="text" @bind="model.Role" class="form-input" placeholder="e.g., Developer, Project Manager, Designer" />
+                            <ValidationMessage For="@(() => model.Role)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <FormField Label="Allocated Hours per Week" Required="true" Description="Hours allocated to this project">
+                            <input type="number" @bind="model.AllocatedHoursPerWeek" class="form-input" min="0.5" max="168" step="0.5" />
+                            <ValidationMessage For="@(() => model.AllocatedHoursPerWeek)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <!-- Read-only Start Date -->
+                        <FormField Label="Start Date">
+                            <input type="date" value="@model.StartDate.ToString("yyyy-MM-dd")" class="form-input bg-gray-100" readonly />
+                            <p class="text-xs text-gray-500 mt-1">Start date cannot be changed</p>
+                        </FormField>
+
+                        <FormField Label="End Date" Description="Leave blank for ongoing allocation">
+                            <input type="date" @bind="model.EndDate" class="form-input" />
+                            <ValidationMessage For="@(() => model.EndDate)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <div class="md:col-span-2">
+                            <FormField Label="Notes" Description="Additional information about this allocation">
+                                <textarea @bind="model.Notes" class="form-input" rows="3" placeholder="Internal notes about this resource allocation..."></textarea>
+                                <ValidationMessage For="@(() => model.Notes)" class="text-sm text-red-600" />
+                            </FormField>
+                        </div>
+                    </div>
+
+                    @if (model.AllocatedHoursPerWeek > 40)
+                    {
+                        <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-yellow-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                                <div>
+                                    <h3 class="text-sm font-medium text-yellow-800">High Allocation Warning</h3>
+                                    <p class="text-sm text-yellow-700 mt-1">
+                                        This allocation exceeds standard full-time hours (40 hrs/wk). Please verify this is correct.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Allocation Info -->
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">Allocation Information</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <p class="text-xs text-gray-500">Status</p>
+                                <p class="text-sm font-medium text-gray-900">
+                                    <span class="@GetStatusBadgeClass(model.IsActive)">
+                                        @(model.IsActive ? "Active" : "Inactive")
+                                    </span>
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Created</p>
+                                <p class="text-sm font-medium text-gray-900">@model.CreatedDate.ToString("MMM dd, yyyy")</p>
+                            </div>
+                            @if (model.ModifiedDate.HasValue)
+                            {
+                                <div>
+                                    <p class="text-xs text-gray-500">Last Modified</p>
+                                    <p class="text-sm font-medium text-gray-900">@model.ModifiedDate.Value.ToString("MMM dd, yyyy")</p>
+                                </div>
+                            }
+                            <div>
+                                <p class="text-xs text-gray-500">Duration</p>
+                                <p class="text-sm font-medium text-gray-900">
+                                    @if (model.EndDate.HasValue)
+                                    {
+                                        var days = (model.EndDate.Value - model.StartDate).Days;
+                                        var weeks = days / 7;
+                                        <span>@weeks weeks</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-gray-600 italic">Ongoing</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4">
+                <Button Variant="secondary" OnClick="Cancel" Type="button">Cancel</Button>
+                <Button Variant="primary" Type="submit" IsLoading="@isSaving" Disabled="@isSaving">
+                    @(isSaving ? "Saving..." : "Save Changes")
+                </Button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter] public long Id { get; set; }
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+    [Inject] private IMediator? Mediator { get; set; }
+
+    private AllocationFormModel? model;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool showSuccessMessage = false;
+    private bool showErrorMessage = false;
+    private string errorMessage = string.Empty;
+
+    private class AllocationFormModel
+    {
+        public long ProjectId { get; set; }
+        public string ProjectNumber { get; set; } = string.Empty;
+        public string ProjectName { get; set; } = string.Empty;
+        public string ProjectDisplay => $"{ProjectNumber} - {ProjectName}";
+
+        public long EmployeeId { get; set; }
+        public string EmployeeNumber { get; set; } = string.Empty;
+        public string EmployeeName { get; set; } = string.Empty;
+        public string EmployeeDisplay => $"{EmployeeName} ({EmployeeNumber})";
+
+        [MaxLength(100, ErrorMessage = "Role cannot exceed 100 characters")]
+        public string? Role { get; set; }
+
+        [Required(ErrorMessage = "Allocated hours per week is required")]
+        [Range(0.5, 168, ErrorMessage = "Hours must be between 0.5 and 168")]
+        public decimal AllocatedHoursPerWeek { get; set; }
+
+        public DateTime StartDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
+
+        [MaxLength(1000, ErrorMessage = "Notes cannot exceed 1000 characters")]
+        public string? Notes { get; set; }
+
+        public bool IsActive { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAllocation();
+    }
+
+    private async Task LoadAllocation()
+    {
+        isLoading = true;
+        try
+        {
+            // Load the allocation
+            var allocationDto = await Mediator!.Send(new GetResourceAllocationByIdQuery { Id = Id });
+
+            if (allocationDto == null)
+            {
+                errorMessage = "Resource allocation not found";
+                showErrorMessage = true;
+                model = null;
+                return;
+            }
+
+            // Load project details
+            var projectDto = await Mediator.Send(new GetProjectByIdQuery { ProjectId = allocationDto.ProjectId });
+
+            // Load employee details
+            var employeesResult = await Mediator.Send(new GetAllEmployeesQuery { ActiveOnly = false });
+            var employeeDto = employeesResult.FirstOrDefault(e => e.Id == allocationDto.EmployeeId);
+
+            model = new AllocationFormModel
+            {
+                ProjectId = allocationDto.ProjectId,
+                ProjectNumber = projectDto.ProjectNumber,
+                ProjectName = projectDto.Name,
+                EmployeeId = allocationDto.EmployeeId,
+                EmployeeNumber = employeeDto?.EmployeeNumber ?? "Unknown",
+                EmployeeName = employeeDto?.FullName ?? "Unknown",
+                Role = allocationDto.Role,
+                AllocatedHoursPerWeek = allocationDto.AllocatedHoursPerWeek,
+                StartDate = allocationDto.StartDate,
+                EndDate = allocationDto.EndDate,
+                Notes = allocationDto.Notes,
+                IsActive = allocationDto.IsActive,
+                CreatedDate = allocationDto.CreatedDate,
+                ModifiedDate = allocationDto.ModifiedDate
+            };
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load resource allocation: {ex.Message}";
+            showErrorMessage = true;
+            model = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSaving = true;
+        showSuccessMessage = false;
+        showErrorMessage = false;
+
+        try
+        {
+            // Validate end date is after start date
+            if (model!.EndDate.HasValue && model.EndDate.Value < model.StartDate)
+            {
+                errorMessage = "End date must be after start date";
+                showErrorMessage = true;
+                return;
+            }
+
+            var command = new UpdateResourceAllocationCommand
+            {
+                Id = Id,
+                AllocatedHoursPerWeek = model.AllocatedHoursPerWeek,
+                Role = model.Role,
+                Notes = model.Notes,
+                EndDate = model.EndDate
+            };
+
+            await Mediator!.Send(command);
+            showSuccessMessage = true;
+
+            // Reload to get updated data
+            await LoadAllocation();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to save: {ex.Message}";
+            showErrorMessage = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void Cancel() => NavigationManager?.NavigateTo("/pm/resource-allocations");
+
+    private string GetStatusBadgeClass(bool isActive) => isActive
+        ? "px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+        : "px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800";
+}

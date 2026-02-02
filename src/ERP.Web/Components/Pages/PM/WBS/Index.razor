@@ -1,0 +1,810 @@
+@page "/pm/wbs"
+@using MediatR
+@using ERP.Application.PM.Queries
+@using ERP.Application.PM.Commands
+@using ERP.Application.PM.DTOs
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-teal-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/projects" class="hover:text-teal-600">Projects</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Work Breakdown Structure</span>
+    </nav>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <Alert Type="error" Dismissible="true" OnDismiss="() => errorMessage = null" Class="mb-4">
+            @errorMessage
+        </Alert>
+    }
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <Alert Type="success" Dismissible="true" OnDismiss="() => successMessage = null" Class="mb-4">
+            @successMessage
+        </Alert>
+    }
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Work Breakdown Structure</h1>
+        <p class="mt-1 text-sm text-gray-600">Manage project tasks, milestones, and deliverables in a hierarchical structure</p>
+    </div>
+
+    <!-- Project Selector -->
+    <Card Class="mb-6">
+        <Body>
+            <div class="flex items-center space-x-4">
+                <FormField Label="Select Project" Class="flex-1">
+                    <select @bind="selectedProjectId" @bind:after="OnProjectChanged" class="form-input">
+                        <option value="0">-- Select a project --</option>
+                        @foreach (var project in projects)
+                        {
+                            <option value="@project.Id">@project.ProjectNumber - @project.Name</option>
+                        }
+                    </select>
+                </FormField>
+                @if (selectedProjectId > 0)
+                {
+                    <div class="pt-6">
+                        <Button Variant="primary" OnClick="() => OpenCreateModal(null)">
+                            <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Add Root Item
+                        </Button>
+                    </div>
+                }
+            </div>
+        </Body>
+    </Card>
+
+    @if (isLoading)
+    {
+        <Card>
+            <Body>
+                <div class="flex items-center justify-center py-12">
+                    <LoadingSpinner Size="lg" />
+                </div>
+            </Body>
+        </Card>
+    }
+    else if (selectedProjectId == 0)
+    {
+        <Card>
+            <Body>
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No Project Selected</h3>
+                    <p class="mt-1 text-sm text-gray-500">Please select a project from the dropdown above to view its WBS structure.</p>
+                </div>
+            </Body>
+        </Card>
+    }
+    else if (wbsTree == null || !wbsTree.Any())
+    {
+        <Card>
+            <Body>
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No WBS Items</h3>
+                    <p class="mt-1 text-sm text-gray-500">Get started by adding the first item to this project's work breakdown structure.</p>
+                    <div class="mt-6">
+                        <Button Variant="primary" OnClick="() => OpenCreateModal(null)">
+                            <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Add First Item
+                        </Button>
+                    </div>
+                </div>
+            </Body>
+        </Card>
+    }
+    else
+    {
+        <!-- Summary Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card>
+                <Body>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-teal-600">@allWBSItems.Count</div>
+                        <div class="text-sm text-gray-600">Total Items</div>
+                    </div>
+                </Body>
+            </Card>
+            <Card>
+                <Body>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600">@totalEstimatedHours.ToString("N0")</div>
+                        <div class="text-sm text-gray-600">Estimated Hours</div>
+                    </div>
+                </Body>
+            </Card>
+            <Card>
+                <Body>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600">@totalActualHours.ToString("N0")</div>
+                        <div class="text-sm text-gray-600">Actual Hours</div>
+                    </div>
+                </Body>
+            </Card>
+            <Card>
+                <Body>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-purple-600">@totalBudget.ToString("C0")</div>
+                        <div class="text-sm text-gray-600">Total Budget</div>
+                    </div>
+                </Body>
+            </Card>
+        </div>
+
+        <!-- WBS Tree -->
+        <Card>
+            <Body>
+                <div class="space-y-2">
+                    @foreach (var node in wbsTree)
+                    {
+                        @RenderWBSNode(node, 0)
+                    }
+                </div>
+            </Body>
+        </Card>
+    }
+</div>
+
+<!-- Create/Edit Modal -->
+<Modal @bind-IsOpen="showEditModal" Title="@(editingItemId == 0 ? "Create WBS Item" : "Edit WBS Item")" Size="lg">
+    <Body>
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField Label="WBS Code" Required="true">
+                    <input type="text"
+                           @bind="editModel.WBSCode"
+                           class="form-input"
+                           placeholder="e.g., 1.1.2"
+                           disabled="@(editingItemId > 0)" />
+                </FormField>
+
+                <FormField Label="Sort Order" Required="true">
+                    <input type="number"
+                           @bind="editModel.SortOrder"
+                           class="form-input"
+                           min="0" />
+                </FormField>
+            </div>
+
+            <FormField Label="Name" Required="true">
+                <input type="text"
+                       @bind="editModel.Name"
+                       class="form-input"
+                       placeholder="Enter item name"
+                       maxlength="200" />
+            </FormField>
+
+            <FormField Label="Description">
+                <textarea @bind="editModel.Description"
+                          class="form-input"
+                          rows="3"
+                          placeholder="Enter description (optional)"></textarea>
+            </FormField>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField Label="Estimated Hours">
+                    <input type="number"
+                           @bind="editModel.EstimatedHours"
+                           class="form-input"
+                           min="0"
+                           step="0.5" />
+                </FormField>
+
+                <FormField Label="Budget Amount">
+                    <input type="number"
+                           @bind="editModel.BudgetAmount"
+                           class="form-input"
+                           min="0"
+                           step="0.01" />
+                </FormField>
+            </div>
+
+            <FormField Label="Budget Currency">
+                <select @bind="editModel.BudgetCurrency" class="form-input">
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                </select>
+            </FormField>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField Label="Start Date">
+                    <input type="date"
+                           @bind="editModel.StartDate"
+                           class="form-input" />
+                </FormField>
+
+                <FormField Label="End Date">
+                    <input type="date"
+                           @bind="editModel.EndDate"
+                           class="form-input" />
+                </FormField>
+            </div>
+        </div>
+    </Body>
+    <Footer>
+        <Button Variant="secondary" OnClick="CancelEdit">Cancel</Button>
+        <Button Variant="primary" OnClick="SaveWBSItem" IsLoading="@isSaving">
+            @(isSaving ? "Saving..." : editingItemId == 0 ? "Create" : "Update")
+        </Button>
+    </Footer>
+</Modal>
+
+<!-- Delete Confirmation Modal -->
+<Modal @bind-IsOpen="showDeleteModal" Title="Confirm Delete" Size="md">
+    <Body>
+        <div class="text-center py-4">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete WBS Item</h3>
+            <p class="text-sm text-gray-600">
+                Are you sure you want to delete <strong>@deleteItemName</strong>?
+                @if (deleteItemHasChildren)
+                {
+                    <span class="block mt-2 text-red-600 font-medium">Warning: This item has child items that may be affected.</span>
+                }
+            </p>
+        </div>
+    </Body>
+    <Footer>
+        <Button Variant="secondary" OnClick="CancelDelete">Cancel</Button>
+        <Button Variant="danger" OnClick="ConfirmDeleteItem" IsLoading="@isDeleting">
+            @(isDeleting ? "Deleting..." : "Delete")
+        </Button>
+    </Footer>
+</Modal>
+
+@code {
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+    [Inject] private IMediator? Mediator { get; set; }
+
+    private bool isLoading = false;
+    private bool isSaving = false;
+    private bool isDeleting = false;
+    private bool showEditModal = false;
+    private bool showDeleteModal = false;
+    private string? errorMessage;
+    private string? successMessage;
+
+    private long selectedProjectId = 0;
+    private long editingItemId = 0;
+    private long? editingParentId = null;
+    private long deleteItemId = 0;
+    private string deleteItemName = string.Empty;
+    private bool deleteItemHasChildren = false;
+
+    private List<ProjectOption> projects = new();
+    private List<WBSItemDto> allWBSItems = new();
+    private List<WBSTreeNode> wbsTree = new();
+
+    private decimal totalEstimatedHours = 0;
+    private decimal totalActualHours = 0;
+    private decimal totalBudget = 0;
+
+    private EditModel editModel = new();
+
+    private class ProjectOption
+    {
+        public long Id { get; set; }
+        public string ProjectNumber { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+    }
+
+    private class WBSTreeNode
+    {
+        public WBSItemDto Item { get; set; } = null!;
+        public List<WBSTreeNode> Children { get; set; } = new();
+        public bool IsExpanded { get; set; } = true;
+    }
+
+    private class EditModel
+    {
+        public string WBSCode { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public int SortOrder { get; set; } = 0;
+        public decimal? EstimatedHours { get; set; }
+        public decimal? BudgetAmount { get; set; }
+        public string BudgetCurrency { get; set; } = "USD";
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjects();
+    }
+
+    private async Task LoadProjects()
+    {
+        try
+        {
+            var projectsResult = await Mediator!.Send(new GetAllProjectsQuery { ActiveOnly = true });
+            projects = projectsResult.Select(p => new ProjectOption
+            {
+                Id = p.Id,
+                ProjectNumber = p.ProjectNumber,
+                Name = p.Name
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load projects: {ex.Message}";
+        }
+    }
+
+    private async Task OnProjectChanged()
+    {
+        if (selectedProjectId > 0)
+        {
+            await LoadWBSItems();
+        }
+        else
+        {
+            allWBSItems.Clear();
+            wbsTree.Clear();
+        }
+    }
+
+    private async Task LoadWBSItems()
+    {
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            allWBSItems = (await Mediator!.Send(new GetProjectWBSItemsQuery { ProjectId = selectedProjectId })).ToList();
+            BuildTree();
+            CalculateSummary();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load WBS items: {ex.Message}";
+            allWBSItems.Clear();
+            wbsTree.Clear();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void BuildTree()
+    {
+        wbsTree.Clear();
+
+        var nodeLookup = allWBSItems.ToDictionary(
+            item => item.Id,
+            item => new WBSTreeNode { Item = item }
+        );
+
+        foreach (var node in nodeLookup.Values)
+        {
+            if (node.Item.ParentId.HasValue && nodeLookup.TryGetValue(node.Item.ParentId.Value, out var parent))
+            {
+                parent.Children.Add(node);
+            }
+            else
+            {
+                wbsTree.Add(node);
+            }
+        }
+
+        // Sort children by SortOrder
+        foreach (var node in nodeLookup.Values)
+        {
+            node.Children = node.Children.OrderBy(c => c.Item.SortOrder).ToList();
+        }
+
+        wbsTree = wbsTree.OrderBy(n => n.Item.SortOrder).ToList();
+    }
+
+    private void CalculateSummary()
+    {
+        totalEstimatedHours = allWBSItems.Sum(i => i.EstimatedHours ?? 0);
+        totalActualHours = allWBSItems.Sum(i => i.ActualHours ?? 0);
+        totalBudget = allWBSItems.Sum(i => i.BudgetAmount ?? 0);
+    }
+
+    private void OpenCreateModal(long? parentId)
+    {
+        editingItemId = 0;
+        editingParentId = parentId;
+        editModel = new EditModel
+        {
+            SortOrder = parentId.HasValue
+                ? allWBSItems.Count(i => i.ParentId == parentId)
+                : allWBSItems.Count(i => !i.ParentId.HasValue),
+            BudgetCurrency = "USD"
+        };
+        showEditModal = true;
+    }
+
+    private void OpenEditModal(WBSItemDto item)
+    {
+        editingItemId = item.Id;
+        editingParentId = item.ParentId;
+        editModel = new EditModel
+        {
+            WBSCode = item.WBSCode,
+            Name = item.Name,
+            Description = item.Description,
+            SortOrder = item.SortOrder,
+            EstimatedHours = item.EstimatedHours,
+            BudgetAmount = item.BudgetAmount,
+            BudgetCurrency = item.BudgetCurrency ?? "USD",
+            StartDate = item.StartDate,
+            EndDate = item.EndDate
+        };
+        showEditModal = true;
+    }
+
+    private void CancelEdit()
+    {
+        showEditModal = false;
+        editingItemId = 0;
+        editingParentId = null;
+        editModel = new();
+    }
+
+    private async Task SaveWBSItem()
+    {
+        if (string.IsNullOrWhiteSpace(editModel.Name))
+        {
+            errorMessage = "Name is required";
+            return;
+        }
+
+        if (editingItemId == 0 && string.IsNullOrWhiteSpace(editModel.WBSCode))
+        {
+            errorMessage = "WBS Code is required";
+            return;
+        }
+
+        isSaving = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            if (editingItemId == 0)
+            {
+                // Create
+                var command = new CreateWBSItemCommand
+                {
+                    ProjectId = selectedProjectId,
+                    ParentId = editingParentId,
+                    WBSCode = editModel.WBSCode,
+                    Name = editModel.Name,
+                    Description = editModel.Description,
+                    SortOrder = editModel.SortOrder,
+                    EstimatedHours = editModel.EstimatedHours,
+                    BudgetAmount = editModel.BudgetAmount,
+                    BudgetCurrency = editModel.BudgetAmount.HasValue ? editModel.BudgetCurrency : null,
+                    StartDate = editModel.StartDate,
+                    EndDate = editModel.EndDate
+                };
+
+                await Mediator!.Send(command);
+                successMessage = "WBS item created successfully";
+            }
+            else
+            {
+                // Update
+                var command = new UpdateWBSItemCommand
+                {
+                    Id = editingItemId,
+                    Name = editModel.Name,
+                    Description = editModel.Description,
+                    SortOrder = editModel.SortOrder,
+                    EstimatedHours = editModel.EstimatedHours,
+                    BudgetAmount = editModel.BudgetAmount,
+                    BudgetCurrency = editModel.BudgetAmount.HasValue ? editModel.BudgetCurrency : null,
+                    StartDate = editModel.StartDate,
+                    EndDate = editModel.EndDate
+                };
+
+                await Mediator!.Send(command);
+                successMessage = "WBS item updated successfully";
+            }
+
+            showEditModal = false;
+            await LoadWBSItems();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to save WBS item: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void OpenDeleteModal(WBSItemDto item)
+    {
+        deleteItemId = item.Id;
+        deleteItemName = item.Name;
+        deleteItemHasChildren = allWBSItems.Any(i => i.ParentId == item.Id);
+        showDeleteModal = true;
+    }
+
+    private void CancelDelete()
+    {
+        showDeleteModal = false;
+        deleteItemId = 0;
+        deleteItemName = string.Empty;
+        deleteItemHasChildren = false;
+    }
+
+    private async Task ConfirmDeleteItem()
+    {
+        isDeleting = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var command = new DeleteWBSItemCommand { Id = deleteItemId };
+            await Mediator!.Send(command);
+            successMessage = "WBS item deleted successfully";
+            showDeleteModal = false;
+            await LoadWBSItems();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to delete WBS item: {ex.Message}";
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    private void ToggleNode(WBSTreeNode node)
+    {
+        node.IsExpanded = !node.IsExpanded;
+    }
+
+    private RenderFragment RenderWBSNode(WBSTreeNode node, int depth) => builder =>
+    {
+        var item = node.Item;
+        var hasChildren = node.Children.Any();
+        var indent = depth * 24;
+
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow");
+
+        // Main content row
+        builder.OpenElement(2, "div");
+        builder.AddAttribute(3, "class", "flex items-center space-x-3");
+        builder.AddAttribute(4, "style", $"padding-left: {indent}px");
+
+        // Expand/collapse button
+        if (hasChildren)
+        {
+            builder.OpenElement(5, "button");
+            builder.AddAttribute(6, "class", "text-gray-500 hover:text-gray-700 transition-transform p-1");
+            builder.AddAttribute(7, "onclick", EventCallback.Factory.Create(this, () => ToggleNode(node)));
+            builder.AddAttribute(8, "aria-label", node.IsExpanded ? $"Collapse {item.Name}" : $"Expand {item.Name}");
+            builder.AddAttribute(9, "aria-expanded", node.IsExpanded.ToString().ToLower());
+            builder.OpenElement(10, "svg");
+            builder.AddAttribute(11, "class", $"w-5 h-5 transition-transform {(node.IsExpanded ? "rotate-90" : "")}");
+            builder.AddAttribute(12, "fill", "none");
+            builder.AddAttribute(13, "stroke", "currentColor");
+            builder.AddAttribute(14, "viewBox", "0 0 24 24");
+            builder.AddAttribute(15, "aria-hidden", "true");
+            builder.OpenElement(16, "path");
+            builder.AddAttribute(17, "stroke-linecap", "round");
+            builder.AddAttribute(18, "stroke-linejoin", "round");
+            builder.AddAttribute(19, "stroke-width", "2");
+            builder.AddAttribute(20, "d", "M9 5l7 7-7 7");
+            builder.CloseElement(); // path
+            builder.CloseElement(); // svg
+            builder.CloseElement(); // button
+        }
+        else
+        {
+            builder.OpenElement(18, "div");
+            builder.AddAttribute(19, "class", "w-5");
+            builder.CloseElement();
+        }
+
+        // WBS Code
+        builder.OpenElement(20, "span");
+        builder.AddAttribute(21, "class", "font-mono text-sm font-semibold text-teal-600 min-w-[80px]");
+        builder.AddContent(22, item.WBSCode);
+        builder.CloseElement();
+
+        // Name
+        builder.OpenElement(23, "div");
+        builder.AddAttribute(24, "class", "flex-1");
+        builder.OpenElement(25, "div");
+        builder.AddAttribute(26, "class", "font-medium text-gray-900");
+        builder.AddContent(27, item.Name);
+        builder.CloseElement();
+        if (!string.IsNullOrEmpty(item.Description))
+        {
+            builder.OpenElement(28, "div");
+            builder.AddAttribute(29, "class", "text-sm text-gray-500 mt-1");
+            builder.AddContent(30, item.Description);
+            builder.CloseElement();
+        }
+        builder.CloseElement();
+
+        // Hours
+        builder.OpenElement(31, "div");
+        builder.AddAttribute(32, "class", "text-sm text-gray-600 min-w-[100px]");
+        builder.OpenElement(33, "div");
+        builder.AddContent(34, $"{item.EstimatedHours?.ToString("N1") ?? "0"} / {item.ActualHours?.ToString("N1") ?? "0"} hrs");
+        builder.CloseElement();
+        builder.CloseElement();
+
+        // Progress bar
+        builder.OpenElement(35, "div");
+        builder.AddAttribute(36, "class", "min-w-[150px]");
+        builder.OpenElement(37, "div");
+        builder.AddAttribute(38, "class", "flex items-center space-x-2");
+        builder.OpenElement(39, "div");
+        builder.AddAttribute(40, "class", "flex-1 bg-gray-200 rounded-full h-2");
+        builder.AddAttribute(41, "role", "progressbar");
+        builder.AddAttribute(42, "aria-valuenow", item.PercentComplete.ToString());
+        builder.AddAttribute(43, "aria-valuemin", "0");
+        builder.AddAttribute(44, "aria-valuemax", "100");
+        builder.AddAttribute(45, "aria-label", $"{item.Name} progress");
+        builder.OpenElement(46, "div");
+        builder.AddAttribute(47, "class", $"{GetProgressBarClass(item.PercentComplete)} h-2 rounded-full");
+        builder.AddAttribute(48, "style", $"width: {item.PercentComplete}%");
+        builder.CloseElement();
+        builder.CloseElement();
+        builder.OpenElement(44, "span");
+        builder.AddAttribute(45, "class", "text-xs text-gray-600 w-10 text-right");
+        builder.AddContent(46, $"{item.PercentComplete}%");
+        builder.CloseElement();
+        builder.CloseElement();
+        builder.CloseElement();
+
+        // Budget
+        if (item.BudgetAmount.HasValue)
+        {
+            builder.OpenElement(47, "div");
+            builder.AddAttribute(48, "class", "text-sm font-medium text-gray-900 min-w-[100px] text-right");
+            builder.AddContent(49, item.BudgetAmount.Value.ToString("C0"));
+            builder.CloseElement();
+        }
+        else
+        {
+            builder.OpenElement(50, "div");
+            builder.AddAttribute(51, "class", "min-w-[100px]");
+            builder.CloseElement();
+        }
+
+        // Action buttons
+        builder.OpenElement(52, "div");
+        builder.AddAttribute(53, "class", "flex items-center space-x-2");
+
+        // Add Child button
+        builder.OpenComponent<Button>(54);
+        builder.AddAttribute(55, "Variant", "outline");
+        builder.AddAttribute(56, "Size", "sm");
+        builder.AddAttribute(57, "OnClick", EventCallback.Factory.Create(this, () => OpenCreateModal(item.Id)));
+        builder.AddAttribute(58, "ChildContent", (RenderFragment)(b =>
+        {
+            b.OpenElement(0, "svg");
+            b.AddAttribute(1, "class", "w-4 h-4");
+            b.AddAttribute(2, "fill", "none");
+            b.AddAttribute(3, "stroke", "currentColor");
+            b.AddAttribute(4, "viewBox", "0 0 24 24");
+            b.AddAttribute(5, "aria-hidden", "true");
+            b.OpenElement(6, "path");
+            b.AddAttribute(7, "stroke-linecap", "round");
+            b.AddAttribute(8, "stroke-linejoin", "round");
+            b.AddAttribute(9, "stroke-width", "2");
+            b.AddAttribute(10, "d", "M12 6v6m0 0v6m0-6h6m-6 0H6");
+            b.CloseElement();
+            b.CloseElement();
+            b.OpenElement(11, "span");
+            b.AddAttribute(12, "class", "sr-only");
+            b.AddContent(13, $"Add child to {item.Name}");
+            b.CloseElement();
+        }));
+        builder.CloseComponent();
+
+        // Edit button
+        builder.OpenComponent<Button>(59);
+        builder.AddAttribute(60, "Variant", "outline");
+        builder.AddAttribute(61, "Size", "sm");
+        builder.AddAttribute(62, "OnClick", EventCallback.Factory.Create(this, () => OpenEditModal(item)));
+        builder.AddAttribute(63, "ChildContent", (RenderFragment)(b =>
+        {
+            b.OpenElement(0, "svg");
+            b.AddAttribute(1, "class", "w-4 h-4");
+            b.AddAttribute(2, "fill", "none");
+            b.AddAttribute(3, "stroke", "currentColor");
+            b.AddAttribute(4, "viewBox", "0 0 24 24");
+            b.AddAttribute(5, "aria-hidden", "true");
+            b.OpenElement(6, "path");
+            b.AddAttribute(7, "stroke-linecap", "round");
+            b.AddAttribute(8, "stroke-linejoin", "round");
+            b.AddAttribute(9, "stroke-width", "2");
+            b.AddAttribute(10, "d", "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z");
+            b.CloseElement();
+            b.CloseElement();
+            b.OpenElement(11, "span");
+            b.AddAttribute(12, "class", "sr-only");
+            b.AddContent(13, $"Edit {item.Name}");
+            b.CloseElement();
+        }));
+        builder.CloseComponent();
+
+        // Delete button
+        builder.OpenComponent<Button>(64);
+        builder.AddAttribute(65, "Variant", "danger");
+        builder.AddAttribute(66, "Size", "sm");
+        builder.AddAttribute(67, "OnClick", EventCallback.Factory.Create(this, () => OpenDeleteModal(item)));
+        builder.AddAttribute(68, "ChildContent", (RenderFragment)(b =>
+        {
+            b.OpenElement(0, "svg");
+            b.AddAttribute(1, "class", "w-4 h-4");
+            b.AddAttribute(2, "fill", "none");
+            b.AddAttribute(3, "stroke", "currentColor");
+            b.AddAttribute(4, "viewBox", "0 0 24 24");
+            b.AddAttribute(5, "aria-hidden", "true");
+            b.OpenElement(6, "path");
+            b.AddAttribute(7, "stroke-linecap", "round");
+            b.AddAttribute(8, "stroke-linejoin", "round");
+            b.AddAttribute(9, "stroke-width", "2");
+            b.AddAttribute(10, "d", "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16");
+            b.CloseElement();
+            b.CloseElement();
+            b.OpenElement(11, "span");
+            b.AddAttribute(12, "class", "sr-only");
+            b.AddContent(13, $"Delete {item.Name}");
+            b.CloseElement();
+        }));
+        builder.CloseComponent();
+
+        builder.CloseElement(); // action buttons div
+        builder.CloseElement(); // main content row
+
+        builder.CloseElement(); // main container
+
+        // Render children if expanded
+        if (hasChildren && node.IsExpanded)
+        {
+            builder.OpenElement(69, "div");
+            builder.AddAttribute(70, "class", "mt-2 space-y-2");
+            foreach (var child in node.Children)
+            {
+                builder.AddContent(71, RenderWBSNode(child, depth + 1));
+            }
+            builder.CloseElement();
+        }
+    };
+
+    private string GetProgressBarClass(decimal percent) => percent switch
+    {
+        100 => "bg-green-500",
+        >= 75 => "bg-teal-500",
+        >= 50 => "bg-blue-500",
+        >= 25 => "bg-yellow-500",
+        _ => "bg-gray-400"
+    };
+}

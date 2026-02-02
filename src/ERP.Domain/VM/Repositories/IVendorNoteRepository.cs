@@ -12,7 +12,7 @@ public interface IVendorNoteRepository : IRepository<VendorNote>
     /// <summary>
     /// Get note by ID.
     /// </summary>
-    Task<VendorNote?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<VendorNote?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get all notes for a vendor.

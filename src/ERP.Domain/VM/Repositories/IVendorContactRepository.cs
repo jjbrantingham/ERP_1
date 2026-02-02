@@ -13,7 +13,7 @@ public interface IVendorContactRepository : IRepository<VendorContact>
     /// <summary>
     /// Get contact by ID.
     /// </summary>
-    Task<VendorContact?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<VendorContact?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get all contacts for a vendor.

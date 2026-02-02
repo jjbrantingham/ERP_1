@@ -2,13 +2,14 @@ using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Security;
 using ERP.Application.PM.DTOs;
 using ERP.Domain.PM.Repositories;
+using MediatR;
 
 namespace ERP.Application.PM.Queries;
 
 /// <summary>
 /// Handler for GetProjectContractsQuery.
 /// </summary>
-public class GetProjectContractsQueryHandler : IQueryHandler<GetProjectContractsQuery, IEnumerable<ContractDto>>
+public class GetProjectContractsQueryHandler : IRequestHandler<GetProjectContractsQuery, IEnumerable<ContractDto>>
 {
     private readonly IContractRepository _contractRepository;
     private readonly ICurrentUserService _currentUser;

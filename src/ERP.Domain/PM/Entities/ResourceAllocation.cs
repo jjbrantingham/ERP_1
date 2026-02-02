@@ -3,9 +3,10 @@ using ERP.Domain.Common;
 namespace ERP.Domain.PM.Entities;
 
 /// <summary>
-/// Represents a resource (employee) allocation to a project
+/// Represents a resource (employee) allocation to a project.
+/// Treated as an aggregate root to support independent repository operations.
 /// </summary>
-public class ResourceAllocation : Entity
+public class ResourceAllocation : AggregateRoot
 {
     public long ProjectId { get; private set; }
     public long EmployeeId { get; private set; }

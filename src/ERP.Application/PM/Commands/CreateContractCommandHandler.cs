@@ -3,13 +3,14 @@ using ERP.Application.Common.Security;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.PM.Entities;
 using ERP.Domain.PM.Repositories;
+using MediatR;
 
 namespace ERP.Application.PM.Commands;
 
 /// <summary>
 /// Handler for CreateContractCommand.
 /// </summary>
-public class CreateContractCommandHandler : ICommandHandler<CreateContractCommand, long>
+public class CreateContractCommandHandler : IRequestHandler<CreateContractCommand, long>
 {
     private readonly IContractRepository _contractRepository;
     private readonly IUnitOfWork _unitOfWork;

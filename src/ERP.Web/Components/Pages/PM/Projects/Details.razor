@@ -1,4 +1,10 @@
-@page "/pm/projects/{Id:int}/details"
+@page "/pm/projects/{Id:long}/details"
+@using MediatR
+@using ERP.Application.PM.Queries
+@using ERP.Application.PM.DTOs
+@using ERP.Application.CRM.Queries
+@using ERP.Application.HR.Queries
+@using ERP.Application.HR.DTOs
 
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumb -->
@@ -13,6 +19,10 @@
     @if (isLoading)
     {
         <LoadingSpinner />
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <Alert Type="error">@errorMessage</Alert>
     }
     else if (project == null)
     {
@@ -137,14 +147,16 @@
 </div>
 
 @code {
-    [Parameter] public int Id { get; set; }
+    [Parameter] public long Id { get; set; }
     [Inject] private NavigationManager? NavigationManager { get; set; }
+    [Inject] private IMediator? Mediator { get; set; }
 
     private ProjectDetail? project;
     private bool isLoading = true;
     private int activeTab = 0;
-    private decimal hoursLogged = 856;
-    private int daysRemaining = 142;
+    private decimal hoursLogged = 0;
+    private int daysRemaining = 0;
+    private string? errorMessage;
 
     private class ProjectDetail
     {
@@ -200,87 +212,173 @@
     private async Task LoadProject()
     {
         isLoading = true;
+        errorMessage = null;
         try
         {
-            await Task.Delay(500);
+            // Load project from backend
+            var projectDto = await Mediator!.Send(new GetProjectByIdQuery { ProjectId = Id });
+
+            // Load client name if we have a client
+            string? clientName = null;
+            if (projectDto.ClientId > 0)
+            {
+                try
+                {
+                    var clientDto = await Mediator.Send(new GetClientByIdQuery { ClientId = projectDto.ClientId });
+                    clientName = clientDto.Name;
+                }
+                catch
+                {
+                    // Client not found, continue without name
+                }
+            }
+
+            // Load project manager name if we have one
+            string? projectManagerName = null;
+            if (projectDto.ProjectManagerId.HasValue)
+            {
+                try
+                {
+                    var employeeDto = await Mediator.Send(new GetEmployeeByIdQuery { EmployeeId = projectDto.ProjectManagerId.Value });
+                    projectManagerName = employeeDto.FullName;
+                }
+                catch
+                {
+                    // Employee not found, continue without name
+                }
+            }
 
             project = new ProjectDetail
             {
-                Id = Id,
-                ProjectNumber = "PRJ-2024-001",
-                Name = "ERP Implementation",
-                Description = "Complete ERP system implementation including HR, CRM, Financial, and Project Management modules",
-                Type = "Billable",
-                Status = "Active",
-                ClientId = 1,
-                ClientName = "Acme Corporation",
-                ProjectManager = "Alice Johnson",
-                Budget = 250000,
-                BudgetedHours = 2000,
-                BillingMode = "T&M",
-                PercentComplete = 45,
-                StartDate = DateTime.Now.AddMonths(-3),
-                EndDate = DateTime.Now.AddMonths(6)
+                Id = projectDto.Id,
+                ProjectNumber = projectDto.ProjectNumber,
+                Name = projectDto.Name,
+                Description = projectDto.Description,
+                Type = projectDto.ProjectType,
+                Status = projectDto.Status,
+                ClientId = projectDto.ClientId,
+                ClientName = clientName,
+                ProjectManager = projectManagerName,
+                Budget = projectDto.BudgetAmount ?? 0,
+                BudgetedHours = 0, // TODO: Calculate from WBS
+                BillingMode = FormatBillingMode(projectDto.BillingMode),
+                PercentComplete = 0, // TODO: Calculate from WBS
+                StartDate = projectDto.StartDate,
+                EndDate = projectDto.EndDate
             };
 
-            wbsItems = new List<WBSItem>
+            // Load WBS items
+            var wbsResult = await Mediator.Send(new GetProjectWBSItemsQuery { ProjectId = Id });
+            wbsItems = BuildWBSTree(wbsResult.ToList());
+
+            // Calculate total hours from WBS
+            hoursLogged = wbsItems.Sum(w => w.ActualHours + w.Children.Sum(c => c.ActualHours));
+            project.BudgetedHours = wbsItems.Sum(w => w.BudgetedHours + w.Children.Sum(c => c.BudgetedHours));
+
+            // Calculate overall percent complete (weighted by budgeted hours)
+            if (project.BudgetedHours > 0)
             {
-                new()
+                var totalWeightedProgress = wbsItems.Sum(w =>
                 {
-                    Id = 1, Code = "1.0", Name = "Discovery & Planning", Type = "Phase", BudgetedHours = 200, ActualHours = 195, PercentComplete = 100, IsExpanded = true,
-                    Children = new()
-                    {
-                        new() { Id = 11, Code = "1.1", Name = "Requirements Gathering", Type = "Task", BudgetedHours = 80, ActualHours = 85, PercentComplete = 100 },
-                        new() { Id = 12, Code = "1.2", Name = "Gap Analysis", Type = "Task", BudgetedHours = 60, ActualHours = 55, PercentComplete = 100 },
-                        new() { Id = 13, Code = "1.3", Name = "Project Planning", Type = "Task", BudgetedHours = 60, ActualHours = 55, PercentComplete = 100 },
-                    }
-                },
-                new()
-                {
-                    Id = 2, Code = "2.0", Name = "Design & Architecture", Type = "Phase", BudgetedHours = 300, ActualHours = 280, PercentComplete = 95, IsExpanded = true,
-                    Children = new()
-                    {
-                        new() { Id = 21, Code = "2.1", Name = "System Architecture", Type = "Task", BudgetedHours = 120, ActualHours = 115, PercentComplete = 100 },
-                        new() { Id = 22, Code = "2.2", Name = "Database Design", Type = "Task", BudgetedHours = 100, ActualHours = 95, PercentComplete = 100 },
-                        new() { Id = 23, Code = "2.3", Name = "UI/UX Design", Type = "Task", BudgetedHours = 80, ActualHours = 70, PercentComplete = 85 },
-                    }
-                },
-                new()
-                {
-                    Id = 3, Code = "3.0", Name = "Development", Type = "Phase", BudgetedHours = 1000, ActualHours = 350, PercentComplete = 35, IsExpanded = false,
-                    Children = new()
-                    {
-                        new() { Id = 31, Code = "3.1", Name = "Core Modules", Type = "Task", BudgetedHours = 400, ActualHours = 200, PercentComplete = 50 },
-                        new() { Id = 32, Code = "3.2", Name = "Integration Layer", Type = "Task", BudgetedHours = 300, ActualHours = 100, PercentComplete = 33 },
-                        new() { Id = 33, Code = "3.3", Name = "Reporting Module", Type = "Task", BudgetedHours = 300, ActualHours = 50, PercentComplete = 17 },
-                    }
-                },
-                new()
-                {
-                    Id = 4, Code = "4.0", Name = "Testing & QA", Type = "Phase", BudgetedHours = 300, ActualHours = 31, PercentComplete = 10, IsExpanded = false,
-                },
-                new()
-                {
-                    Id = 5, Code = "5.0", Name = "Deployment & Training", Type = "Phase", BudgetedHours = 200, ActualHours = 0, PercentComplete = 0, IsExpanded = false,
-                },
-            };
+                    var itemHours = w.BudgetedHours + w.Children.Sum(c => c.BudgetedHours);
+                    var itemProgress = w.Children.Any()
+                        ? w.Children.Sum(c => c.BudgetedHours * c.PercentComplete) / Math.Max(1, w.Children.Sum(c => c.BudgetedHours))
+                        : w.PercentComplete;
+                    return itemHours * itemProgress;
+                });
+                project.PercentComplete = (int)(totalWeightedProgress / project.BudgetedHours);
+            }
 
-            teamMembers = new List<TeamMember>
+            // Load resource allocations (team members)
+            var allocationsResult = await Mediator.Send(new GetProjectResourceAllocationsQuery { ProjectId = Id, ActiveOnly = true });
+            teamMembers = new List<TeamMember>();
+
+            foreach (var allocation in allocationsResult)
             {
-                new() { Id = 1, Name = "Alice Johnson", Role = "Project Manager", ResourceType = "PM", AllocatedHours = 400, LoggedHours = 180, BillRate = 175 },
-                new() { Id = 2, Name = "Bob Smith", Role = "Lead Developer", ResourceType = "Sr Developer", AllocatedHours = 600, LoggedHours = 270, BillRate = 200 },
-                new() { Id = 3, Name = "Carol Williams", Role = "Business Analyst", ResourceType = "BA", AllocatedHours = 300, LoggedHours = 135, BillRate = 150 },
-                new() { Id = 4, Name = "David Brown", Role = "Developer", ResourceType = "Developer", AllocatedHours = 400, LoggedHours = 180, BillRate = 150 },
-                new() { Id = 5, Name = "Emily Davis", Role = "QA Engineer", ResourceType = "QA", AllocatedHours = 200, LoggedHours = 56, BillRate = 125 },
-                new() { Id = 6, Name = "Frank Miller", Role = "UI/UX Designer", ResourceType = "Designer", AllocatedHours = 100, LoggedHours = 35, BillRate = 140 },
-            };
+                try
+                {
+                    var employeeDto = await Mediator.Send(new GetEmployeeByIdQuery { EmployeeId = allocation.EmployeeId });
+                    teamMembers.Add(new TeamMember
+                    {
+                        Id = allocation.Id,
+                        Name = employeeDto.FullName,
+                        Role = allocation.Role ?? employeeDto.JobTitle ?? "Team Member",
+                        ResourceType = employeeDto.ResourceTypeName ?? "Internal",
+                        AllocatedHours = allocation.AllocatedHoursPerWeek,
+                        LoggedHours = 0, // TODO: Get actual logged hours from timesheet data
+                        BillRate = 0 // TODO: Get bill rate from employee rates
+                    });
+                }
+                catch
+                {
+                    // Employee not found or error loading, skip this allocation
+                    continue;
+                }
+            }
 
-            daysRemaining = project.EndDate.HasValue ? (int)(project.EndDate.Value - DateTime.Today).TotalDays : 0;
+            daysRemaining = project.EndDate.HasValue ? Math.Max(0, (int)(project.EndDate.Value - DateTime.Today).TotalDays) : 0;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load project: {ex.Message}";
+            project = null;
         }
         finally
         {
             isLoading = false;
         }
+    }
+
+    private string FormatBillingMode(string mode) => mode switch
+    {
+        "TimeAndMaterials" => "T&M",
+        "FixedPrice" => "Fixed Price",
+        "Milestone" => "Milestone",
+        "PercentComplete" => "% Complete",
+        "NonBillable" => "N/A",
+        _ => mode
+    };
+
+    private List<WBSItem> BuildWBSTree(List<WBSItemDto> items)
+    {
+        var result = new List<WBSItem>();
+        var lookup = items.ToDictionary(i => i.Id);
+
+        // First, create WBSItem objects
+        var wbsLookup = items.Select(i => new WBSItem
+        {
+            Id = i.Id,
+            Code = i.WBSCode,
+            Name = i.Name,
+            Type = i.ParentId.HasValue ? "Task" : "Phase",
+            BudgetedHours = i.EstimatedHours ?? 0,
+            ActualHours = i.ActualHours ?? 0,
+            PercentComplete = (int)i.PercentComplete,
+            IsExpanded = !i.ParentId.HasValue // Expand phases by default
+        }).ToDictionary(w => w.Id);
+
+        // Build tree
+        foreach (var item in items)
+        {
+            var wbsItem = wbsLookup[item.Id];
+            if (item.ParentId.HasValue && wbsLookup.ContainsKey(item.ParentId.Value))
+            {
+                wbsLookup[item.ParentId.Value].Children.Add(wbsItem);
+            }
+            else
+            {
+                result.Add(wbsItem);
+            }
+        }
+
+        // Sort by code
+        result = result.OrderBy(w => w.Code).ToList();
+        foreach (var item in result)
+        {
+            item.Children = item.Children.OrderBy(c => c.Code).ToList();
+        }
+
+        return result;
     }
 
     private RenderFragment RenderOverviewTab() => __builder =>

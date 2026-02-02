@@ -3,13 +3,14 @@ using ERP.Application.Common.Security;
 using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.PM.Entities;
 using ERP.Domain.PM.Repositories;
+using MediatR;
 
 namespace ERP.Application.PM.Commands;
 
 /// <summary>
 /// Handler for CreateWBSItemCommand.
 /// </summary>
-public class CreateWBSItemCommandHandler : ICommandHandler<CreateWBSItemCommand, long>
+public class CreateWBSItemCommandHandler : IRequestHandler<CreateWBSItemCommand, long>
 {
     private readonly IWBSItemRepository _wbsItemRepository;
     private readonly IUnitOfWork _unitOfWork;

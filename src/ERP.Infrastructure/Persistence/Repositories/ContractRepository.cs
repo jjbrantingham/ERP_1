@@ -16,7 +16,7 @@ public class ContractRepository : Repository<Contract>, IContractRepository
     {
     }
 
-    public async Task<Contract?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<Contract?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.Contracts
             .Include(c => c.Project)
@@ -65,5 +65,20 @@ public class ContractRepository : Repository<Contract>, IContractRepository
     {
         return await _context.Contracts
             .AnyAsync(c => c.ContractNumber == contractNumber, cancellationToken);
+    }
+
+    public async Task<IEnumerable<Contract>> GetAllWithProjectAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Contracts
+            .Include(c => c.Project)
+            .OrderByDescending(c => c.CreatedDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<Contract?> GetByIdWithProjectAsync(long id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Contracts
+            .Include(c => c.Project)
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 }

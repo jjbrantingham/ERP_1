@@ -1,4 +1,8 @@
-@page "/crm/clients/{Id:int}"
+@page "/crm/clients/{Id:long}"
+@using ERP.Application.CRM.DTOs
+@using ERP.Application.CRM.Queries
+@using MediatR
+@inject IMediator Mediator
 
 <div class="container mx-auto px-4 py-8 max-w-4xl">
     <!-- Breadcrumb -->
@@ -237,7 +241,7 @@
 </Modal>
 
 @code {
-    [Parameter] public int Id { get; set; }
+    [Parameter] public long Id { get; set; }
     [Inject] private NavigationManager? NavigationManager { get; set; }
 
     private ClientFormModel? model;
@@ -296,29 +300,40 @@
         isLoading = true;
         try
         {
-            await Task.Delay(500);
+            var clientDto = await Mediator!.Send(new GetClientByIdQuery { ClientId = Id });
+            if (clientDto == null)
+            {
+                model = null;
+                return;
+            }
+
             model = new ClientFormModel
             {
-                Code = "CLI-001",
-                Name = "Acme Corporation",
-                LegalName = "Acme Corporation Inc.",
-                Industry = "Technology",
-                Website = "https://www.acme.com",
-                Status = "Active",
-                PrimaryContactName = "John Davis",
-                PrimaryContactTitle = "VP of Engineering",
-                PrimaryContactEmail = "john.davis@acme.com",
-                PrimaryContactPhone = "+1 (555) 123-4567",
-                BillingStreet = "123 Tech Park Drive",
-                BillingCity = "San Francisco",
-                BillingState = "CA",
-                BillingPostalCode = "94105",
-                BillingCountry = "United States",
-                PaymentTerms = "Net30",
-                CreditLimit = 100000,
-                TaxId = "12-3456789",
-                DefaultBillingMode = "TimeAndMaterials"
+                Code = clientDto.ClientNumber,
+                Name = clientDto.Name,
+                LegalName = clientDto.LegalName,
+                Industry = clientDto.Industry ?? string.Empty,
+                Website = clientDto.Website,
+                Status = clientDto.Status,
+                PrimaryContactName = "N/A", // Contact info not in ClientDto
+                PrimaryContactTitle = null,
+                PrimaryContactEmail = clientDto.PrimaryEmail ?? string.Empty,
+                PrimaryContactPhone = clientDto.PrimaryPhone,
+                BillingStreet = clientDto.BillingStreet,
+                BillingCity = clientDto.BillingCity,
+                BillingState = clientDto.BillingStateProvince,
+                BillingPostalCode = clientDto.BillingPostalCode,
+                BillingCountry = clientDto.BillingCountry,
+                PaymentTerms = clientDto.PaymentTerms ?? "Net30",
+                CreditLimit = string.IsNullOrEmpty(clientDto.CreditLimit) ? null : decimal.TryParse(clientDto.CreditLimit, out var cl) ? cl : null,
+                TaxId = clientDto.TaxId,
+                DefaultBillingMode = "TimeAndMaterials" // Not in DTO, default value
             };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading client: {ex.Message}");
+            model = null;
         }
         finally
         {
@@ -329,9 +344,34 @@
     private async Task HandleSubmit()
     {
         isSaving = true;
+        showSuccessMessage = false;
+        showErrorMessage = false;
+
         try
         {
-            await Task.Delay(1000);
+            // TODO: Implement update when UpdateClientCommand is available
+            // var command = new UpdateClientCommand
+            // {
+            //     Id = Id,
+            //     Name = model!.Name,
+            //     LegalName = model.LegalName,
+            //     Industry = model.Industry,
+            //     Website = model.Website,
+            //     Status = model.Status,
+            //     PrimaryEmail = model.PrimaryContactEmail,
+            //     PrimaryPhone = model.PrimaryContactPhone,
+            //     BillingStreet = model.BillingStreet,
+            //     BillingCity = model.BillingCity,
+            //     BillingStateProvince = model.BillingState,
+            //     BillingPostalCode = model.BillingPostalCode,
+            //     BillingCountry = model.BillingCountry,
+            //     PaymentTerms = model.PaymentTerms,
+            //     CreditLimit = model.CreditLimit?.ToString(),
+            //     TaxId = model.TaxId
+            // };
+            // await Mediator!.Send(command);
+
+            await Task.Delay(500); // Simulate save for now
             showSuccessMessage = true;
         }
         catch (Exception ex)
@@ -353,8 +393,17 @@
         isDeleting = true;
         try
         {
-            await Task.Delay(1500);
+            // TODO: Implement delete when DeleteClientCommand is available
+            // await Mediator!.Send(new DeleteClientCommand { Id = Id });
+
+            await Task.Delay(500); // Simulate for now
             NavigationManager?.NavigateTo("/crm/clients");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to delete client: {ex.Message}";
+            showErrorMessage = true;
+            showDeleteModal = false;
         }
         finally
         {

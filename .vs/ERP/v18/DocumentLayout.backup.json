@@ -3,6 +3,22 @@
   "WorkspaceRootPath": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{B2F17B2C-3023-4249-AA15-5FD0AE2EA2B3}|tests\\ERP.IntegrationTests\\ERP.IntegrationTests.csproj|c:\\users\\jj\\source\\repos\\claude\\erp_1\\tests\\erp.integrationtests\\pm\\createprojectcommandhandlertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B2F17B2C-3023-4249-AA15-5FD0AE2EA2B3}|tests\\ERP.IntegrationTests\\ERP.IntegrationTests.csproj|solutionrelative:tests\\erp.integrationtests\\pm\\createprojectcommandhandlertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E620A5E5-4FD8-427B-8F31-CDB720A96103}|src\\ERP.Web\\ERP.Web.csproj|c:\\users\\jj\\source\\repos\\claude\\erp_1\\src\\erp.web\\components\\pages\\pm\\projects\\details.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E620A5E5-4FD8-427B-8F31-CDB720A96103}|src\\ERP.Web\\ERP.Web.csproj|solutionrelative:src\\erp.web\\components\\pages\\pm\\projects\\details.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EC2835E6-5528-4AEE-9D5C-9055738081EE}|src\\ERP.Application\\ERP.Application.csproj|c:\\users\\jj\\source\\repos\\claude\\erp_1\\src\\erp.application\\pm\\queries\\getprojectbyidqueryhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EC2835E6-5528-4AEE-9D5C-9055738081EE}|src\\ERP.Application\\ERP.Application.csproj|solutionrelative:src\\erp.application\\pm\\queries\\getprojectbyidqueryhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{36D82EBF-B126-4803-84C2-0ED4244259A3}|src\\ERP.Infrastructure\\ERP.Infrastructure.csproj|c:\\users\\jj\\source\\repos\\claude\\erp_1\\src\\erp.infrastructure\\persistence\\databaseinitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{36D82EBF-B126-4803-84C2-0ED4244259A3}|src\\ERP.Infrastructure\\ERP.Infrastructure.csproj|solutionrelative:src\\erp.infrastructure\\persistence\\databaseinitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{E620A5E5-4FD8-427B-8F31-CDB720A96103}|src\\ERP.Web\\ERP.Web.csproj|c:\\users\\jj\\source\\repos\\claude\\erp_1\\src\\erp.web\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{E620A5E5-4FD8-427B-8F31-CDB720A96103}|src\\ERP.Web\\ERP.Web.csproj|solutionrelative:src\\erp.web\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
@@ -13,10 +29,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{36D82EBF-B126-4803-84C2-0ED4244259A3}|src\\ERP.Infrastructure\\ERP.Infrastructure.csproj|c:\\users\\jj\\source\\repos\\claude\\erp_1\\src\\erp.infrastructure\\persistence\\erpdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{36D82EBF-B126-4803-84C2-0ED4244259A3}|src\\ERP.Infrastructure\\ERP.Infrastructure.csproj|solutionrelative:src\\erp.infrastructure\\persistence\\erpdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36D82EBF-B126-4803-84C2-0ED4244259A3}|src\\ERP.Infrastructure\\ERP.Infrastructure.csproj|c:\\users\\jj\\source\\repos\\claude\\erp_1\\src\\erp.infrastructure\\persistence\\databaseinitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36D82EBF-B126-4803-84C2-0ED4244259A3}|src\\ERP.Infrastructure\\ERP.Infrastructure.csproj|solutionrelative:src\\erp.infrastructure\\persistence\\databaseinitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jj\\AppData\\Local\\SourceServer\\fe38bd7b357f699df0fd5111d3ada3f5f8e1807d6140029dade919f048c86dcf\\src\\ERP.Infrastructure\\Persistence\\ERPDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
@@ -90,10 +102,6 @@
       "RelativeMoniker": "D:0:0:{EC2835E6-5528-4AEE-9D5C-9055738081EE}|src\\ERP.Application\\ERP.Application.csproj|solutionrelative:src\\erp.application\\rpt\\queries\\getprojectprofitabilityqueryhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EC2835E6-5528-4AEE-9D5C-9055738081EE}|src\\ERP.Application\\ERP.Application.csproj|c:\\users\\jj\\source\\repos\\claude\\erp_1\\src\\erp.application\\pm\\queries\\getprojectbyidqueryhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EC2835E6-5528-4AEE-9D5C-9055738081EE}|src\\ERP.Application\\ERP.Application.csproj|solutionrelative:src\\erp.application\\pm\\queries\\getprojectbyidqueryhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{EC2835E6-5528-4AEE-9D5C-9055738081EE}|src\\ERP.Application\\ERP.Application.csproj|c:\\users\\jj\\source\\repos\\claude\\erp_1\\src\\erp.application\\audit\\handlers\\anonymizeuserdatacommandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EC2835E6-5528-4AEE-9D5C-9055738081EE}|src\\ERP.Application\\ERP.Application.csproj|solutionrelative:src\\erp.application\\audit\\handlers\\anonymizeuserdatacommandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -141,11 +149,36 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CreateProjectCommandHandlerTests.cs",
+              "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\tests\\ERP.IntegrationTests\\PM\\CreateProjectCommandHandlerTests.cs",
+              "RelativeDocumentMoniker": "tests\\ERP.IntegrationTests\\PM\\CreateProjectCommandHandlerTests.cs",
+              "ToolTip": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\tests\\ERP.IntegrationTests\\PM\\CreateProjectCommandHandlerTests.cs",
+              "RelativeToolTip": "tests\\ERP.IntegrationTests\\PM\\CreateProjectCommandHandlerTests.cs",
+              "ViewState": "AgIAACoAAAAAAAAAAAAewDIAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T21:52:55.038Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "Details.razor",
+              "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Web\\Components\\Pages\\PM\\Projects\\Details.razor",
+              "RelativeDocumentMoniker": "src\\ERP.Web\\Components\\Pages\\PM\\Projects\\Details.razor",
+              "ToolTip": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Web\\Components\\Pages\\PM\\Projects\\Details.razor",
+              "RelativeToolTip": "src\\ERP.Web\\Components\\Pages\\PM\\Projects\\Details.razor",
+              "ViewState": "AgIAAEEBAAAAAAAAAAAAwEcBAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-28T21:42:50.786Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "appsettings.Development.json",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Web\\appsettings.Development.json",
               "RelativeDocumentMoniker": "src\\ERP.Web\\appsettings.Development.json",
@@ -153,8 +186,7 @@
               "RelativeToolTip": "src\\ERP.Web\\appsettings.Development.json",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-01-25T16:35:08.057Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-25T16:35:08.057Z"
             },
             {
               "$type": "Document",
@@ -164,14 +196,13 @@
               "RelativeDocumentMoniker": "src\\ERP.Infrastructure\\Persistence\\DatabaseInitializer.cs",
               "ToolTip": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Infrastructure\\Persistence\\DatabaseInitializer.cs",
               "RelativeToolTip": "src\\ERP.Infrastructure\\Persistence\\DatabaseInitializer.cs",
-              "ViewState": "AgIAAEkAAAAAAAAAAAAswFEAAABFAAAAAAAAAA==",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAswFUAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-24T20:43:53.874Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-24T20:43:53.874Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "ERPDbContext.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Infrastructure\\Persistence\\ERPDbContext.cs",
               "RelativeDocumentMoniker": "src\\ERP.Infrastructure\\Persistence\\ERPDbContext.cs",
@@ -179,12 +210,11 @@
               "RelativeToolTip": "src\\ERP.Infrastructure\\Persistence\\ERPDbContext.cs",
               "ViewState": "AgIAAMIAAAAAAAAAAAArwMsAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-24T20:45:49.625Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-24T20:45:49.625Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "ERPDbContext.cs",
               "DocumentMoniker": "C:\\Users\\jj\\AppData\\Local\\SourceServer\\fe38bd7b357f699df0fd5111d3ada3f5f8e1807d6140029dade919f048c86dcf\\src\\ERP.Infrastructure\\Persistence\\ERPDbContext.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\AppData\\Local\\SourceServer\\fe38bd7b357f699df0fd5111d3ada3f5f8e1807d6140029dade919f048c86dcf\\src\\ERP.Infrastructure\\Persistence\\ERPDbContext.cs",
@@ -192,12 +222,11 @@
               "RelativeToolTip": "..\\..\\..\\..\\AppData\\Local\\SourceServer\\fe38bd7b357f699df0fd5111d3ada3f5f8e1807d6140029dade919f048c86dcf\\src\\ERP.Infrastructure\\Persistence\\ERPDbContext.cs",
               "ViewState": "AgIAALgAAAAAAAAAAAArwMEAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-24T20:41:52.903Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-24T20:41:52.903Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Web\\appsettings.json",
               "RelativeDocumentMoniker": "src\\ERP.Web\\appsettings.json",
@@ -205,12 +234,11 @@
               "RelativeToolTip": "src\\ERP.Web\\appsettings.json",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAAA0AAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-01-20T21:29:09.804Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-20T21:29:09.804Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "CreateInvoiceCommandHandler.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\BILL\\Commands\\CreateInvoiceCommandHandler.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\BILL\\Commands\\CreateInvoiceCommandHandler.cs",
@@ -218,12 +246,11 @@
               "RelativeToolTip": "src\\ERP.Application\\BILL\\Commands\\CreateInvoiceCommandHandler.cs",
               "ViewState": "AgIAAF4AAAAAAAAAAAAuwGUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-13T23:04:20.645Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-13T23:04:20.645Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "GetUserActivityQueryHandler.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\AUDIT\\Handlers\\GetUserActivityQueryHandler.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\AUDIT\\Handlers\\GetUserActivityQueryHandler.cs",
@@ -231,12 +258,11 @@
               "RelativeToolTip": "src\\ERP.Application\\AUDIT\\Handlers\\GetUserActivityQueryHandler.cs",
               "ViewState": "AgIAABgAAAAAAAAAAAAMwB8AAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-13T23:04:10.657Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-13T23:04:10.657Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 10,
               "Title": "FinancialAuditEventHandlers.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\AUDIT\\EventHandlers\\FinancialAuditEventHandlers.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\AUDIT\\EventHandlers\\FinancialAuditEventHandlers.cs",
@@ -244,12 +270,11 @@
               "RelativeToolTip": "src\\ERP.Application\\AUDIT\\EventHandlers\\FinancialAuditEventHandlers.cs",
               "ViewState": "AgIAAG0AAAAAAAAAAAAMwHQAAABNAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-07T16:34:41.723Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-07T16:34:41.723Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 12,
               "Title": "GetBalanceSheetQuery.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\RPT\\Queries\\GetBalanceSheetQuery.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\RPT\\Queries\\GetBalanceSheetQuery.cs",
@@ -257,12 +282,11 @@
               "RelativeToolTip": "src\\ERP.Application\\RPT\\Queries\\GetBalanceSheetQuery.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-06T15:42:49.207Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-06T15:42:49.207Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 13,
               "Title": "ProjectReportDtos.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\RPT\\DTOs\\ProjectReportDtos.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\RPT\\DTOs\\ProjectReportDtos.cs",
@@ -270,12 +294,11 @@
               "RelativeToolTip": "src\\ERP.Application\\RPT\\DTOs\\ProjectReportDtos.cs",
               "ViewState": "AgIAAFwAAAAAAAAAAIA6wBsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-06T15:38:00.347Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-06T15:38:00.347Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 14,
               "Title": "GetTimesheetSummaryQuery.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\RPT\\Queries\\GetTimesheetSummaryQuery.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\RPT\\Queries\\GetTimesheetSummaryQuery.cs",
@@ -283,12 +306,11 @@
               "RelativeToolTip": "src\\ERP.Application\\RPT\\Queries\\GetTimesheetSummaryQuery.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-06T15:28:23.236Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-06T15:28:23.236Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 15,
               "Title": "IDbContext.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\Common\\Interfaces\\IDbContext.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\Common\\Interfaces\\IDbContext.cs",
@@ -296,25 +318,23 @@
               "RelativeToolTip": "src\\ERP.Application\\Common\\Interfaces\\IDbContext.cs",
               "ViewState": "AgIAAD4AAAAAAAAAAAA2wEMAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-06T14:44:48.207Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-06T14:44:48.207Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 17,
               "Title": "GetAllProjectsQuery.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\PM\\Queries\\GetAllProjectsQuery.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\PM\\Queries\\GetAllProjectsQuery.cs",
               "ToolTip": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\PM\\Queries\\GetAllProjectsQuery.cs",
               "RelativeToolTip": "src\\ERP.Application\\PM\\Queries\\GetAllProjectsQuery.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAiwAgAAABCAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAiwAgAAABEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-05T15:18:00.303Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-05T15:18:00.303Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 18,
               "Title": "GetProjectWBSItemsQuery.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\PM\\Queries\\GetProjectWBSItemsQuery.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\PM\\Queries\\GetProjectWBSItemsQuery.cs",
@@ -322,12 +342,11 @@
               "RelativeToolTip": "src\\ERP.Application\\PM\\Queries\\GetProjectWBSItemsQuery.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAiwAsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-05T15:17:47.136Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-05T15:17:47.136Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 21,
               "Title": "GetAllVendorsQuery.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\VM\\Queries\\GetAllVendorsQuery.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\VM\\Queries\\GetAllVendorsQuery.cs",
@@ -335,12 +354,11 @@
               "RelativeToolTip": "src\\ERP.Application\\VM\\Queries\\GetAllVendorsQuery.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAiwAgAAABAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-05T15:13:34.721Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-05T15:13:34.721Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 20,
               "Title": "GetVendorNotesQuery.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\VM\\Queries\\GetVendorNotesQuery.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\VM\\Queries\\GetVendorNotesQuery.cs",
@@ -348,12 +366,11 @@
               "RelativeToolTip": "src\\ERP.Application\\VM\\Queries\\GetVendorNotesQuery.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-05T15:13:16.877Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-05T15:13:16.877Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 22,
               "Title": "GetProjectContractsQuery.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\PM\\Queries\\GetProjectContractsQuery.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\PM\\Queries\\GetProjectContractsQuery.cs",
@@ -361,12 +378,11 @@
               "RelativeToolTip": "src\\ERP.Application\\PM\\Queries\\GetProjectContractsQuery.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-05T15:12:41.778Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-05T15:12:41.778Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 23,
               "Title": "JournalEntryWorkflowEventHandlers.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\WF\\EventHandlers\\JournalEntryWorkflowEventHandlers.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\WF\\EventHandlers\\JournalEntryWorkflowEventHandlers.cs",
@@ -374,12 +390,11 @@
               "RelativeToolTip": "src\\ERP.Application\\WF\\EventHandlers\\JournalEntryWorkflowEventHandlers.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-05T14:35:50.619Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-05T14:35:50.619Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 19,
               "Title": "CreateVendorContactCommandHandler.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\VM\\Commands\\CreateVendorContactCommandHandler.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\VM\\Commands\\CreateVendorContactCommandHandler.cs",
@@ -387,12 +402,11 @@
               "RelativeToolTip": "src\\ERP.Application\\VM\\Commands\\CreateVendorContactCommandHandler.cs",
               "ViewState": "AgIAAAQAAAAAAAAAAAAcwAsAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-05T14:35:35.09Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-05T14:35:35.09Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 24,
               "Title": "GetProjectProfitabilityQueryHandler.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\RPT\\Queries\\GetProjectProfitabilityQueryHandler.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\RPT\\Queries\\GetProjectProfitabilityQueryHandler.cs",
@@ -400,25 +414,23 @@
               "RelativeToolTip": "src\\ERP.Application\\RPT\\Queries\\GetProjectProfitabilityQueryHandler.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-05T14:35:22.296Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-05T14:35:22.296Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 2,
               "Title": "GetProjectByIdQueryHandler.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\PM\\Queries\\GetProjectByIdQueryHandler.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\PM\\Queries\\GetProjectByIdQueryHandler.cs",
               "ToolTip": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\PM\\Queries\\GetProjectByIdQueryHandler.cs",
               "RelativeToolTip": "src\\ERP.Application\\PM\\Queries\\GetProjectByIdQueryHandler.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAswAoAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-05T14:34:33.445Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-05T14:34:33.445Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 26,
               "Title": "ERP.Infrastructure.csproj",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Infrastructure\\ERP.Infrastructure.csproj",
               "RelativeDocumentMoniker": "src\\ERP.Infrastructure\\ERP.Infrastructure.csproj",
@@ -426,12 +438,11 @@
               "RelativeToolTip": "src\\ERP.Infrastructure\\ERP.Infrastructure.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-01-05T14:22:28.948Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-05T14:22:28.948Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 27,
               "Title": "IRoleRepository.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\Common\\Interfaces\\IRoleRepository.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\Common\\Interfaces\\IRoleRepository.cs",
@@ -439,12 +450,11 @@
               "RelativeToolTip": "src\\ERP.Application\\Common\\Interfaces\\IRoleRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T20:41:49.172Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-04T20:41:49.172Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 16,
               "Title": "GetAuditTrailForEntityQueryHandler.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\AUDIT\\Handlers\\GetAuditTrailForEntityQueryHandler.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\AUDIT\\Handlers\\GetAuditTrailForEntityQueryHandler.cs",
@@ -452,12 +462,11 @@
               "RelativeToolTip": "src\\ERP.Application\\AUDIT\\Handlers\\GetAuditTrailForEntityQueryHandler.cs",
               "ViewState": "AgIAABYAAAAAAAAAAAAcwB0AAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T20:41:42.504Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-04T20:41:42.504Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 11,
               "Title": "GetAuditLogByIdQueryHandler.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\AUDIT\\Handlers\\GetAuditLogByIdQueryHandler.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\AUDIT\\Handlers\\GetAuditLogByIdQueryHandler.cs",
@@ -465,12 +474,11 @@
               "RelativeToolTip": "src\\ERP.Application\\AUDIT\\Handlers\\GetAuditLogByIdQueryHandler.cs",
               "ViewState": "AgIAABgAAAAAAAAAAAD4vx4AAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T20:39:48.949Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-04T20:39:48.949Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 25,
               "Title": "AnonymizeUserDataCommandHandler.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\AUDIT\\Handlers\\AnonymizeUserDataCommandHandler.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\AUDIT\\Handlers\\AnonymizeUserDataCommandHandler.cs",
@@ -478,12 +486,11 @@
               "RelativeToolTip": "src\\ERP.Application\\AUDIT\\Handlers\\AnonymizeUserDataCommandHandler.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAIBJwBMAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T20:32:36.754Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-04T20:32:36.754Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 28,
               "Title": "AuthenticationAuditEventHandlers.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Application\\AUDIT\\EventHandlers\\AuthenticationAuditEventHandlers.cs",
               "RelativeDocumentMoniker": "src\\ERP.Application\\AUDIT\\EventHandlers\\AuthenticationAuditEventHandlers.cs",
@@ -491,12 +498,11 @@
               "RelativeToolTip": "src\\ERP.Application\\AUDIT\\EventHandlers\\AuthenticationAuditEventHandlers.cs",
               "ViewState": "AgIAAAUAAAAAAAAAAAAawA4AAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T20:14:29.13Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-04T20:14:29.13Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 29,
               "Title": "Client.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\CRM\\Entities\\Client.cs",
               "RelativeDocumentMoniker": "src\\ERP.Domain\\CRM\\Entities\\Client.cs",
@@ -504,25 +510,23 @@
               "RelativeToolTip": "src\\ERP.Domain\\CRM\\Entities\\Client.cs",
               "ViewState": "AgIAACIAAAAAAAAAAIA6wCkAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T19:46:18.063Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-04T19:46:18.063Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 30,
               "Title": "ExpenseItem.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\TE\\Entities\\ExpenseItem.cs",
               "RelativeDocumentMoniker": "src\\ERP.Domain\\TE\\Entities\\ExpenseItem.cs",
               "ToolTip": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\TE\\Entities\\ExpenseItem.cs",
               "RelativeToolTip": "src\\ERP.Domain\\TE\\Entities\\ExpenseItem.cs",
-              "ViewState": "AgIAADIAAAAAAAAAAAAhwDwAAAAIAAAAAAAAAA==",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAhwDcAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T19:40:31.275Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-04T19:40:31.275Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 31,
               "Title": "InvoiceNumber.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\BILL\\ValueObjects\\InvoiceNumber.cs",
               "RelativeDocumentMoniker": "src\\ERP.Domain\\BILL\\ValueObjects\\InvoiceNumber.cs",
@@ -530,12 +534,11 @@
               "RelativeToolTip": "src\\ERP.Domain\\BILL\\ValueObjects\\InvoiceNumber.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T19:33:44.086Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-04T19:33:44.086Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 33,
               "Title": "ReportEnums.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\RPT\\Enums\\ReportEnums.cs",
               "RelativeDocumentMoniker": "src\\ERP.Domain\\RPT\\Enums\\ReportEnums.cs",
@@ -543,12 +546,11 @@
               "RelativeToolTip": "src\\ERP.Domain\\RPT\\Enums\\ReportEnums.cs",
               "ViewState": "AgIAABEAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T19:31:00.583Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-04T19:31:00.583Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 32,
               "Title": "IAuditLogRepository.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\AUDIT\\Repositories\\IAuditLogRepository.cs",
               "RelativeDocumentMoniker": "src\\ERP.Domain\\AUDIT\\Repositories\\IAuditLogRepository.cs",
@@ -556,12 +558,11 @@
               "RelativeToolTip": "src\\ERP.Domain\\AUDIT\\Repositories\\IAuditLogRepository.cs",
               "ViewState": "AgIAAAEAAAAAAAAAAAAawAoAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T19:28:53.614Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-04T19:28:53.614Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 34,
               "Title": "Money.cs",
               "DocumentMoniker": "C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Domain\\Common\\ValueObjects\\Money.cs",
               "RelativeDocumentMoniker": "src\\ERP.Domain\\Common\\ValueObjects\\Money.cs",
@@ -569,8 +570,7 @@
               "RelativeToolTip": "src\\ERP.Domain\\Common\\ValueObjects\\Money.cs",
               "ViewState": "AgIAACcAAAAAAAAAAAAawDAAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T19:22:18.711Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-04T19:22:18.711Z"
             }
           ]
         }

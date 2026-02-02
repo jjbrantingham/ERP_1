@@ -5,7 +5,18 @@
       "Bash(dotnet test:*)",
       "Bash(dotnet build:*)",
       "Bash(ls -la \"C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\.claude\\commands\"\" && ls -la \"C:UsersjjsourcereposClaudeERP_1.claudecommandsagents\"\")",
-      "Bash(dotnet clean:*)"
+      "Bash(dotnet clean:*)",
+      "Bash(dotnet ef migrations add:*)",
+      "Bash(dir \"C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Web\\Pages\" /b)",
+      "Bash(cmd /c \"dir /b C:\\Users\\jj\\source\\repos\\Claude\\ERP_1\\src\\ERP.Web\")",
+      "SlashCommand(/agents:ui-review-expert)",
+      "SlashCommand(/agents:senior-dotnet-expert)",
+      "Bash(findstr:*)",
+      "Bash(cmd /c \"findstr /i /c:\"\"error\"\" /c:\"\"succeeded\"\" /c:\"\"failed\"\"\")",
+      "Bash(cmd /c \"findstr /v /c:\"\"MSB302\"\"\")",
+      "Bash(Select-String -Pattern \"Build succeeded|error CS|error RZ|Error\\(s\\)|Warning\\(s\\)\")",
+      "Bash(ForEach-Object { $_ine })",
+      "Bash(Select-String -Pattern \"error CS|error RZ\")"
     ]
   }
 }

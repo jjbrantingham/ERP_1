@@ -1,4 +1,8 @@
 @page "/crm/clients/create"
+@using ERP.Application.CRM.Commands
+@using ERP.Domain.CRM.Enums
+@using MediatR
+@inject IMediator Mediator
 
 <div class="container mx-auto px-4 py-8 max-w-4xl">
     <!-- Breadcrumb -->
@@ -264,7 +268,27 @@
 
         try
         {
-            await Task.Delay(1500);
+            var command = new CreateClientCommand
+            {
+                Name = model.Name,
+                ClientType = MapStringToClientType(model.Status),
+                LegalName = model.LegalName,
+                TaxId = model.TaxId,
+                Website = model.Website,
+                Industry = model.Industry,
+                PrimaryEmail = model.PrimaryContactEmail,
+                PrimaryPhone = model.PrimaryContactPhone,
+                BillingStreet = model.BillingStreet,
+                BillingCity = model.BillingCity,
+                BillingStateProvince = model.BillingState,
+                BillingPostalCode = model.BillingPostalCode,
+                BillingCountry = model.BillingCountry,
+                PaymentTerms = model.PaymentTerms,
+                CreditLimit = model.CreditLimit?.ToString(),
+                Notes = model.Notes
+            };
+
+            var clientId = await Mediator!.Send(command);
             showSuccessMessage = true;
             await Task.Delay(1000);
             NavigationManager?.NavigateTo("/crm/clients");
@@ -278,6 +302,18 @@
         {
             isSaving = false;
         }
+    }
+
+    private ClientType MapStringToClientType(string status)
+    {
+        // Map the status string to ClientType enum (defaulting to Corporate)
+        return status switch
+        {
+            "Active" => ClientType.Corporate,
+            "Prospect" => ClientType.Corporate,
+            "Inactive" => ClientType.Corporate,
+            _ => ClientType.Corporate
+        };
     }
 
     private void Cancel() => NavigationManager?.NavigateTo("/crm/clients");

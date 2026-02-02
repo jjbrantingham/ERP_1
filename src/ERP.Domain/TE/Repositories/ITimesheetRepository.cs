@@ -13,7 +13,7 @@ public interface ITimesheetRepository : IRepository<Timesheet>
     /// <summary>
     /// Get timesheet by ID with all entries.
     /// </summary>
-    Task<Timesheet?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<Timesheet?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get all timesheets for an employee.

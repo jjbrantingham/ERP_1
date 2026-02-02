@@ -1,4 +1,8 @@
 @page "/crm/clients"
+@using ERP.Application.CRM.DTOs
+@using ERP.Application.CRM.Queries
+@using MediatR
+@inject IMediator Mediator
 
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumb -->
@@ -33,12 +37,10 @@
                 <FormField Label="Industry">
                     <select @bind="filterIndustry" @bind:after="ApplyFilters" class="form-input">
                         <option value="">All Industries</option>
-                        <option value="Technology">Technology</option>
-                        <option value="Healthcare">Healthcare</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Manufacturing">Manufacturing</option>
-                        <option value="Retail">Retail</option>
-                        <option value="Construction">Construction</option>
+                        @foreach (var industry in GetUniqueIndustries())
+                        {
+                            <option value="@industry">@industry</option>
+                        }
                     </select>
                 </FormField>
 
@@ -223,17 +225,25 @@
         isLoading = true;
         try
         {
-            await Task.Delay(500);
-            clients = new List<ClientItem>
+            var clientsResult = await Mediator!.Send(new GetAllClientsQuery { ActiveOnly = false });
+            clients = clientsResult.Select(c => new ClientItem
             {
-                new() { Id = 1, Code = "CLI-001", Name = "Acme Corporation", Industry = "Technology", PrimaryContact = "John Davis", Email = "john.davis@acme.com", Status = "Active", ActiveProjects = 3 },
-                new() { Id = 2, Code = "CLI-002", Name = "Global Healthcare Inc", Industry = "Healthcare", PrimaryContact = "Sarah Miller", Email = "sarah.miller@globalhc.com", Status = "Active", ActiveProjects = 2 },
-                new() { Id = 3, Code = "CLI-003", Name = "First National Bank", Industry = "Finance", PrimaryContact = "Michael Brown", Email = "m.brown@fnbank.com", Status = "Active", ActiveProjects = 1 },
-                new() { Id = 4, Code = "CLI-004", Name = "BuildRight Construction", Industry = "Construction", PrimaryContact = "Emily Wilson", Email = "e.wilson@buildright.com", Status = "Prospect", ActiveProjects = 0 },
-                new() { Id = 5, Code = "CLI-005", Name = "TechStart Solutions", Industry = "Technology", PrimaryContact = "David Lee", Email = "d.lee@techstart.io", Status = "Active", ActiveProjects = 2 },
-                new() { Id = 6, Code = "CLI-006", Name = "MediCare Plus", Industry = "Healthcare", PrimaryContact = "Jennifer Adams", Email = "j.adams@medicareplus.com", Status = "Inactive", ActiveProjects = 0 },
-            };
+                Id = c.Id,
+                Code = c.ClientNumber,
+                Name = c.Name,
+                Industry = c.Industry ?? "N/A",
+                PrimaryContact = "N/A", // Will be populated from primary contact
+                Email = c.PrimaryEmail ?? "N/A",
+                Status = c.Status,
+                ActiveProjects = 0 // TODO: Get from projects module when available
+            }).ToList();
             ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            // Log error and show empty list
+            clients = new List<ClientItem>();
+            Console.WriteLine($"Error loading clients: {ex.Message}");
         }
         finally
         {
@@ -285,16 +295,33 @@
         isDeleting = true;
         try
         {
-            await Task.Delay(1000);
+            // TODO: Implement delete when DeleteClientCommand is available
+            // await Mediator!.Send(new DeleteClientCommand { Id = clientToDelete!.Id });
+
+            // For now, just remove from the list locally
             if (clientToDelete != null)
                 clients.Remove(clientToDelete);
             showDeleteModal = false;
             ApplyFilters();
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting client: {ex.Message}");
+        }
         finally
         {
             isDeleting = false;
         }
+    }
+
+    private List<string> GetUniqueIndustries()
+    {
+        return clients
+            .Where(c => !string.IsNullOrEmpty(c.Industry) && c.Industry != "N/A")
+            .Select(c => c.Industry)
+            .Distinct()
+            .OrderBy(i => i)
+            .ToList();
     }
 
     private string GetInitials(string name)

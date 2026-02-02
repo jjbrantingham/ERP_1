@@ -17,7 +17,7 @@ public class ProjectRepository : Repository<Project>, IProjectRepository
     {
     }
 
-    public async Task<Project?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<Project?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.Projects
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);

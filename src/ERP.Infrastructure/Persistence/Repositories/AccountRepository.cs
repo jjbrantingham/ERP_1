@@ -14,7 +14,7 @@ public class AccountRepository : Repository<Account>, IAccountRepository
     {
     }
 
-    public async Task<Account?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<Account?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.Accounts
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
@@ -29,7 +29,7 @@ public class AccountRepository : Repository<Account>, IAccountRepository
             .FirstOrDefaultAsync(a => a.AccountNumber.Value == accountNumberValue, cancellationToken);
     }
 
-    public async Task<IEnumerable<Account>> GetAllAsync(CancellationToken cancellationToken = default)
+    public override async Task<IEnumerable<Account>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Accounts
             .OrderBy(a => a.AccountNumber.Value)

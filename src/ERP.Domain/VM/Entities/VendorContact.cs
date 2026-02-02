@@ -9,7 +9,6 @@ namespace ERP.Domain.VM.Entities;
 /// </summary>
 public class VendorContact : AggregateRoot
 {
-    public long Id { get; private set; }
     public long VendorId { get; private set; }
     public ContactType ContactType { get; private set; }
     public string FirstName { get; private set; } = string.Empty;
@@ -24,11 +23,8 @@ public class VendorContact : AggregateRoot
     // Navigation property
     public Vendor Vendor { get; private set; } = null!;
 
-    // Audit fields
+    // Additional fields
     public bool IsActive { get; private set; }
-    public DateTime CreatedDate { get; private set; }
-    public DateTime? ModifiedDate { get; private set; }
-    public byte[]? RowVersion { get; private set; }
 
     private VendorContact() { } // EF Core
 

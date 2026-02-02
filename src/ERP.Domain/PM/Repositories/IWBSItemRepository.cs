@@ -12,7 +12,7 @@ public interface IWBSItemRepository : IRepository<WBSItem>
     /// <summary>
     /// Get WBS item by ID.
     /// </summary>
-    Task<WBSItem?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<WBSItem?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get all WBS items for a project.

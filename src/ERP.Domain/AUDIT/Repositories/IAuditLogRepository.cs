@@ -13,7 +13,7 @@ public interface IAuditLogRepository : IRepository<AuditLog>
     /// <summary>
     /// Get audit log by ID
     /// </summary>
-    Task<AuditLog?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<AuditLog?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get audit logs for a specific entity

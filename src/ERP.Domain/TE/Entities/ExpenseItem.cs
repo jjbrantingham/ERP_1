@@ -9,7 +9,6 @@ namespace ERP.Domain.TE.Entities;
 /// </summary>
 public class ExpenseItem : AggregateRoot
 {
-    public long Id { get; private set; }
     public long ExpenseReportId { get; private set; }
     public long? ProjectId { get; private set; }
     public DateTime ExpenseDate { get; private set; }
@@ -23,10 +22,6 @@ public class ExpenseItem : AggregateRoot
 
     // Navigation property
     public ExpenseReport ExpenseReport { get; private set; } = null!;
-
-    // Audit fields
-    public DateTime CreatedDate { get; private set; }
-    public DateTime? ModifiedDate { get; private set; }
 
     private ExpenseItem() { } // EF Core
 

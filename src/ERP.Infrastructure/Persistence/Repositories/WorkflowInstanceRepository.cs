@@ -13,7 +13,7 @@ public class WorkflowInstanceRepository : Repository<WorkflowInstance>, IWorkflo
     {
     }
 
-    public async Task<WorkflowInstance?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<WorkflowInstance?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.WorkflowInstances
             .FirstOrDefaultAsync(w => w.Id == id, cancellationToken);

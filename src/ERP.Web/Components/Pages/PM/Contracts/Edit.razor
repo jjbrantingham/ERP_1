@@ -1,0 +1,243 @@
+@page "/pm/contracts/{Id:long}/edit"
+@using System.ComponentModel.DataAnnotations
+@using ERP.Application.PM.DTOs
+@using ERP.Application.PM.Queries
+@using ERP.Application.PM.Commands
+@using ERP.Application.CRM.DTOs
+@using ERP.Application.CRM.Queries
+@using MediatR
+
+@inject IMediator Mediator
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-teal-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/contracts" class="hover:text-teal-600">Contracts</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Edit Contract</span>
+    </nav>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner />
+    }
+    else if (contract == null)
+    {
+        <Alert Type="error">Contract not found</Alert>
+    }
+    else
+    {
+        <!-- Page Header -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">Edit Contract</h1>
+            <p class="mt-1 text-sm text-gray-600">
+                <span class="font-mono text-teal-600">@contract.ContractNumber</span>
+            </p>
+        </div>
+
+        @if (showSuccessMessage)
+        {
+            <Alert Type="success" Dismissible="true" OnDismiss="() => showSuccessMessage = false" Class="mb-4">
+                Contract updated successfully!
+            </Alert>
+        }
+
+        @if (showErrorMessage)
+        {
+            <Alert Type="error" Dismissible="true" OnDismiss="() => showErrorMessage = false" Class="mb-4">
+                @errorMessage
+            </Alert>
+        }
+
+        <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <!-- Basic Information -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Contract Information</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField Label="Contract Number">
+                            <input type="text" value="@contract.ContractNumber" class="form-input bg-gray-100" disabled />
+                            <p class="text-xs text-gray-500 mt-1">Contract number cannot be changed</p>
+                        </FormField>
+
+                        <FormField Label="Contract Type">
+                            <input type="text" value="@contract.ContractType" class="form-input bg-gray-100" disabled />
+                            <p class="text-xs text-gray-500 mt-1">Contract type cannot be changed</p>
+                        </FormField>
+
+                        <div class="md:col-span-2">
+                            <FormField Label="Contract Title">
+                                <input type="text" @bind="model.Title" class="form-input" placeholder="Enter contract title" />
+                            </FormField>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <FormField Label="Description">
+                                <textarea @bind="model.Description" class="form-input" rows="3" placeholder="Contract scope and terms summary..."></textarea>
+                            </FormField>
+                        </div>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Value & Terms -->
+            <Card Class="mb-6">
+                <Header>
+                    <h2 class="text-lg font-semibold text-gray-900">Value & Terms</h2>
+                </Header>
+                <Body>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField Label="Contract Value">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input type="number" @bind="model.ContractValueAmount" class="form-input pl-7" min="0" step="0.01" placeholder="0.00" />
+                            </div>
+                        </FormField>
+
+                        <FormField Label="Currency">
+                            <select @bind="model.ContractValueCurrency" class="form-input">
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                                <option value="GBP">GBP</option>
+                            </select>
+                        </FormField>
+
+                        <FormField Label="Start Date" Required="true">
+                            <input type="date" @bind="model.StartDate" class="form-input" />
+                            <ValidationMessage For="@(() => model.StartDate)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <FormField Label="End Date" Required="true">
+                            <input type="date" @bind="model.EndDate" class="form-input" />
+                            <ValidationMessage For="@(() => model.EndDate)" class="text-sm text-red-600" />
+                        </FormField>
+
+                        <FormField Label="Signed Date">
+                            <input type="date" @bind="model.SignedDate" class="form-input" />
+                        </FormField>
+
+                        <div class="md:col-span-2">
+                            <FormField Label="Terms">
+                                <textarea @bind="model.Terms" class="form-input" rows="4" placeholder="Payment terms and conditions..."></textarea>
+                            </FormField>
+                        </div>
+                    </div>
+                </Body>
+            </Card>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4">
+                <Button Variant="secondary" OnClick="Cancel" Type="button">Cancel</Button>
+                <Button Variant="primary" Type="submit" IsLoading="@isSaving" Disabled="@isSaving">
+                    @(isSaving ? "Saving..." : "Save Changes")
+                </Button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter] public long Id { get; set; }
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private ContractDetailDto? contract;
+    private ContractEditModel model = new();
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool showSuccessMessage = false;
+    private bool showErrorMessage = false;
+    private string errorMessage = string.Empty;
+
+    private class ContractEditModel
+    {
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public decimal? ContractValueAmount { get; set; }
+        public string ContractValueCurrency { get; set; } = "USD";
+
+        [Required(ErrorMessage = "Start date is required")]
+        public DateTime StartDate { get; set; } = DateTime.Today;
+
+        [Required(ErrorMessage = "End date is required")]
+        public DateTime EndDate { get; set; } = DateTime.Today.AddMonths(6);
+
+        public DateTime? SignedDate { get; set; }
+        public string? Terms { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadContract();
+    }
+
+    private async Task LoadContract()
+    {
+        isLoading = true;
+        try
+        {
+            var query = new GetContractByIdQuery { ContractId = Id };
+            contract = await Mediator.Send(query);
+
+            if (contract != null)
+            {
+                model = new ContractEditModel
+                {
+                    Title = contract.Title,
+                    Description = contract.Description,
+                    ContractValueAmount = contract.ContractValueAmount,
+                    ContractValueCurrency = contract.ContractValueCurrency ?? "USD",
+                    StartDate = contract.StartDate,
+                    EndDate = contract.EndDate,
+                    SignedDate = contract.SignedDate,
+                    Terms = contract.Terms
+                };
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSaving = true;
+        try
+        {
+            var command = new UpdateContractCommand
+            {
+                Id = Id,
+                Title = model.Title,
+                Description = model.Description,
+                ContractValueAmount = model.ContractValueAmount,
+                ContractValueCurrency = model.ContractValueCurrency,
+                StartDate = model.StartDate,
+                EndDate = model.EndDate,
+                SignedDate = model.SignedDate,
+                Terms = model.Terms
+            };
+
+            await Mediator.Send(command);
+            showSuccessMessage = true;
+            await Task.Delay(1000);
+            NavigationManager?.NavigateTo($"/pm/contracts/{Id}/details");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to update contract: {ex.Message}";
+            showErrorMessage = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void Cancel() => NavigationManager?.NavigateTo($"/pm/contracts/{Id}/details");
+}

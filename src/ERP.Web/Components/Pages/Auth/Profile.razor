@@ -279,7 +279,7 @@
             profileUpdateSuccess = true;
             isEditingProfile = false;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Handle error
         }
@@ -312,7 +312,7 @@
             passwordUpdateSuccess = true;
             passwordModel = new PasswordModel();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             passwordErrorMessage = "Failed to change password. Please check your current password and try again.";
         }

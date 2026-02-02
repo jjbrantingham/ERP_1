@@ -1,4 +1,14 @@
 @page "/pm/contracts/create"
+@using System.ComponentModel.DataAnnotations
+@using ERP.Application.PM.DTOs
+@using ERP.Application.PM.Commands
+@using ERP.Application.PM.Queries
+@using ERP.Application.CRM.DTOs
+@using ERP.Application.CRM.Queries
+@using ERP.Domain.PM.Enums
+@using MediatR
+
+@inject IMediator Mediator
 
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumb -->
@@ -48,11 +58,11 @@
                     <FormField Label="Contract Type" Required="true">
                         <select @bind="model.Type" class="form-input">
                             <option value="">Select type...</option>
-                            <option value="MSA">Master Service Agreement (MSA)</option>
-                            <option value="SOW">Statement of Work (SOW)</option>
-                            <option value="ChangeOrder">Change Order</option>
-                            <option value="NDA">Non-Disclosure Agreement (NDA)</option>
-                            <option value="Amendment">Amendment</option>
+                            <option value="FixedPrice">Fixed Price</option>
+                            <option value="TimeAndMaterials">Time and Materials</option>
+                            <option value="CostPlus">Cost Plus</option>
+                            <option value="NotToExceed">Not to Exceed</option>
+                            <option value="Retainer">Retainer</option>
                         </select>
                         <ValidationMessage For="@(() => model.Type)" class="text-sm text-red-600" />
                     </FormField>
@@ -250,6 +260,8 @@
         public long? ClientId { get; set; }
 
         public long? ParentContractId { get; set; }
+
+        [Required(ErrorMessage = "Project is required")]
         public long? ProjectId { get; set; }
         public decimal Value { get; set; }
         public string? PaymentTerms { get; set; }
@@ -275,28 +287,32 @@
 
     private async Task LoadReferenceData()
     {
-        await Task.Delay(100);
+        // Load clients from backend
+        var clientsQuery = new GetAllClientsQuery();
+        var clientDtos = await Mediator.Send(clientsQuery);
+        clients = clientDtos.Select(c => new ClientOption { Id = c.Id, Name = c.Name }).ToList();
 
-        clients = new List<ClientOption>
+        // Load projects from backend
+        var projectsQuery = new GetAllProjectsQuery();
+        var projectDtos = await Mediator.Send(projectsQuery);
+        projects = projectDtos.Select(p => new ProjectOption
         {
-            new() { Id = 1, Name = "Acme Corporation" },
-            new() { Id = 2, Name = "Global Industries" },
-            new() { Id = 3, Name = "Tech Solutions Inc" },
-            new() { Id = 4, Name = "Healthcare Plus" },
-        };
+            Id = p.Id,
+            Number = p.ProjectNumber,
+            Name = p.Name
+        }).ToList();
 
-        parentContracts = new List<ContractOption>
-        {
-            new() { Id = 1, Number = "MSA-2023-001", Name = "Master Service Agreement 2023 - Acme" },
-            new() { Id = 2, Number = "MSA-2024-001", Name = "Master Service Agreement 2024 - Global" },
-        };
-
-        projects = new List<ProjectOption>
-        {
-            new() { Id = 1, Number = "PRJ-2024-001", Name = "ERP Implementation" },
-            new() { Id = 2, Number = "PRJ-2024-002", Name = "Cloud Migration" },
-            new() { Id = 3, Number = "PRJ-2024-003", Name = "Mobile App Development" },
-        };
+        // Load existing contracts for parent contract dropdown
+        var contractsQuery = new GetAllContractsQuery();
+        var contractDtos = await Mediator.Send(contractsQuery);
+        parentContracts = contractDtos
+            .Where(c => c.ContractType == "MSA" || c.ContractType == "FixedPrice")
+            .Select(c => new ContractOption
+            {
+                Id = c.Id,
+                Number = c.ContractNumber,
+                Name = c.Title ?? c.ContractNumber
+            }).ToList();
     }
 
     private void GenerateContractNumber()
@@ -308,13 +324,40 @@
 
     private async Task HandleSubmit()
     {
+        if (!model.ProjectId.HasValue)
+        {
+            errorMessage = "Project is required to create a contract";
+            showErrorMessage = true;
+            return;
+        }
+
         isSaving = true;
         try
         {
-            await Task.Delay(1500);
+            // Map form type to ContractType enum
+            if (!Enum.TryParse<ContractType>(model.Type, out var contractType))
+            {
+                contractType = ContractType.FixedPrice;
+            }
+
+            var command = new CreateContractCommand
+            {
+                ProjectId = model.ProjectId.Value,
+                ContractNumber = model.ContractNumber,
+                ContractType = contractType,
+                Title = model.Name,
+                Description = model.Description,
+                ContractValueAmount = model.Value,
+                ContractValueCurrency = "USD",
+                StartDate = model.StartDate,
+                EndDate = model.EndDate ?? model.StartDate.AddMonths(6),
+                Terms = model.PaymentTerms
+            };
+
+            var contractId = await Mediator.Send(command);
             showSuccessMessage = true;
             await Task.Delay(1000);
-            NavigationManager?.NavigateTo("/pm/contracts");
+            NavigationManager?.NavigateTo($"/pm/contracts/{contractId}/details");
         }
         catch (Exception ex)
         {

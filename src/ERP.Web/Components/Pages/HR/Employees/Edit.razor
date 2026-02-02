@@ -1,4 +1,4 @@
-@page "/hr/employees/{Id:int}"
+@page "/hr/employees/{Id:long}"
 
 <div class="container mx-auto px-4 py-8 max-w-4xl">
     <!-- Breadcrumb -->
@@ -167,7 +167,7 @@
 </Modal>
 
 @code {
-    [Parameter] public int Id { get; set; }
+    [Parameter] public long Id { get; set; }
     [Inject] private NavigationManager? NavigationManager { get; set; }
 
     private EmployeeFormModel? model;

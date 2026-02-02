@@ -2,13 +2,14 @@ using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Security;
 using ERP.Application.PM.DTOs;
 using ERP.Domain.PM.Repositories;
+using MediatR;
 
 namespace ERP.Application.PM.Queries;
 
 /// <summary>
 /// Handler for GetProjectWBSItemsQuery.
 /// </summary>
-public class GetProjectWBSItemsQueryHandler : IQueryHandler<GetProjectWBSItemsQuery, IEnumerable<WBSItemDto>>
+public class GetProjectWBSItemsQueryHandler : IRequestHandler<GetProjectWBSItemsQuery, IEnumerable<WBSItemDto>>
 {
     private readonly IWBSItemRepository _wbsItemRepository;
     private readonly ICurrentUserService _currentUser;

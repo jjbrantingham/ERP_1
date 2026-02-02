@@ -4,13 +4,14 @@ using ERP.Domain.Common.ValueObjects;
 using ERP.Domain.PM.Entities;
 using ERP.Domain.PM.Repositories;
 using ERP.Domain.PM.ValueObjects;
+using MediatR;
 
 namespace ERP.Application.PM.Commands;
 
 /// <summary>
 /// Handler for CreateProjectCommand.
 /// </summary>
-public class CreateProjectCommandHandler : ICommandHandler<CreateProjectCommand, long>
+public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand, long>
 {
     private readonly IProjectRepository _projectRepository;
     private readonly IUnitOfWork _unitOfWork;

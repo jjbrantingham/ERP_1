@@ -2,13 +2,14 @@ using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Security;
 using ERP.Application.CRM.DTOs;
 using ERP.Domain.CRM.Repositories;
+using MediatR;
 
 namespace ERP.Application.CRM.Queries;
 
 /// <summary>
 /// Handler for GetClientNotesQuery.
 /// </summary>
-public class GetClientNotesQueryHandler : IQueryHandler<GetClientNotesQuery, IEnumerable<NoteDto>>
+public class GetClientNotesQueryHandler : IRequestHandler<GetClientNotesQuery, IEnumerable<NoteDto>>
 {
     private readonly INoteRepository _noteRepository;
     private readonly ICurrentUserService _currentUser;

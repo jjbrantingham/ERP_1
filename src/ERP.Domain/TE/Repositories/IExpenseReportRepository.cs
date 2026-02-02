@@ -13,7 +13,7 @@ public interface IExpenseReportRepository : IRepository<ExpenseReport>
     /// <summary>
     /// Get expense report by ID with all items.
     /// </summary>
-    Task<ExpenseReport?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<ExpenseReport?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get expense report by report number.

@@ -7,7 +7,6 @@ namespace ERP.Domain.VM.Entities;
 /// </summary>
 public class VendorNote : AggregateRoot
 {
-    public long Id { get; private set; }
     public long VendorId { get; private set; }
     public string Subject { get; private set; } = string.Empty;
     public string Content { get; private set; } = string.Empty;
@@ -16,10 +15,6 @@ public class VendorNote : AggregateRoot
 
     // Navigation property
     public Vendor Vendor { get; private set; } = null!;
-
-    // Audit fields
-    public DateTime CreatedDate { get; private set; }
-    public DateTime? ModifiedDate { get; private set; }
 
     private VendorNote() { } // EF Core
 

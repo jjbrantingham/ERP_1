@@ -3,13 +3,14 @@ using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Security;
 using ERP.Application.CRM.DTOs;
 using ERP.Domain.CRM.Repositories;
+using MediatR;
 
 namespace ERP.Application.CRM.Queries;
 
 /// <summary>
 /// Handler for GetClientByIdQuery.
 /// </summary>
-public class GetClientByIdQueryHandler : IQueryHandler<GetClientByIdQuery, ClientDto>
+public class GetClientByIdQueryHandler : IRequestHandler<GetClientByIdQuery, ClientDto>
 {
     private readonly IClientRepository _clientRepository;
     private readonly ICurrentUserService _currentUser;

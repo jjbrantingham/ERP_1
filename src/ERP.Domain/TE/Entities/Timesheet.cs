@@ -9,7 +9,6 @@ namespace ERP.Domain.TE.Entities;
 /// </summary>
 public class Timesheet : AggregateRoot
 {
-    public long Id { get; private set; }
     public long EmployeeId { get; private set; }
     public DateTime PeriodStart { get; private set; }
     public DateTime PeriodEnd { get; private set; }
@@ -23,11 +22,6 @@ public class Timesheet : AggregateRoot
 
     private readonly List<TimesheetEntry> _entries = new();
     public IReadOnlyCollection<TimesheetEntry> Entries => _entries.AsReadOnly();
-
-    // Audit fields
-    public DateTime CreatedDate { get; private set; }
-    public DateTime? ModifiedDate { get; private set; }
-    public byte[]? RowVersion { get; private set; }
 
     private Timesheet() { } // EF Core
 

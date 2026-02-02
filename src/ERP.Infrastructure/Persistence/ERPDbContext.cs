@@ -54,6 +54,7 @@ public class ERPDbContext : DbContext, IDbContext
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<WBSItem> WBSItems => Set<WBSItem>();
     public DbSet<Contract> Contracts => Set<Contract>();
+    public DbSet<ResourceAllocation> ResourceAllocations => Set<ResourceAllocation>();
 
     // Human Resources (hr schema)
     public DbSet<Employee> Employees => Set<Employee>();

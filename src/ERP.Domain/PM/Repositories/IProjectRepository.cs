@@ -14,7 +14,7 @@ public interface IProjectRepository : IRepository<Project>
     /// <summary>
     /// Get project by ID with all related entities.
     /// </summary>
-    Task<Project?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<Project?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get project by project number.

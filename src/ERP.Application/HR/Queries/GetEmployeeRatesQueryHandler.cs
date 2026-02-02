@@ -2,13 +2,14 @@ using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Security;
 using ERP.Application.HR.DTOs;
 using ERP.Domain.HR.Repositories;
+using MediatR;
 
 namespace ERP.Application.HR.Queries;
 
 /// <summary>
 /// Handler for GetEmployeeRatesQuery.
 /// </summary>
-public class GetEmployeeRatesQueryHandler : IQueryHandler<GetEmployeeRatesQuery, IEnumerable<RateDto>>
+public class GetEmployeeRatesQueryHandler : IRequestHandler<GetEmployeeRatesQuery, IEnumerable<RateDto>>
 {
     private readonly IRateRepository _rateRepository;
     private readonly IEmployeeRepository _employeeRepository;

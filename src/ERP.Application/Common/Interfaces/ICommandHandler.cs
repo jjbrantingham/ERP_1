@@ -1,15 +1,13 @@
+using MediatR;
+
 namespace ERP.Application.Common.Interfaces;
 
 /// <summary>
 /// Handler interface for commands that don't return a result.
 /// </summary>
 /// <typeparam name="TCommand">The type of command to handle.</typeparam>
-public interface ICommandHandler<in TCommand> where TCommand : ICommand
+public interface ICommandHandler<in TCommand> : IRequestHandler<TCommand> where TCommand : ICommand, IRequest
 {
-    /// <summary>
-    /// Handles the command.
-    /// </summary>
-    Task Handle(TCommand command, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -17,10 +15,6 @@ public interface ICommandHandler<in TCommand> where TCommand : ICommand
 /// </summary>
 /// <typeparam name="TCommand">The type of command to handle.</typeparam>
 /// <typeparam name="TResult">The type of result returned.</typeparam>
-public interface ICommandHandler<in TCommand, TResult> where TCommand : ICommand<TResult>
+public interface ICommandHandler<in TCommand, TResult> : IRequestHandler<TCommand, TResult> where TCommand : ICommand<TResult>, IRequest<TResult>
 {
-    /// <summary>
-    /// Handles the command and returns a result.
-    /// </summary>
-    Task<TResult> Handle(TCommand command, CancellationToken cancellationToken = default);
 }

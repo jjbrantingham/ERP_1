@@ -2,13 +2,14 @@ using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Security;
 using ERP.Application.CRM.DTOs;
 using ERP.Domain.CRM.Repositories;
+using MediatR;
 
 namespace ERP.Application.CRM.Queries;
 
 /// <summary>
 /// Handler for GetAllClientsQuery.
 /// </summary>
-public class GetAllClientsQueryHandler : IQueryHandler<GetAllClientsQuery, IEnumerable<ClientDto>>
+public class GetAllClientsQueryHandler : IRequestHandler<GetAllClientsQuery, IEnumerable<ClientDto>>
 {
     private readonly IClientRepository _clientRepository;
     private readonly ICurrentUserService _currentUser;

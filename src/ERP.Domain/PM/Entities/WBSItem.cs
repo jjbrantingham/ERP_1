@@ -77,4 +77,41 @@ public class WBSItem : AggregateRoot
         }
         ModifiedDate = DateTime.UtcNow;
     }
+
+    public void Update(
+        string name,
+        string? description,
+        int displayOrder,
+        Money? budget,
+        decimal? estimatedHours,
+        DateTime? startDate,
+        DateTime? endDate)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Name cannot be empty", nameof(name));
+
+        if (endDate.HasValue && startDate.HasValue && endDate.Value < startDate.Value)
+            throw new ArgumentException("End date must be after start date", nameof(endDate));
+
+        Name = name.Trim();
+        Description = description?.Trim();
+        DisplayOrder = displayOrder;
+        Budget = budget;
+        EstimatedHours = estimatedHours;
+        StartDate = startDate;
+        EndDate = endDate;
+        ModifiedDate = DateTime.UtcNow;
+    }
+
+    public void Activate()
+    {
+        IsActive = true;
+        ModifiedDate = DateTime.UtcNow;
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+        ModifiedDate = DateTime.UtcNow;
+    }
 }

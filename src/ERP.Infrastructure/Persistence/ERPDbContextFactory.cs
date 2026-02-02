@@ -78,7 +78,7 @@ internal class DesignTimeTenantService : ERP.Application.Common.Interfaces.ICurr
     private static readonly Guid DesignTimeTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
     public Guid TenantId => DesignTimeTenantId;
-    public string? TenantName => "DesignTime";
+    public string TenantName => "DesignTime";
     public bool IsSet => true;
 
     public void SetTenant(Guid tenantId, string? tenantName = null)

@@ -198,6 +198,7 @@ builder.Services.AddScoped<INoteRepository, NoteRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IWBSItemRepository, WBSItemRepository>();
 builder.Services.AddScoped<IContractRepository, ContractRepository>();
+builder.Services.AddScoped<IResourceAllocationRepository, ResourceAllocationRepository>();
 
 // VM repositories
 builder.Services.AddScoped<IVendorRepository, VendorRepository>();
@@ -325,6 +326,12 @@ app.UseCors("AllowedOrigins");
 // Serve static files from wwwroot
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+// Use development authentication middleware (demo user for dev/debug mode)
+if (app.Environment.IsDevelopment())
+{
+    app.UseDevelopmentAuth();
+}
 
 // Use tenant resolution middleware
 app.UseTenantResolution();

@@ -1,0 +1,385 @@
+@page "/pm/resource-allocations"
+@using MediatR
+@using ERP.Application.PM.Queries
+@using ERP.Application.PM.Commands
+@using ERP.Application.PM.DTOs
+@using ERP.Application.HR.Queries
+@using ERP.Application.HR.DTOs
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-teal-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/projects" class="hover:text-teal-600">Projects</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">Resource Allocations</span>
+    </nav>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <Alert Type="error" Dismissible="true" OnDismiss="() => errorMessage = null" Class="mb-4">
+            @errorMessage
+        </Alert>
+    }
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Resource Allocations</h1>
+            <p class="mt-1 text-sm text-gray-600">Manage employee assignments to projects</p>
+        </div>
+        <Button Variant="primary" OnClick="NavigateToCreate">
+            <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Allocate Resource
+        </Button>
+    </div>
+
+    <!-- Filter Bar -->
+    <Card Class="mb-6">
+        <Body>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField Label="Filter by Project">
+                    <select @bind="filterProjectId" @bind:after="HandleFilter" class="form-input">
+                        <option value="">All Projects</option>
+                        @foreach (var project in projects)
+                        {
+                            <option value="@project.Id">@project.ProjectNumber - @project.Name</option>
+                        }
+                    </select>
+                </FormField>
+
+                <FormField Label="Status">
+                    <select @bind="filterStatus" @bind:after="HandleFilter" class="form-input">
+                        <option value="">All</option>
+                        <option value="active">Active Only</option>
+                        <option value="inactive">Inactive Only</option>
+                    </select>
+                </FormField>
+
+                <FormField Label="&nbsp;">
+                    <Button Variant="outline" OnClick="ClearFilters" Class="w-full">
+                        Clear Filters
+                    </Button>
+                </FormField>
+            </div>
+        </Body>
+    </Card>
+
+    <!-- Resource Allocations Table -->
+    <DataTable Items="@filteredAllocations"
+               TItem="AllocationListItem"
+               IsLoading="@isLoading"
+               EmptyMessage="No resource allocations found"
+               ShowPagination="true"
+               CurrentPage="@currentPage"
+               CurrentPageChanged="@HandlePageChange"
+               PageSize="10"
+               TotalItems="@totalItems">
+        <Columns>
+            <tr>
+                <th scope="col" class="table-header">Employee</th>
+                <th scope="col" class="table-header">Project</th>
+                <th scope="col" class="table-header">Role</th>
+                <th scope="col" class="table-header">Hours/Week</th>
+                <th scope="col" class="table-header">Start Date</th>
+                <th scope="col" class="table-header">End Date</th>
+                <th scope="col" class="table-header">Status</th>
+                <th scope="col" class="table-header text-right">Actions</th>
+            </tr>
+        </Columns>
+        <Rows>
+            @foreach (var allocation in filteredAllocations ?? Enumerable.Empty<AllocationListItem>())
+            {
+                <tr class="table-row">
+                    <td class="table-cell">
+                        <div>
+                            <div class="font-medium text-gray-900">@allocation.EmployeeName</div>
+                            <div class="text-sm text-gray-500">@allocation.EmployeeNumber</div>
+                        </div>
+                    </td>
+                    <td class="table-cell">
+                        <div>
+                            <a href="/pm/projects/@allocation.ProjectId/details" class="font-medium text-teal-600 hover:text-teal-800 hover:underline">
+                                @allocation.ProjectName
+                            </a>
+                            <div class="text-sm text-gray-500">@allocation.ProjectNumber</div>
+                        </div>
+                    </td>
+                    <td class="table-cell">
+                        @if (!string.IsNullOrEmpty(allocation.Role))
+                        {
+                            <span class="text-gray-900">@allocation.Role</span>
+                        }
+                        else
+                        {
+                            <span class="text-gray-500 italic">Not specified</span>
+                        }
+                    </td>
+                    <td class="table-cell">
+                        <span class="font-medium text-gray-900">@allocation.AllocatedHoursPerWeek</span>
+                        <span class="text-sm text-gray-500">hrs/wk</span>
+                    </td>
+                    <td class="table-cell">
+                        <div class="text-sm text-gray-900">@allocation.StartDate.ToString("MMM dd, yyyy")</div>
+                    </td>
+                    <td class="table-cell">
+                        @if (allocation.EndDate.HasValue)
+                        {
+                            <div class="text-sm text-gray-900">@allocation.EndDate.Value.ToString("MMM dd, yyyy")</div>
+                        }
+                        else
+                        {
+                            <span class="text-gray-500 italic">Ongoing</span>
+                        }
+                    </td>
+                    <td class="table-cell">
+                        <span class="@GetStatusBadgeClass(allocation.IsActive)">
+                            @(allocation.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </td>
+                    <td class="table-cell text-right">
+                        <div class="flex items-center justify-end space-x-2">
+                            <Button Variant="outline" Size="sm" OnClick="() => EditAllocation(allocation.Id)" aria-label="@($"Edit allocation for {allocation.EmployeeName}")">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </Button>
+                            <Button Variant="danger" Size="sm" OnClick="() => ConfirmDelete(allocation.Id, allocation.EmployeeName, allocation.ProjectName)" aria-label="@($"Delete allocation for {allocation.EmployeeName}")">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </Button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </Rows>
+    </DataTable>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<Modal @bind-IsOpen="showDeleteModal" Title="Confirm Delete" Size="md">
+    <Body>
+        <div class="text-center py-4">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete Resource Allocation</h3>
+            <p class="text-sm text-gray-600">
+                Are you sure you want to remove <strong>@employeeToDelete</strong> from <strong>@projectToDelete</strong>?
+            </p>
+        </div>
+    </Body>
+    <Footer>
+        <Button Variant="secondary" OnClick="CancelDelete">Cancel</Button>
+        <Button Variant="danger" OnClick="DeleteAllocation" IsLoading="@isDeleting">
+            @(isDeleting ? "Deleting..." : "Delete")
+        </Button>
+    </Footer>
+</Modal>
+
+@code {
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+    [Inject] private IMediator? Mediator { get; set; }
+
+    private bool isLoading = false;
+    private bool isDeleting = false;
+    private bool showDeleteModal = false;
+    private string filterProjectId = string.Empty;
+    private string filterStatus = string.Empty;
+    private int currentPage = 1;
+    private int totalItems = 0;
+    private long deleteAllocationId = 0;
+    private string employeeToDelete = string.Empty;
+    private string projectToDelete = string.Empty;
+    private string? errorMessage;
+
+    private List<AllocationListItem>? allAllocations;
+    private List<AllocationListItem>? filteredAllocations;
+    private List<ProjectOption> projects = new();
+    private Dictionary<long, string> employeeNames = new();
+
+    private class AllocationListItem
+    {
+        public long Id { get; set; }
+        public long ProjectId { get; set; }
+        public string ProjectNumber { get; set; } = string.Empty;
+        public string ProjectName { get; set; } = string.Empty;
+        public long EmployeeId { get; set; }
+        public string EmployeeNumber { get; set; } = string.Empty;
+        public string EmployeeName { get; set; } = string.Empty;
+        public string? Role { get; set; }
+        public decimal AllocatedHoursPerWeek { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    private class ProjectOption
+    {
+        public long Id { get; set; }
+        public string ProjectNumber { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            // Load all projects
+            var projectsResult = await Mediator!.Send(new GetAllProjectsQuery { ActiveOnly = false });
+            projects = projectsResult.Select(p => new ProjectOption
+            {
+                Id = p.Id,
+                ProjectNumber = p.ProjectNumber,
+                Name = p.Name
+            }).ToList();
+            // Load all employees
+            var employeesResult = await Mediator.Send(new GetAllEmployeesQuery { ActiveOnly = false });
+            employeeNames = employeesResult.ToDictionary(e => e.Id, e => e.FullName);
+
+            // Load allocations for all projects
+            allAllocations = new List<AllocationListItem>();
+            foreach (var project in projects)
+            {
+                var allocations = await Mediator.Send(new GetProjectResourceAllocationsQuery
+                {
+                    ProjectId = project.Id,
+                    ActiveOnly = false
+                });
+
+                foreach (var allocation in allocations)
+                {
+                    var employee = employeesResult.FirstOrDefault(e => e.Id == allocation.EmployeeId);
+                    allAllocations.Add(new AllocationListItem
+                    {
+                        Id = allocation.Id,
+                        ProjectId = allocation.ProjectId,
+                        ProjectNumber = project.ProjectNumber,
+                        ProjectName = project.Name,
+                        EmployeeId = allocation.EmployeeId,
+                        EmployeeNumber = employee?.EmployeeNumber ?? "",
+                        EmployeeName = employeeNames.TryGetValue(allocation.EmployeeId, out var name) ? name : "Unknown",
+                        Role = allocation.Role,
+                        AllocatedHoursPerWeek = allocation.AllocatedHoursPerWeek,
+                        StartDate = allocation.StartDate,
+                        EndDate = allocation.EndDate,
+                        IsActive = allocation.IsActive
+                    });
+                }
+            }
+
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load resource allocations: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        filteredAllocations = allAllocations;
+
+        if (!string.IsNullOrWhiteSpace(filterProjectId) && long.TryParse(filterProjectId, out var projectId))
+        {
+            filteredAllocations = filteredAllocations?
+                .Where(a => a.ProjectId == projectId)
+                .ToList();
+        }
+
+        if (!string.IsNullOrWhiteSpace(filterStatus))
+        {
+            if (filterStatus == "active")
+            {
+                filteredAllocations = filteredAllocations?
+                    .Where(a => a.IsActive)
+                    .ToList();
+            }
+            else if (filterStatus == "inactive")
+            {
+                filteredAllocations = filteredAllocations?
+                    .Where(a => !a.IsActive)
+                    .ToList();
+            }
+        }
+
+        totalItems = filteredAllocations?.Count ?? 0;
+
+        filteredAllocations = filteredAllocations?
+            .Skip((currentPage - 1) * 10)
+            .Take(10)
+            .ToList();
+    }
+
+    private void HandleFilter() { currentPage = 1; ApplyFilters(); }
+
+    private void ClearFilters()
+    {
+        filterProjectId = string.Empty;
+        filterStatus = string.Empty;
+        currentPage = 1;
+        ApplyFilters();
+    }
+
+    private void HandlePageChange(int page) { currentPage = page; ApplyFilters(); }
+
+    private void NavigateToCreate() => NavigationManager?.NavigateTo("/pm/resource-allocations/create");
+    private void EditAllocation(long id) => NavigationManager?.NavigateTo($"/pm/resource-allocations/{id}/edit");
+
+    private void ConfirmDelete(long id, string employeeName, string projectName)
+    {
+        deleteAllocationId = id;
+        employeeToDelete = employeeName;
+        projectToDelete = projectName;
+        showDeleteModal = true;
+    }
+
+    private void CancelDelete()
+    {
+        showDeleteModal = false;
+        deleteAllocationId = 0;
+        employeeToDelete = string.Empty;
+        projectToDelete = string.Empty;
+    }
+
+    private async Task DeleteAllocation()
+    {
+        isDeleting = true;
+        try
+        {
+            await Mediator!.Send(new DeleteResourceAllocationCommand { Id = deleteAllocationId });
+            allAllocations?.RemoveAll(a => a.Id == deleteAllocationId);
+            ApplyFilters();
+            showDeleteModal = false;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to delete allocation: {ex.Message}";
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    private string GetStatusBadgeClass(bool isActive) => isActive
+        ? "px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+        : "px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800";
+}

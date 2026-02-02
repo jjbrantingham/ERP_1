@@ -2,13 +2,14 @@ using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Security;
 using ERP.Application.PM.DTOs;
 using ERP.Domain.PM.Repositories;
+using MediatR;
 
 namespace ERP.Application.PM.Queries;
 
 /// <summary>
 /// Handler for GetProjectByIdQuery.
 /// </summary>
-public class GetProjectByIdQueryHandler : IQueryHandler<GetProjectByIdQuery, ProjectDto>
+public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, ProjectDto>
 {
     private readonly IProjectRepository _projectRepository;
     private readonly ICurrentUserService _currentUser;

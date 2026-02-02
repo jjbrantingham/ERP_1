@@ -1,4 +1,10 @@
-@page "/pm/projects/{Id:int}"
+@page "/pm/projects/{Id:long}"
+@using MediatR
+@using ERP.Application.PM.Commands
+@using ERP.Application.PM.Queries
+@using ERP.Application.CRM.Queries
+@using ERP.Application.HR.Queries
+@using ERP.Domain.PM.Enums
 
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumb -->
@@ -323,8 +329,9 @@
 </Modal>
 
 @code {
-    [Parameter] public int Id { get; set; }
+    [Parameter] public long Id { get; set; }
     [Inject] private NavigationManager? NavigationManager { get; set; }
+    [Inject] private IMediator? Mediator { get; set; }
 
     private ProjectFormModel? model;
     private bool isLoading = true;
@@ -334,7 +341,7 @@
     private bool showSuccessMessage = false;
     private bool showErrorMessage = false;
     private string errorMessage = string.Empty;
-    private decimal actualCost = 85000;
+    private decimal actualCost = 0; // TODO: Calculate from timesheets/expenses
 
     private List<ClientOption> clients = new();
     private List<ContractOption> contracts = new();
@@ -378,23 +385,28 @@
 
     private async Task LoadReferenceData()
     {
-        clients = new List<ClientOption>
+        try
         {
-            new() { Id = 1, Name = "Acme Corporation" },
-            new() { Id = 2, Name = "Global Industries" },
-            new() { Id = 3, Name = "Tech Solutions Inc" },
-        };
-        contracts = new List<ContractOption>
+            // Load clients
+            var clientsResult = await Mediator!.Send(new GetAllClientsQuery { ActiveOnly = true });
+            clients = clientsResult.Select(c => new ClientOption { Id = c.Id, Name = c.Name }).ToList();
+
+            // Load employees for project manager dropdown
+            var employeesResult = await Mediator.Send(new GetAllEmployeesQuery { ActiveOnly = true });
+            projectManagers = employeesResult.Select(e => new EmployeeOption
+            {
+                Id = e.Id,
+                Name = $"{e.FirstName} {e.LastName}".Trim()
+            }).ToList();
+
+            // TODO: Load contracts when contract queries are available
+            contracts = new List<ContractOption>();
+        }
+        catch (Exception ex)
         {
-            new() { Id = 1, Number = "MSA-2024-001", Name = "Master Services Agreement" },
-            new() { Id = 2, Number = "SOW-2024-001", Name = "ERP Implementation" },
-        };
-        projectManagers = new List<EmployeeOption>
-        {
-            new() { Id = 1, Name = "Alice Johnson" },
-            new() { Id = 2, Name = "Bob Smith" },
-        };
-        await Task.CompletedTask;
+            errorMessage = $"Failed to load reference data: {ex.Message}";
+            showErrorMessage = true;
+        }
     }
 
     private async Task LoadProject()
@@ -402,32 +414,39 @@
         isLoading = true;
         try
         {
-            await Task.Delay(500);
+            var projectDto = await Mediator!.Send(new GetProjectByIdQuery { ProjectId = Id });
+
             model = new ProjectFormModel
             {
-                ProjectNumber = "PRJ-2024-001",
-                Name = "ERP Implementation",
-                Description = "Full ERP system implementation including all core modules",
-                Type = "Billable",
-                Status = "Active",
-                ClientId = 1,
-                ContractId = 2,
-                ProjectManagerId = 1,
-                Priority = "High",
-                StartDate = DateTime.Now.AddMonths(-3),
-                EndDate = DateTime.Now.AddMonths(6),
-                BudgetedHours = 2000,
-                PercentComplete = 45,
-                BillingMode = "TimeAndMaterial",
-                BudgetAmount = 250000,
-                RevenueAmount = 250000,
-                CostCap = 275000,
+                ProjectNumber = projectDto.ProjectNumber,
+                Name = projectDto.Name,
+                Description = projectDto.Description,
+                Type = projectDto.ProjectType,
+                Status = projectDto.Status,
+                ClientId = projectDto.ClientId,
+                ContractId = null, // TODO: Load from project when available
+                ProjectManagerId = projectDto.ProjectManagerId,
+                Priority = "Normal", // TODO: Add priority to project entity
+                StartDate = projectDto.StartDate,
+                EndDate = projectDto.EndDate,
+                BudgetedHours = 0, // TODO: Calculate from WBS
+                PercentComplete = 0, // TODO: Calculate from WBS
+                BillingMode = projectDto.BillingMode,
+                BudgetAmount = projectDto.BudgetAmount ?? 0,
+                RevenueAmount = 0, // TODO: Calculate from invoices
+                CostCap = 0, // TODO: Add to project entity
                 AllowExpenses = true,
                 AllowTimeEntry = true,
                 RequireApproval = true,
                 TrackBudget = true,
-                Notes = "High priority project for key client"
+                Notes = projectDto.Notes
             };
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load project: {ex.Message}";
+            showErrorMessage = true;
+            model = null;
         }
         finally
         {
@@ -443,7 +462,28 @@
 
         try
         {
-            await Task.Delay(1000);
+            // Parse enums
+            var projectType = Enum.Parse<ProjectType>(model!.Type);
+            var billingMode = string.IsNullOrEmpty(model.BillingMode)
+                ? BillingMode.NonBillable
+                : Enum.Parse<BillingMode>(model.BillingMode);
+
+            var command = new UpdateProjectCommand
+            {
+                ProjectId = Id,
+                Name = model.Name,
+                Description = model.Description,
+                ProjectType = projectType,
+                BillingMode = billingMode,
+                StartDate = model.StartDate,
+                EndDate = model.EndDate,
+                BudgetAmount = model.BudgetAmount > 0 ? model.BudgetAmount : null,
+                BudgetCurrency = "USD",
+                ProjectManagerId = model.ProjectManagerId,
+                Notes = model.Notes
+            };
+
+            await Mediator!.Send(command);
             showSuccessMessage = true;
         }
         catch (Exception ex)
@@ -465,8 +505,14 @@
         isDeleting = true;
         try
         {
-            await Task.Delay(1500);
+            await Mediator!.Send(new DeleteProjectCommand { ProjectId = Id });
             NavigationManager?.NavigateTo("/pm/projects");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to delete project: {ex.Message}";
+            showErrorMessage = true;
+            showDeleteModal = false;
         }
         finally
         {

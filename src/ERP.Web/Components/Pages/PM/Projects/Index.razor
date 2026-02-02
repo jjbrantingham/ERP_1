@@ -1,4 +1,10 @@
 @page "/pm/projects"
+@using MediatR
+@using ERP.Application.PM.Queries
+@using ERP.Application.PM.Commands
+@using ERP.Application.PM.DTOs
+@using ERP.Application.CRM.Queries
+@using ERP.Application.CRM.DTOs
 
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumb -->
@@ -9,6 +15,13 @@
         <span class="mx-2">/</span>
         <span class="text-gray-900 font-medium">Projects</span>
     </nav>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <Alert Type="error" Dismissible="true" OnDismiss="() => errorMessage = null" Class="mb-4">
+            @errorMessage
+        </Alert>
+    }
 
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
@@ -206,6 +219,7 @@
 
 @code {
     [Inject] private NavigationManager? NavigationManager { get; set; }
+    [Inject] private IMediator? Mediator { get; set; }
 
     private bool isLoading = false;
     private bool isDeleting = false;
@@ -218,10 +232,12 @@
     private int totalItems = 0;
     private long deleteProjectId = 0;
     private string projectToDelete = string.Empty;
+    private string? errorMessage;
 
     private List<ProjectListItem>? allProjects;
     private List<ProjectListItem>? filteredProjects;
     private List<ClientOption> clients = new();
+    private Dictionary<long, string> clientNames = new();
 
     private class ProjectListItem
     {
@@ -254,42 +270,54 @@
     private async Task LoadData()
     {
         isLoading = true;
+        errorMessage = null;
         try
         {
-            await Task.Delay(500);
+            // Load clients for filter dropdown
+            var clientsResult = await Mediator!.Send(new GetAllClientsQuery { ActiveOnly = true });
+            clients = clientsResult.Select(c => new ClientOption { Id = c.Id, Name = c.Name }).ToList();
+            clientNames = clients.ToDictionary(c => c.Id, c => c.Name);
 
-            // Mock clients for filter
-            clients = new List<ClientOption>
+            // Load all projects
+            var projectsResult = await Mediator.Send(new GetAllProjectsQuery { ActiveOnly = false });
+            allProjects = projectsResult.Select(p => new ProjectListItem
             {
-                new() { Id = 1, Name = "Acme Corporation" },
-                new() { Id = 2, Name = "Global Industries" },
-                new() { Id = 3, Name = "Tech Solutions Inc" },
-                new() { Id = 4, Name = "Healthcare Plus" },
-                new() { Id = 5, Name = "Finance Pro" },
-            };
-
-            // Mock projects
-            allProjects = new List<ProjectListItem>
-            {
-                new() { Id = 1, ProjectNumber = "PRJ-2024-001", Name = "ERP Implementation", Description = "Full ERP system implementation for client", ClientId = 1, ClientName = "Acme Corporation", Type = "Billable", Status = "Active", Budget = 250000, BillingMode = "T&M", PercentComplete = 45, StartDate = DateTime.Now.AddMonths(-3), EndDate = DateTime.Now.AddMonths(6) },
-                new() { Id = 2, ProjectNumber = "PRJ-2024-002", Name = "Cloud Migration", Description = "Migrate on-premise infrastructure to Azure", ClientId = 2, ClientName = "Global Industries", Type = "Billable", Status = "Active", Budget = 150000, BillingMode = "Fixed Price", PercentComplete = 72, StartDate = DateTime.Now.AddMonths(-4), EndDate = DateTime.Now.AddMonths(2) },
-                new() { Id = 3, ProjectNumber = "PRJ-2024-003", Name = "Mobile App Development", Description = "iOS and Android app development", ClientId = 3, ClientName = "Tech Solutions Inc", Type = "Billable", Status = "OnHold", Budget = 180000, BillingMode = "Milestone", PercentComplete = 30, StartDate = DateTime.Now.AddMonths(-2), EndDate = DateTime.Now.AddMonths(8) },
-                new() { Id = 4, ProjectNumber = "PRJ-2024-004", Name = "Security Audit", Description = "Comprehensive security assessment", ClientId = 4, ClientName = "Healthcare Plus", Type = "Billable", Status = "Completed", Budget = 45000, BillingMode = "Fixed Price", PercentComplete = 100, StartDate = DateTime.Now.AddMonths(-6), EndDate = DateTime.Now.AddMonths(-1) },
-                new() { Id = 5, ProjectNumber = "PRJ-2024-005", Name = "Digital Transformation Proposal", Description = "Proposal for digital transformation initiative", ClientId = 5, ClientName = "Finance Pro", Type = "Proposal", Status = "Draft", Budget = 0, BillingMode = "TBD", PercentComplete = 0, StartDate = DateTime.Now, EndDate = null },
-                new() { Id = 6, ProjectNumber = "PRJ-2024-006", Name = "Internal Training Program", Description = "Staff development and training initiative", ClientId = 0, ClientName = "Internal", Type = "Overhead", Status = "Active", Budget = 25000, BillingMode = "N/A", PercentComplete = 60, StartDate = DateTime.Now.AddMonths(-1), EndDate = DateTime.Now.AddMonths(2) },
-                new() { Id = 7, ProjectNumber = "PRJ-2024-007", Name = "Data Analytics Platform", Description = "Build analytics and reporting platform", ClientId = 1, ClientName = "Acme Corporation", Type = "Billable", Status = "Active", Budget = 320000, BillingMode = "% Complete", PercentComplete = 25, StartDate = DateTime.Now.AddMonths(-1), EndDate = DateTime.Now.AddMonths(12) },
-                new() { Id = 8, ProjectNumber = "PRJ-2024-008", Name = "Legacy System Modernization", Description = "Modernize legacy COBOL systems", ClientId = 2, ClientName = "Global Industries", Type = "Billable", Status = "Draft", Budget = 500000, BillingMode = "T&M", PercentComplete = 5, StartDate = DateTime.Now.AddMonths(1), EndDate = DateTime.Now.AddMonths(18) },
-                new() { Id = 9, ProjectNumber = "PRJ-2024-009", Name = "Website Redesign", Description = "Corporate website refresh", ClientId = 3, ClientName = "Tech Solutions Inc", Type = "Billable", Status = "Cancelled", Budget = 35000, BillingMode = "Fixed Price", PercentComplete = 15, StartDate = DateTime.Now.AddMonths(-2), EndDate = null },
-                new() { Id = 10, ProjectNumber = "PRJ-2024-010", Name = "API Integration Hub", Description = "Enterprise API management platform", ClientId = 4, ClientName = "Healthcare Plus", Type = "Billable", Status = "Active", Budget = 175000, BillingMode = "Milestone", PercentComplete = 55, StartDate = DateTime.Now.AddMonths(-2), EndDate = DateTime.Now.AddMonths(4) },
-            };
+                Id = p.Id,
+                ProjectNumber = p.ProjectNumber,
+                Name = p.Name,
+                Description = p.Description,
+                ClientId = p.ClientId,
+                ClientName = clientNames.TryGetValue(p.ClientId, out var name) ? name : "Unknown",
+                Type = p.ProjectType,
+                Status = p.Status,
+                Budget = p.BudgetAmount ?? 0,
+                BillingMode = FormatBillingMode(p.BillingMode),
+                PercentComplete = 0, // TODO: Calculate from WBS when available
+                StartDate = p.StartDate,
+                EndDate = p.EndDate
+            }).ToList();
 
             ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load projects: {ex.Message}";
         }
         finally
         {
             isLoading = false;
         }
     }
+
+    private string FormatBillingMode(string mode) => mode switch
+    {
+        "TimeAndMaterials" => "T&M",
+        "FixedPrice" => "Fixed Price",
+        "Milestone" => "Milestone",
+        "PercentComplete" => "% Complete",
+        "NonBillable" => "N/A",
+        _ => mode
+    };
 
     private void ApplyFilters()
     {
@@ -372,10 +400,14 @@
         isDeleting = true;
         try
         {
-            await Task.Delay(1000);
+            await Mediator!.Send(new DeleteProjectCommand { ProjectId = deleteProjectId });
             allProjects?.RemoveAll(p => p.Id == deleteProjectId);
             ApplyFilters();
             showDeleteModal = false;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to delete project: {ex.Message}";
         }
         finally
         {

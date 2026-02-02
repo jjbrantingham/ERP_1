@@ -1,0 +1,265 @@
+@page "/pm/resource-allocations/create"
+@using MediatR
+@using ERP.Application.PM.Commands
+@using ERP.Application.PM.Queries
+@using ERP.Application.PM.DTOs
+@using ERP.Application.HR.Queries
+@using ERP.Application.HR.DTOs
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm text-gray-600 mb-4">
+        <a href="/" class="hover:text-teal-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/projects" class="hover:text-teal-600">Projects</a>
+        <span class="mx-2">/</span>
+        <a href="/pm/resource-allocations" class="hover:text-teal-600">Resource Allocations</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900 font-medium">New Allocation</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Allocate Resource to Project</h1>
+        <p class="mt-1 text-sm text-gray-600">Assign an employee to work on a project</p>
+    </div>
+
+    @if (showSuccessMessage)
+    {
+        <Alert Type="success" Dismissible="true" OnDismiss="() => showSuccessMessage = false" Class="mb-4">
+            Resource allocated successfully!
+        </Alert>
+    }
+
+    @if (showErrorMessage)
+    {
+        <Alert Type="error" Dismissible="true" OnDismiss="() => showErrorMessage = false" Class="mb-4">
+            @errorMessage
+        </Alert>
+    }
+
+    <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+
+        <!-- Allocation Details -->
+        <Card Class="mb-6">
+            <Header>
+                <h2 class="text-lg font-semibold text-gray-900">Allocation Details</h2>
+            </Header>
+            <Body>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField Label="Project" Required="true">
+                        <select @bind="model.ProjectId" class="form-input">
+                            <option value="">Select project...</option>
+                            @foreach (var project in projects)
+                            {
+                                <option value="@project.Id">@project.ProjectNumber - @project.Name</option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => model.ProjectId)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Employee" Required="true">
+                        <select @bind="model.EmployeeId" class="form-input">
+                            <option value="">Select employee...</option>
+                            @foreach (var employee in employees)
+                            {
+                                <option value="@employee.Id">@employee.FullName (@employee.EmployeeNumber)</option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => model.EmployeeId)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Role" Description="Employee's role in this project">
+                        <input type="text" @bind="model.Role" class="form-input" placeholder="e.g., Developer, Project Manager, Designer" />
+                        <ValidationMessage For="@(() => model.Role)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Allocated Hours per Week" Required="true" Description="Hours allocated to this project">
+                        <input type="number" @bind="model.AllocatedHoursPerWeek" class="form-input" min="0.5" max="168" step="0.5" placeholder="40" />
+                        <ValidationMessage For="@(() => model.AllocatedHoursPerWeek)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="Start Date" Required="true">
+                        <input type="date" @bind="model.StartDate" class="form-input" />
+                        <ValidationMessage For="@(() => model.StartDate)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <FormField Label="End Date" Description="Leave blank for ongoing allocation">
+                        <input type="date" @bind="model.EndDate" class="form-input" />
+                        <ValidationMessage For="@(() => model.EndDate)" class="text-sm text-red-600" />
+                    </FormField>
+
+                    <div class="md:col-span-2">
+                        <FormField Label="Notes" Description="Additional information about this allocation">
+                            <textarea @bind="model.Notes" class="form-input" rows="3" placeholder="Internal notes about this resource allocation..."></textarea>
+                            <ValidationMessage For="@(() => model.Notes)" class="text-sm text-red-600" />
+                        </FormField>
+                    </div>
+                </div>
+
+                @if (model.AllocatedHoursPerWeek > 40)
+                {
+                    <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-yellow-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <div>
+                                <h3 class="text-sm font-medium text-yellow-800">High Allocation Warning</h3>
+                                <p class="text-sm text-yellow-700 mt-1">
+                                    This allocation exceeds standard full-time hours (40 hrs/wk). Please verify this is correct.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </Body>
+        </Card>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end space-x-4">
+            <Button Variant="secondary" OnClick="Cancel" Type="button">Cancel</Button>
+            <Button Variant="primary" Type="submit" IsLoading="@isSaving" Disabled="@isSaving">
+                @(isSaving ? "Creating..." : "Create Allocation")
+            </Button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+    [Inject] private IMediator? Mediator { get; set; }
+
+    private AllocationFormModel model = new();
+    private bool isSaving = false;
+    private bool showSuccessMessage = false;
+    private bool showErrorMessage = false;
+    private string errorMessage = string.Empty;
+
+    private List<ProjectOption> projects = new();
+    private List<EmployeeOption> employees = new();
+
+    private class AllocationFormModel
+    {
+        [Required(ErrorMessage = "Project is required")]
+        [Range(1, long.MaxValue, ErrorMessage = "Please select a project")]
+        public long ProjectId { get; set; }
+
+        [Required(ErrorMessage = "Employee is required")]
+        [Range(1, long.MaxValue, ErrorMessage = "Please select an employee")]
+        public long EmployeeId { get; set; }
+
+        [MaxLength(100, ErrorMessage = "Role cannot exceed 100 characters")]
+        public string? Role { get; set; }
+
+        [Required(ErrorMessage = "Allocated hours per week is required")]
+        [Range(0.5, 168, ErrorMessage = "Hours must be between 0.5 and 168")]
+        public decimal AllocatedHoursPerWeek { get; set; } = 40;
+
+        [Required(ErrorMessage = "Start date is required")]
+        public DateTime StartDate { get; set; } = DateTime.Today;
+
+        public DateTime? EndDate { get; set; }
+
+        [MaxLength(1000, ErrorMessage = "Notes cannot exceed 1000 characters")]
+        public string? Notes { get; set; }
+    }
+
+    private class ProjectOption
+    {
+        public long Id { get; set; }
+        public string ProjectNumber { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+    }
+
+    private class EmployeeOption
+    {
+        public long Id { get; set; }
+        public string EmployeeNumber { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadReferenceData();
+    }
+
+    private async Task LoadReferenceData()
+    {
+        try
+        {
+            // Load active projects
+            var projectsResult = await Mediator!.Send(new GetAllProjectsQuery { ActiveOnly = true });
+            projects = projectsResult.Select(p => new ProjectOption
+            {
+                Id = p.Id,
+                ProjectNumber = p.ProjectNumber,
+                Name = p.Name
+            }).ToList();
+
+            // Load active employees
+            var employeesResult = await Mediator.Send(new GetAllEmployeesQuery { ActiveOnly = true });
+            employees = employeesResult.Select(e => new EmployeeOption
+            {
+                Id = e.Id,
+                EmployeeNumber = e.EmployeeNumber,
+                FullName = e.FullName
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load reference data: {ex.Message}";
+            showErrorMessage = true;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSaving = true;
+        showSuccessMessage = false;
+        showErrorMessage = false;
+
+        try
+        {
+            // Validate end date is after start date
+            if (model.EndDate.HasValue && model.EndDate.Value < model.StartDate)
+            {
+                errorMessage = "End date must be after start date";
+                showErrorMessage = true;
+                return;
+            }
+
+            var command = new CreateResourceAllocationCommand
+            {
+                ProjectId = model.ProjectId,
+                EmployeeId = model.EmployeeId,
+                StartDate = model.StartDate,
+                EndDate = model.EndDate,
+                AllocatedHoursPerWeek = model.AllocatedHoursPerWeek,
+                Role = model.Role,
+                Notes = model.Notes
+            };
+
+            var allocationId = await Mediator!.Send(command);
+
+            showSuccessMessage = true;
+            await Task.Delay(1000);
+            NavigationManager?.NavigateTo("/pm/resource-allocations");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to create allocation: {ex.Message}";
+            showErrorMessage = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager?.NavigateTo("/pm/resource-allocations");
+    }
+}

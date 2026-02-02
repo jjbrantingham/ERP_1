@@ -2,13 +2,14 @@ using ERP.Application.Common.Interfaces;
 using ERP.Application.Common.Security;
 using ERP.Application.HR.DTOs;
 using ERP.Domain.HR.Repositories;
+using MediatR;
 
 namespace ERP.Application.HR.Queries;
 
 /// <summary>
 /// Handler for GetAllEmployeesQuery.
 /// </summary>
-public class GetAllEmployeesQueryHandler : IQueryHandler<GetAllEmployeesQuery, IEnumerable<EmployeeDto>>
+public class GetAllEmployeesQueryHandler : IRequestHandler<GetAllEmployeesQuery, IEnumerable<EmployeeDto>>
 {
     private readonly IEmployeeRepository _employeeRepository;
     private readonly ICurrentUserService _currentUser;

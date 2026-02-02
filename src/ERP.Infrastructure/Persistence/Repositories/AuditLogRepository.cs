@@ -13,7 +13,7 @@ public class AuditLogRepository : Repository<AuditLog>, IAuditLogRepository
     {
     }
 
-    public async Task<AuditLog?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<AuditLog?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.AuditLogs
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);

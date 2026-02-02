@@ -10,7 +10,6 @@ namespace ERP.Domain.TE.Entities;
 /// </summary>
 public class ExpenseReport : AggregateRoot
 {
-    public long Id { get; private set; }
     public long EmployeeId { get; private set; }
     public string ReportNumber { get; private set; } = string.Empty;
     public string? Purpose { get; private set; }
@@ -26,11 +25,6 @@ public class ExpenseReport : AggregateRoot
 
     private readonly List<ExpenseItem> _items = new();
     public IReadOnlyCollection<ExpenseItem> Items => _items.AsReadOnly();
-
-    // Audit fields
-    public DateTime CreatedDate { get; private set; }
-    public DateTime? ModifiedDate { get; private set; }
-    public byte[]? RowVersion { get; private set; }
 
     private ExpenseReport() { } // EF Core
 

@@ -13,7 +13,7 @@ public class PaymentRepository : Repository<Payment>, IPaymentRepository
     {
     }
 
-    public async Task<Payment?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<Payment?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.Payments
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
@@ -27,7 +27,7 @@ public class PaymentRepository : Repository<Payment>, IPaymentRepository
             .FirstOrDefaultAsync(p => p.PaymentNumber == paymentNumber, cancellationToken);
     }
 
-    public async Task<IEnumerable<Payment>> GetAllAsync(CancellationToken cancellationToken = default)
+    public override async Task<IEnumerable<Payment>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Payments
             .OrderByDescending(p => p.PaymentDate)

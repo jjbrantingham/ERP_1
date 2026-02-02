@@ -11,7 +11,6 @@ namespace ERP.Domain.VM.Entities;
 /// </summary>
 public class Vendor : AggregateRoot
 {
-    public long Id { get; private set; }
     public VendorNumber VendorNumber { get; private set; } = null!;
     public string Name { get; private set; } = string.Empty;
     public VendorType VendorType { get; private set; }
@@ -40,11 +39,8 @@ public class Vendor : AggregateRoot
     public decimal? CreditLimit { get; private set; }
     public string? Notes { get; private set; }
 
-    // Audit fields
+    // Additional fields
     public bool IsActive { get; private set; }
-    public DateTime CreatedDate { get; private set; }
-    public DateTime? ModifiedDate { get; private set; }
-    public byte[]? RowVersion { get; private set; }
 
     private Vendor() { } // EF Core
 

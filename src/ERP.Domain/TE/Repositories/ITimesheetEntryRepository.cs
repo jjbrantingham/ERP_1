@@ -12,7 +12,7 @@ public interface ITimesheetEntryRepository : IRepository<TimesheetEntry>
     /// <summary>
     /// Get entry by ID.
     /// </summary>
-    Task<TimesheetEntry?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<TimesheetEntry?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get all entries for a timesheet.

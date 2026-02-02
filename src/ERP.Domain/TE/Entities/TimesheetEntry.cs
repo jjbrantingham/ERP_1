@@ -7,7 +7,6 @@ namespace ERP.Domain.TE.Entities;
 /// </summary>
 public class TimesheetEntry : AggregateRoot
 {
-    public long Id { get; private set; }
     public long TimesheetId { get; private set; }
     public long? ProjectId { get; private set; }
     public long? WBSItemId { get; private set; }
@@ -18,10 +17,6 @@ public class TimesheetEntry : AggregateRoot
 
     // Navigation property
     public Timesheet Timesheet { get; private set; } = null!;
-
-    // Audit fields
-    public DateTime CreatedDate { get; private set; }
-    public DateTime? ModifiedDate { get; private set; }
 
     private TimesheetEntry() { } // EF Core
 

@@ -14,7 +14,7 @@ public class JournalEntryRepository : Repository<JournalEntry>, IJournalEntryRep
     {
     }
 
-    public async Task<JournalEntry?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<JournalEntry?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.JournalEntries
             .Include(je => je.Lines)
@@ -31,7 +31,7 @@ public class JournalEntryRepository : Repository<JournalEntry>, IJournalEntryRep
             .FirstOrDefaultAsync(je => je.EntryNumber.Value == entryNumberValue, cancellationToken);
     }
 
-    public async Task<IEnumerable<JournalEntry>> GetAllAsync(CancellationToken cancellationToken = default)
+    public override async Task<IEnumerable<JournalEntry>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.JournalEntries
             .Include(je => je.Lines)

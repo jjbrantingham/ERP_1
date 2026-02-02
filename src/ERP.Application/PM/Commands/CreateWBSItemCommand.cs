@@ -1,10 +1,11 @@
-using ERP.Application.Common.Interfaces;
+using MediatR;
+
 namespace ERP.Application.PM.Commands;
 
 /// <summary>
 /// Command to create a new WBS item.
 /// </summary>
-public class CreateWBSItemCommand : ICommand<long>
+public class CreateWBSItemCommand : IRequest<long>
 {
     public long ProjectId { get; init; }
     public long? ParentId { get; init; }

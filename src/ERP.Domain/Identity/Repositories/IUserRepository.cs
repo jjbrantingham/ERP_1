@@ -12,7 +12,7 @@ public interface IUserRepository : IRepository<User>
     /// <summary>
     /// Gets a user by ID.
     /// </summary>
-    Task<User?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    new Task<User?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a user by username.

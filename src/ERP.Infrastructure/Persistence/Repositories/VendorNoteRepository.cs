@@ -15,7 +15,7 @@ public class VendorNoteRepository : Repository<VendorNote>, IVendorNoteRepositor
     {
     }
 
-    public async Task<VendorNote?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<VendorNote?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.VendorNotes
             .Include(n => n.Vendor)

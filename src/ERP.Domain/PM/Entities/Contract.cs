@@ -59,4 +59,38 @@ public class Contract : AggregateRoot
             CreatedDate = DateTime.UtcNow
         };
     }
+
+    public void Update(
+        string? title,
+        string? description,
+        Money? contractValue,
+        DateTime startDate,
+        DateTime endDate,
+        DateTime? signedDate,
+        string? terms)
+    {
+        if (endDate < startDate)
+            throw new ArgumentException("End date must be after start date", nameof(endDate));
+
+        Title = title?.Trim();
+        Description = description?.Trim();
+        ContractValue = contractValue;
+        StartDate = startDate;
+        EndDate = endDate;
+        SignedDate = signedDate;
+        Terms = terms?.Trim();
+        ModifiedDate = DateTime.UtcNow;
+    }
+
+    public void Activate()
+    {
+        IsActive = true;
+        ModifiedDate = DateTime.UtcNow;
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+        ModifiedDate = DateTime.UtcNow;
+    }
 }

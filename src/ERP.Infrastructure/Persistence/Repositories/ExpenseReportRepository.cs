@@ -11,7 +11,7 @@ public class ExpenseReportRepository : Repository<ExpenseReport>, IExpenseReport
 {
     public ExpenseReportRepository(ERPDbContext context) : base(context) { }
 
-    public async Task<ExpenseReport?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<ExpenseReport?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.ExpenseReports
             .Include(e => e.Items)

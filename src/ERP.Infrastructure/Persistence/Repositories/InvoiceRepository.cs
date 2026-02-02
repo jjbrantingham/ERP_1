@@ -14,7 +14,7 @@ public class InvoiceRepository : Repository<Invoice>, IInvoiceRepository
     {
     }
 
-    public async Task<Invoice?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<Invoice?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.Invoices
             .Include(i => i.LineItems)
@@ -31,7 +31,7 @@ public class InvoiceRepository : Repository<Invoice>, IInvoiceRepository
             .FirstOrDefaultAsync(i => i.InvoiceNumber.Value == invoiceNumberValue, cancellationToken);
     }
 
-    public async Task<IEnumerable<Invoice>> GetAllAsync(CancellationToken cancellationToken = default)
+    public override async Task<IEnumerable<Invoice>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Invoices
             .Include(i => i.LineItems)

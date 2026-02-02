@@ -18,8 +18,8 @@ public class ReportExportService : IReportExportService
     {
         return format switch
         {
-            ExportFormat.CSV => await ExportToCsvAsync<object>(data is IEnumerable<object> enumerable ? enumerable : new object[] { data }, true, cancellationToken),
-            ExportFormat.Excel => await ExportToExcelAsync<object>(data is IEnumerable<object> enumerable ? enumerable : new object[] { data }, reportTitle, true, cancellationToken),
+            ExportFormat.CSV => await ExportToCsvAsync<object>(data is IEnumerable<object> enumerable ? enumerable : new object[] { data! }, true, cancellationToken),
+            ExportFormat.Excel => await ExportToExcelAsync<object>(data is IEnumerable<object> enumerable ? enumerable : new object[] { data! }, reportTitle, true, cancellationToken),
             ExportFormat.PDF => await ExportToPdfAsync(ConvertToHtml(data, reportTitle), reportTitle, cancellationToken),
             _ => throw new ArgumentException($"Unsupported export format: {format}", nameof(format))
         };
@@ -189,7 +189,7 @@ public class ReportExportService : IReportExportService
                 html.AppendLine("</table>");
             }
         }
-        else
+        else if (data != null)
         {
             // Single object - display as key-value pairs
             var properties = data.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);

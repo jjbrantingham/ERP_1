@@ -16,7 +16,7 @@ public class VendorContactRepository : Repository<VendorContact>, IVendorContact
     {
     }
 
-    public async Task<VendorContact?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<VendorContact?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         return await _context.VendorContacts
             .Include(c => c.Vendor)
